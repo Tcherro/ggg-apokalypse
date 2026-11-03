@@ -1,0 +1,3118 @@
+{
+ "schaetzen": [
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Kölner Dom?",
+   "a": 157,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Eiffelturm (mit Antenne)?",
+   "a": 330,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Burj Khalifa in Dubai?",
+   "a": 828,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Mount Everest?",
+   "a": 8849,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist die Zugspitze?",
+   "a": 2962,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Berliner Fernsehturm?",
+   "a": 368,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie hoch ist der Brocken im Harz?",
+   "a": 1141,
+   "unit": "Meter",
+   "sub": "hoehe"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie lang ist ein Marathon?",
+   "a": 42195,
+   "unit": "Meter",
+   "sub": "sport"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Tasten hat ein Klavier?",
+   "a": 88,
+   "unit": "Tasten",
+   "sub": "natur"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Knochen hat ein erwachsener Mensch?",
+   "a": 206,
+   "unit": "Knochen",
+   "sub": "natur"
+  },
+  {
+   "cat": "allg",
+   "q": "In welchem Jahr fiel die Berliner Mauer?",
+   "a": 1989,
+   "unit": "",
+   "sub": "zeit"
+  },
+  {
+   "cat": "allg",
+   "q": "In welchem Jahr landeten die ersten Menschen auf dem Mond?",
+   "a": 1969,
+   "unit": "",
+   "sub": "zeit"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Stunden hat eine Woche?",
+   "a": 168,
+   "unit": "Stunden",
+   "sub": "zeit"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Tore schoss Gerd Müller insgesamt in der Bundesliga?",
+   "a": 365,
+   "unit": "Tore",
+   "sub": "sport"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Bundesliga-Tore schoss Robert Lewandowski in der Saison 2020/21?",
+   "a": 41,
+   "unit": "Tore",
+   "sub": "sport"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Zuschauer passen bei Bundesligaspielen in den Signal Iduna Park?",
+   "a": 81365,
+   "unit": "Zuschauer",
+   "sub": "sport"
+  },
+  {
+   "cat": "allg",
+   "q": "In welchem Jahr wurde das bayerische Reinheitsgebot erlassen?",
+   "a": 1516,
+   "unit": "",
+   "sub": "bier"
+  },
+  {
+   "cat": "allg",
+   "q": "In welchem Jahr fand das erste Oktoberfest statt?",
+   "a": 1810,
+   "unit": "",
+   "sub": "bier"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viel Prozent Alkohol hat Jägermeister?",
+   "a": 35,
+   "unit": "% vol.",
+   "sub": "bier"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viel Prozent Alkohol muss Wodka in der EU mindestens haben?",
+   "a": 37.5,
+   "unit": "% vol.",
+   "sub": "bier"
+  },
+  {
+   "cat": "allg",
+   "q": "In welchem Jahr startete die Fußball-Bundesliga?",
+   "a": 1963,
+   "unit": "",
+   "sub": "sport"
+  },
+  {
+   "cat": "allg",
+   "q": "Wie viele Kilometer Luftlinie sind es von Gevelsberg nach München?",
+   "a": 467,
+   "unit": "km",
+   "sub": "welt"
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Jahr erhielt Gevelsberg die Stadtrechte?",
+   "a": 1886,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Jahr wurde Milinchusen (das spätere Gevelsberg) erstmals urkundlich erwähnt?",
+   "a": 1096,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Einwohner hat Gevelsberg ungefähr?",
+   "a": 31000,
+   "unit": "Einwohner"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie groß ist das Stadtgebiet von Gevelsberg?",
+   "a": 26.27,
+   "unit": "km²"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie hoch ist der höchste Punkt Gevelsbergs, der Hageböllinger Kopf?",
+   "a": 336,
+   "unit": "Meter über NN"
+  },
+  {
+   "cat": "gev",
+   "q": "Seit welchem Jahr ist Vendôme Partnerstadt von Gevelsberg?",
+   "a": 1973,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Seit welchem Jahr ist Butera (Sizilien) Partnerstadt von Gevelsberg?",
+   "a": 2004,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Kilometer Luftlinie sind es von Gevelsberg nach Palma de Mallorca?",
+   "a": 1356,
+   "unit": "km"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Kilometer Luftlinie sind es von Gevelsberg zum Kölner Dom?",
+   "a": 49,
+   "unit": "km"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Kilometer Luftlinie sind es von Gevelsberg zum Signal Iduna Park?",
+   "a": 21,
+   "unit": "km"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Gevelsberger haben laut Stadt ihre Wurzeln in Butera und Umgebung (ungefähr)?",
+   "a": 1000,
+   "unit": "Personen"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die längste Rolltreppe der Welt, der Central–Mid-Levels Escalator in Hongkong?",
+   "a": 800,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die längste Rolltreppe Deutschlands, die \"Tube\" in der Elbphilharmonie?",
+   "a": 82,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie viele Stufen führen auf den Südturm des Kölner Doms?",
+   "a": 533,
+   "unit": "Stufen"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Chinesische Mauer mit allen Abschnitten?",
+   "a": 21196,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist der Gotthard-Basistunnel?",
+   "a": 57,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Maß Bier wurden auf dem Oktoberfest 2025 ausgeschenkt?",
+   "a": 6.5,
+   "unit": "Millionen Maß"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Besucher kamen 2023 zur Rekord-Wiesn?",
+   "a": 7.2,
+   "unit": "Millionen"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Maßkrüge wurden 2025 auf der Wiesn Langfingern wieder abgenommen?",
+   "a": 116000,
+   "unit": "Krüge"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Brauereien gab es 2025 in Deutschland?",
+   "a": 1415,
+   "unit": "Brauereien"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Liter Bier trank jeder Deutsche 2025 im Schnitt (vorläufiger Wert)?",
+   "a": 84,
+   "unit": "Liter"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Milliarden Liter Bier verkauften deutsche Brauereien 2025?",
+   "a": 7.8,
+   "unit": "Mrd. Liter"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Kalorien hat ein halber Liter Pils ungefähr?",
+   "a": 210,
+   "unit": "kcal"
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde Coca-Cola erfunden?",
+   "a": 1886,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr kam das erste iPhone auf den Markt?",
+   "a": 2007,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "In welcher Minute schoss Mario Götze das Siegtor im WM-Finale 2014?",
+   "a": 113,
+   "unit": "Minute"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Tore fielen im WM-Halbfinale Brasilien gegen Deutschland 2014 insgesamt?",
+   "a": 8,
+   "unit": "Tore"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Sekunden brauchte Usain Bolt für den 100-m-Weltrekord?",
+   "a": 9.58,
+   "unit": "Sekunden"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie lang ist ein Fußballfeld nach FIFA-Empfehlung?",
+   "a": 105,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie hoch hängt ein Basketballkorb?",
+   "a": 3.05,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Zuschauer passen ungefähr in die Allianz Arena?",
+   "a": 75000,
+   "unit": "Zuschauer"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie schwer darf eine Bowlingkugel höchstens sein?",
+   "a": 7.26,
+   "unit": "kg"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Kegel stehen beim Bowling?",
+   "a": 10,
+   "unit": "Kegel"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Minuten dauert die Halbzeitpause in der Bundesliga?",
+   "a": 15,
+   "unit": "Minuten"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Sterne hat die Europaflagge?",
+   "a": 12,
+   "unit": "Sterne"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Streifen hat die US-Flagge?",
+   "a": 13,
+   "unit": "Streifen"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Länder grenzen an Deutschland?",
+   "a": 9,
+   "unit": "Länder"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Bundesländer grenzen an NRW?",
+   "a": 3,
+   "unit": "Bundesländer"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Menschen leben auf der Erde (2025)?",
+   "a": 8.2,
+   "unit": "Milliarden"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie weit ist der Mond im Schnitt von der Erde entfernt?",
+   "a": 384400,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie lang ist der Erdumfang am Äquator?",
+   "a": 40075,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Herzen hat ein Oktopus?",
+   "a": 3,
+   "unit": "Herzen"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Magenabschnitte hat eine Kuh?",
+   "a": 4,
+   "unit": "Abschnitte"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie schnell sprintet ein Gepard ungefähr?",
+   "a": 110,
+   "unit": "km/h"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Liter Blut hat ein Erwachsener ungefähr?",
+   "a": 5,
+   "unit": "Liter"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Knochen hat eine menschliche Hand?",
+   "a": 27,
+   "unit": "Knochen"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Erdtage dauert ein Jahr auf dem Mars?",
+   "a": 687,
+   "unit": "Tage"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Partnerstädte hat Gevelsberg?",
+   "a": 3,
+   "unit": "Städte"
+  },
+  {
+   "cat": "gev",
+   "q": "Aus wie vielen Gemarkungen (Asbeck, Berge, ...) besteht Gevelsberg?",
+   "a": 4,
+   "unit": "Gemarkungen"
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Jahr wurde die Gemeinde Mylinghausen in \"Gevelsberg\" umbenannt?",
+   "a": 1867,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Jahr wuchs Gevelsberg durch die Gebietsreform auf 26,27 km²?",
+   "a": 1970,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Seit welchem Jahr ist Sprottau (Polen) Partnerstadt von Gevelsberg?",
+   "a": 1996,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Kilometer misst Gevelsberg maximal von West nach Ost?",
+   "a": 7.15,
+   "unit": "km"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Meter Höhenunterschied gibt es ungefähr im Gevelsberger Stadtgebiet?",
+   "a": 200,
+   "unit": "Meter"
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Jahr wurde Bergbau in Silschede erstmals urkundlich belegt?",
+   "a": 1641,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist das Empire State Building bis zum Dach?",
+   "a": 381,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist die Freiheitsstatue inklusive Sockel?",
+   "a": 93,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Uhrturm des Big Ben (Elizabeth Tower)?",
+   "a": 96,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Kilimandscharo?",
+   "a": 5895,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Turm des Ulmer Münsters, der höchste Kirchturm der Welt?",
+   "a": 161.5,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Feldberg im Schwarzwald?",
+   "a": 1493,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Kahle Asten im Sauerland?",
+   "a": 841,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist das Brandenburger Tor?",
+   "a": 26,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie hoch ist der Tokyo Skytree?",
+   "a": 634,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "hoehe",
+   "q": "Wie tief ist der Marianengraben ungefähr?",
+   "a": 11000,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Donau ungefähr?",
+   "a": 2850,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist der Nil ungefähr?",
+   "a": 6650,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Golden Gate Bridge insgesamt?",
+   "a": 2737,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Nürburgring-Nordschleife?",
+   "a": 20.8,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist der Eurotunnel unter dem Ärmelkanal ungefähr?",
+   "a": 50,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Transsibirische Eisenbahn von Moskau nach Wladiwostok?",
+   "a": 9288,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "rekord",
+   "q": "Wie lang ist die Wuppertaler Schwebebahn-Strecke?",
+   "a": 13.3,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie oft wurden die deutschen Männer Fußball-Weltmeister?",
+   "a": 4,
+   "unit": "Titel"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "In welchem Jahr wurde Deutschland zum ersten Mal Fußball-Weltmeister?",
+   "a": 1954,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Spieler pro Team stehen beim Handball auf dem Feld?",
+   "a": 7,
+   "unit": "Spieler"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Löcher hat ein Standard-Golfplatz?",
+   "a": 18,
+   "unit": "Löcher"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Etappen hat die Tour de France normalerweise?",
+   "a": 21,
+   "unit": "Etappen"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie lang ist ein Halbmarathon?",
+   "a": 21.1,
+   "unit": "km"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Ringe hat die olympische Flagge?",
+   "a": 5,
+   "unit": "Ringe"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie hoch ist ein Fußballtor?",
+   "a": 2.44,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie breit ist ein Fußballtor?",
+   "a": 7.32,
+   "unit": "Meter"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie schwer ist die Kugel beim Kugelstoßen der Männer?",
+   "a": 7.26,
+   "unit": "kg"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Minuten reine Spielzeit hat ein Eishockeyspiel?",
+   "a": 60,
+   "unit": "Minuten"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Punkte bringt ein Touchdown im American Football?",
+   "a": 6,
+   "unit": "Punkte"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "In welchem Jahr wurde Borussia Dortmund gegründet?",
+   "a": 1909,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "In welchem Jahr wurde der FC Schalke 04 gegründet?",
+   "a": 1904,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "In welchem Jahr gewann Borussia Dortmund die Champions League?",
+   "a": 1997,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Länderspiele bestritt Rekordnationalspieler Lothar Matthäus?",
+   "a": 150,
+   "unit": "Spiele"
+  },
+  {
+   "cat": "allg",
+   "sub": "sport",
+   "q": "Wie viele Länderspieltore schoss Miroslav Klose?",
+   "a": 71,
+   "unit": "Tore"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viel Alkohol hat ein typisches deutsches Pils ungefähr?",
+   "a": 4.9,
+   "unit": "% vol."
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viel kostete eine Maß auf der Wiesn 2025 höchstens?",
+   "a": 15.8,
+   "unit": "Euro"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Hektoliter Bier flossen beim Wiesn-Rekord 2011?",
+   "a": 79225,
+   "unit": "Hektoliter"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Fundsachen landeten 2025 im Wiesn-Fundbüro?",
+   "a": 4500,
+   "unit": "Fundsachen"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Tonnen Müll hinterließ die Wiesn 2025?",
+   "a": 764,
+   "unit": "Tonnen"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Plätze hat das Hofbräu-Festzelt auf der Wiesn ungefähr?",
+   "a": 10000,
+   "unit": "Plätze"
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "In welchem Jahr wurde die Guinness-Brauerei in Dublin gegründet?",
+   "a": 1759,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "In welchem Jahr wurde in Pilsen das erste Pils gebraut?",
+   "a": 1842,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "bier",
+   "q": "Wie viele Prozent Alkohol muss Ouzo in der EU mindestens haben?",
+   "a": 37.5,
+   "unit": "% vol."
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde die Bundesrepublik Deutschland gegründet?",
+   "a": 1949,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde der Euro als Bargeld eingeführt?",
+   "a": 2002,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr schloss mit Prosper-Haniel die letzte Steinkohlenzeche im Ruhrgebiet?",
+   "a": 2018,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde Google gegründet?",
+   "a": 1998,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr sank die Titanic?",
+   "a": 1912,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr erschien der erste Harry-Potter-Band im Original?",
+   "a": 1997,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr war die deutsche Wiedervereinigung?",
+   "a": 1990,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde der Kölner Dom fertiggestellt?",
+   "a": 1880,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr erfand Herta Heuwer in Berlin die Currywurst?",
+   "a": 1949,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "zeit",
+   "q": "In welchem Jahr wurde die Berliner Mauer gebaut?",
+   "a": 1961,
+   "unit": ""
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Beine hat eine Spinne?",
+   "a": 8,
+   "unit": "Beine"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Zähne hat ein erwachsener Hund?",
+   "a": 42,
+   "unit": "Zähne"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie schwer ist ein menschliches Gehirn ungefähr?",
+   "a": 1.4,
+   "unit": "kg"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Haare hat ein Mensch ungefähr auf dem Kopf?",
+   "a": 100000,
+   "unit": "Haare"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viel Prozent des Körpers eines Erwachsenen bestehen ungefähr aus Wasser?",
+   "a": 60,
+   "unit": "%"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Augen hat eine Honigbiene?",
+   "a": 5,
+   "unit": "Augen"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Stunden schläft ein Koala ungefähr pro Tag?",
+   "a": 20,
+   "unit": "Stunden"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie schnell wird ein Wanderfalke im Sturzflug ungefähr?",
+   "a": 320,
+   "unit": "km/h"
+  },
+  {
+   "cat": "allg",
+   "sub": "natur",
+   "q": "Wie viele Tage dauert eine Elefanten-Schwangerschaft ungefähr?",
+   "a": 640,
+   "unit": "Tage"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Einwohner hat Deutschland ungefähr?",
+   "a": 83.6,
+   "unit": "Millionen"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Einwohner hat Nordrhein-Westfalen ungefähr?",
+   "a": 18.1,
+   "unit": "Millionen"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Einwohner hat Dortmund ungefähr?",
+   "a": 600000,
+   "unit": "Einwohner"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Mitgliedsstaaten hat die EU?",
+   "a": 27,
+   "unit": "Staaten"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Bundesstaaten haben die USA?",
+   "a": 50,
+   "unit": "Staaten"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Kantone hat die Schweiz?",
+   "a": 26,
+   "unit": "Kantone"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Zeitzonen hat Russland?",
+   "a": 11,
+   "unit": "Zeitzonen"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Staaten liegen in Afrika?",
+   "a": 54,
+   "unit": "Staaten"
+  },
+  {
+   "cat": "allg",
+   "sub": "welt",
+   "q": "Wie viele Bundesländer hat Österreich?",
+   "a": 9,
+   "unit": "Bundesländer"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele farbige Felder hat ein klassischer 3x3-Zauberwürfel?",
+   "a": 54,
+   "unit": "Felder"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele Felder hat ein Monopoly-Spielbrett?",
+   "a": 40,
+   "unit": "Felder"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele Karten hat ein Pokerblatt ohne Joker?",
+   "a": 52,
+   "unit": "Karten"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele Steine hat ein Standard-Dominospiel?",
+   "a": 28,
+   "unit": "Steine"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Mit wie vielen Figuren startet jeder Spieler beim Schach?",
+   "a": 16,
+   "unit": "Figuren"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele Spielfiguren hat jeder Spieler bei \"Mensch ärgere Dich nicht\"?",
+   "a": 4,
+   "unit": "Figuren"
+  },
+  {
+   "cat": "allg",
+   "sub": "fun",
+   "q": "Wie viele Felder hat ein Damebrett (international, 10x10)?",
+   "a": 100,
+   "unit": "Felder"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie hoch liegt der tiefste Punkt Gevelsbergs, die Ennepe bei Vogelsang?",
+   "a": 131.5,
+   "unit": "Meter über NN"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie groß war Gevelsberg vor der Gebietsreform 1970?",
+   "a": 11.26,
+   "unit": "km²"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Kilometer misst Gevelsberg maximal von Nord nach Süd?",
+   "a": 7.1,
+   "unit": "km"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele S-Bahn-Haltepunkte hat Gevelsberg an der Strecke Hagen–Wuppertal?",
+   "a": 4,
+   "unit": "Haltepunkte"
+  },
+  {
+   "cat": "gev",
+   "q": "Um welches Jahr wurde das Kloster Gevelsberg gegründet?",
+   "a": 1230,
+   "unit": ""
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Einwohner hatte Gevelsberg Ende 2007?",
+   "a": 32263,
+   "unit": "Einwohner"
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Einwohner hatte Gevelsberg Ende 1994?",
+   "a": 33815,
+   "unit": "Einwohner"
+  }
+ ],
+ "auswahl": [
+  {
+   "cat": "gev",
+   "q": "In welchem Kreis liegt Gevelsberg?",
+   "o": [
+    "Ennepe-Ruhr-Kreis",
+    "Märkischer Kreis",
+    "Kreis Mettmann",
+    "Hochsauerlandkreis"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welcher Fluss fließt durch Gevelsberg?",
+   "o": [
+    "Ennepe",
+    "Ruhr",
+    "Wupper",
+    "Volme"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche Stadt ist KEINE Partnerstadt von Gevelsberg?",
+   "o": [
+    "Palma de Mallorca",
+    "Vendôme",
+    "Butera",
+    "Sprottau"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Land liegt die Partnerstadt Vendôme?",
+   "o": [
+    "Frankreich",
+    "Italien",
+    "Belgien",
+    "Polen"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Auf welcher Insel liegt die Partnerstadt Butera?",
+   "o": [
+    "Sizilien",
+    "Sardinien",
+    "Korsika",
+    "Mallorca"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welches Kfz-Kennzeichen haben Autos aus Gevelsberg?",
+   "o": [
+    "EN",
+    "GE",
+    "HA",
+    "SW"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wann findet die Gevelsberger Kirmes traditionell statt?",
+   "o": [
+    "Am letzten Juni-Wochenende",
+    "Am ersten Mai-Wochenende",
+    "Mitte August",
+    "Anfang Oktober"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wer verlieh Gevelsberg 1886 die Stadtrechte?",
+   "o": [
+    "Kaiser Wilhelm I.",
+    "Otto von Bismarck",
+    "Kaiser Wilhelm II.",
+    "Friedrich der Große"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche Autobahn führt an Gevelsberg vorbei?",
+   "o": [
+    "A1",
+    "A3",
+    "A40",
+    "A45"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welcher Stadtteil gehört zu Gevelsberg?",
+   "o": [
+    "Silschede",
+    "Haspe",
+    "Voerde",
+    "Milspe"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche Stadt grenzt NICHT direkt an Gevelsberg?",
+   "o": [
+    "Wuppertal",
+    "Schwelm",
+    "Hagen",
+    "Ennepetal"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Was wurde um 1230 in Gevelsberg gegründet?",
+   "o": [
+    "Ein Zisterzienserinnenkloster",
+    "Eine Brauerei",
+    "Eine Burg",
+    "Ein Bergwerk"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche Telefonvorwahl hat Gevelsberg?",
+   "o": [
+    "02332",
+    "0231",
+    "02331",
+    "0202"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wie heißt die Kreisstadt des Kreises, zu dem Gevelsberg gehört?",
+   "o": [
+    "Schwelm",
+    "Gevelsberg",
+    "Hagen",
+    "Witten"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche Postleitzahl hat Gevelsberg?",
+   "o": [
+    "58285",
+    "58095",
+    "58332",
+    "44137"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer wurde 1964 erster Meister der Bundesliga?",
+   "o": [
+    "1. FC Köln",
+    "FC Bayern München",
+    "Borussia Dortmund",
+    "Hamburger SV"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "In welchem Jahr startete die Bundesliga?",
+   "o": [
+    "1963",
+    "1954",
+    "1971",
+    "1949"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer ist Rekordtorschütze der Bundesliga?",
+   "o": [
+    "Gerd Müller",
+    "Robert Lewandowski",
+    "Klaus Fischer",
+    "Jupp Heynckes"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie viele Spieltage hat eine Bundesliga-Saison?",
+   "o": [
+    "34",
+    "30",
+    "38",
+    "36"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie heißt das Stadion von Borussia Dortmund offiziell?",
+   "o": [
+    "Signal Iduna Park",
+    "Veltins-Arena",
+    "Allianz Arena",
+    "RheinEnergieStadion"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer gewann 1978 mit 12:0 gegen Dortmund, den höchsten Bundesliga-Sieg?",
+   "o": [
+    "Borussia Mönchengladbach",
+    "FC Bayern München",
+    "Werder Bremen",
+    "FC Schalke 04"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer hat die meisten Bundesliga-Einsätze?",
+   "o": [
+    "Karl-Heinz Körbel",
+    "Oliver Kahn",
+    "Manfred Kaltz",
+    "Klaus Fichtel"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein trägt den Spitznamen \"Die Knappen\"?",
+   "o": [
+    "FC Schalke 04",
+    "VfL Bochum",
+    "Borussia Dortmund",
+    "MSV Duisburg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher \"Bundesliga-Dino\" stieg 2018 erstmals ab?",
+   "o": [
+    "Hamburger SV",
+    "1. FC Köln",
+    "VfB Stuttgart",
+    "Werder Bremen"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie viele Vereine steigen direkt aus der Bundesliga ab?",
+   "o": [
+    "2",
+    "3",
+    "1",
+    "4"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "In welchem Stadion spielt der FC Schalke 04?",
+   "o": [
+    "Veltins-Arena",
+    "Signal Iduna Park",
+    "Vonovia Ruhrstadion",
+    "Weserstadion"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer schoss in der Saison 2020/21 41 Bundesliga-Tore?",
+   "o": [
+    "Robert Lewandowski",
+    "Erling Haaland",
+    "André Silva",
+    "Harry Kane"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein spielt im Weserstadion?",
+   "o": [
+    "Werder Bremen",
+    "Hamburger SV",
+    "Hannover 96",
+    "VfL Wolfsburg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie viele Mannschaften spielen in der Bundesliga?",
+   "o": [
+    "18",
+    "20",
+    "16",
+    "22"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie heißt das Derby zwischen Dortmund und Schalke?",
+   "o": [
+    "Revierderby",
+    "Nordderby",
+    "Rheinderby",
+    "Ruhrpott-Clasico"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Jahr stammt das bayerische Reinheitsgebot?",
+   "o": [
+    "1516",
+    "1616",
+    "1871",
+    "1810"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wo wird Jägermeister hergestellt?",
+   "o": [
+    "Wolfenbüttel",
+    "Wolfsburg",
+    "Warstein",
+    "Würzburg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welches Bier ist die traditionelle Spezialität aus Düsseldorf?",
+   "o": [
+    "Altbier",
+    "Kölsch",
+    "Pils",
+    "Weizen"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Woraus wird Tequila hergestellt?",
+   "o": [
+    "Blaue Agave",
+    "Zuckerrohr",
+    "Kartoffeln",
+    "Mais"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Woraus wird Rum gebrannt?",
+   "o": [
+    "Zuckerrohr bzw. Melasse",
+    "Agave",
+    "Weizen",
+    "Weintrauben"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welcher ist der größte Brauereikonzern der Welt?",
+   "o": [
+    "AB InBev",
+    "Heineken",
+    "Carlsberg",
+    "Radeberger"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welcher Stadt stammt Guinness?",
+   "o": [
+    "Dublin",
+    "Cork",
+    "Belfast",
+    "London"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wo hat die Brauerei Krombacher ihren Sitz?",
+   "o": [
+    "Kreuztal (Siegerland)",
+    "Warstein",
+    "Meschede-Grevenstein",
+    "Bitburg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wo wird Veltins gebraut?",
+   "o": [
+    "Meschede-Grevenstein",
+    "Warstein",
+    "Dortmund",
+    "Kreuztal"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Land stammt Heineken?",
+   "o": [
+    "Niederlande",
+    "Belgien",
+    "Dänemark",
+    "Deutschland"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "In welcher Stadt wurde 1842 das erste Pils gebraut?",
+   "o": [
+    "Pilsen",
+    "Prag",
+    "München",
+    "Dortmund"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wie viel Weizenmalz muss ein Weizenbier in Deutschland mindestens enthalten?",
+   "o": [
+    "50 %",
+    "25 %",
+    "75 %",
+    "100 %"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was ist Ouzo?",
+   "o": [
+    "Anisschnaps aus Griechenland",
+    "Kräuterlikör aus Italien",
+    "Wodka aus Polen",
+    "Rum aus Kuba"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welcher Schaumwein darf nur aus einer bestimmten französischen Region kommen?",
+   "o": [
+    "Champagner",
+    "Cava",
+    "Prosecco",
+    "Sekt"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welche Region ist das größte Hopfenanbaugebiet der Welt?",
+   "o": [
+    "Hallertau",
+    "Tettnang",
+    "Spalt",
+    "Elbe-Saale"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wie viel passt in einen Maßkrug?",
+   "o": [
+    "1 Liter",
+    "0,5 Liter",
+    "1,5 Liter",
+    "2 Liter"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Seit wann gibt es das Oktoberfest?",
+   "o": [
+    "1810",
+    "1516",
+    "1871",
+    "1906"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wurde 2024 erstmals Deutscher Meister?",
+   "o": [
+    "Bayer 04 Leverkusen",
+    "VfB Stuttgart",
+    "RB Leipzig",
+    "Eintracht Frankfurt"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer trainierte Leverkusen beim ersten Meistertitel 2024?",
+   "o": [
+    "Xabi Alonso",
+    "Jürgen Klopp",
+    "Julian Nagelsmann",
+    "Edin Terzić"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein hat die meisten deutschen Meistertitel?",
+   "o": [
+    "FC Bayern München",
+    "Borussia Dortmund",
+    "1. FC Nürnberg",
+    "FC Schalke 04"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Fohlen\" genannt?",
+   "o": [
+    "Borussia Mönchengladbach",
+    "Hertha BSC",
+    "VfL Bochum",
+    "Eintracht Frankfurt"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Geißböcke\" genannt?",
+   "o": [
+    "1. FC Köln",
+    "SC Freiburg",
+    "FC Augsburg",
+    "1. FSV Mainz 05"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Zebras\" genannt?",
+   "o": [
+    "MSV Duisburg",
+    "Rot-Weiss Essen",
+    "Arminia Bielefeld",
+    "SC Paderborn"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Roten Teufel\" genannt?",
+   "o": [
+    "1. FC Kaiserslautern",
+    "SC Freiburg",
+    "Fortuna Düsseldorf",
+    "FC Ingolstadt"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Eisernen\" genannt?",
+   "o": [
+    "1. FC Union Berlin",
+    "Hertha BSC",
+    "Hannover 96",
+    "Dynamo Dresden"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Wölfe\" genannt?",
+   "o": [
+    "VfL Wolfsburg",
+    "VfL Osnabrück",
+    "Holstein Kiel",
+    "FC St. Pauli"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Die Lilien\" genannt?",
+   "o": [
+    "SV Darmstadt 98",
+    "Karlsruher SC",
+    "SV Sandhausen",
+    "1. FC Heidenheim"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein wird \"Der Club\" genannt?",
+   "o": [
+    "1. FC Nürnberg",
+    "1. FC Köln",
+    "Hamburger SV",
+    "TSV 1860 München"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie heißt das Biene-Maskottchen von Borussia Dortmund?",
+   "o": [
+    "Emma",
+    "Berni",
+    "Hennes",
+    "Fritzle"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "In welchem Stadion spielt der FC St. Pauli?",
+   "o": [
+    "Millerntor-Stadion",
+    "Volksparkstadion",
+    "Weserstadion",
+    "Stadion an der Alten Försterei"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer erzielte im Champions-League-Finale 1997 das legendäre Heber-Tor zum 3:1 für Dortmund?",
+   "o": [
+    "Lars Ricken",
+    "Karl-Heinz Riedle",
+    "Andreas Möller",
+    "Stéphane Chapuisat"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Welcher Verein gewann 2013 das Triple?",
+   "o": [
+    "FC Bayern München",
+    "Borussia Dortmund",
+    "VfL Wolfsburg",
+    "Schalke 04"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "In welchem Stadion fand 2013 das Champions-League-Finale Bayern gegen Dortmund statt?",
+   "o": [
+    "Wembley-Stadion",
+    "Allianz Arena",
+    "Camp Nou",
+    "Stade de France"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer ist Rekordnationalspieler der deutschen Männer?",
+   "o": [
+    "Lothar Matthäus",
+    "Thomas Müller",
+    "Miroslav Klose",
+    "Manuel Neuer"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer ist Rekordtorschütze der deutschen Nationalmannschaft?",
+   "o": [
+    "Miroslav Klose",
+    "Gerd Müller",
+    "Thomas Müller",
+    "Rudi Völler"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie viele Punkte gibt es in der Bundesliga für einen Sieg?",
+   "o": [
+    "3",
+    "2",
+    "4",
+    "1"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie viele Auswechslungen sind pro Team in einem Bundesligaspiel erlaubt?",
+   "o": [
+    "5",
+    "3",
+    "4",
+    "6"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wie heißt die Trophäe für den deutschen Meister?",
+   "o": [
+    "Meisterschale",
+    "Meisterpokal",
+    "Viktoria",
+    "Goldener Ball"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "buli",
+   "q": "Wer wurde im Dezember 2020 mit 16 Jahren jüngster Bundesliga-Torschütze?",
+   "o": [
+    "Youssoufa Moukoko",
+    "Jamal Musiala",
+    "Florian Wirtz",
+    "Kai Havertz"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Woraus wird Wodka traditionell hergestellt?",
+   "o": [
+    "Getreide oder Kartoffeln",
+    "Agave",
+    "Zuckerrohr",
+    "Weintrauben"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was gibt Gin seinen typischen Geschmack?",
+   "o": [
+    "Wacholder",
+    "Anis",
+    "Kümmel",
+    "Zimt"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Woraus wird Cognac gebrannt?",
+   "o": [
+    "Wein aus Trauben",
+    "Äpfeln",
+    "Gerste",
+    "Zuckerrohr"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Land stammt Sake?",
+   "o": [
+    "Japan",
+    "China",
+    "Korea",
+    "Thailand"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was ist Grappa?",
+   "o": [
+    "Ein Tresterbrand aus Italien",
+    "Ein Kräuterlikör aus Spanien",
+    "Ein Rum aus Portugal",
+    "Ein Bier aus Griechenland"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Land stammt Tequila?",
+   "o": [
+    "Mexiko",
+    "Spanien",
+    "Kuba",
+    "Brasilien"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was ist ein Radler?",
+   "o": [
+    "Bier mit Limonade",
+    "Bier mit Cola",
+    "Wein mit Wasser",
+    "Sekt mit Saft"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was ist im Ruhrpott-Klassiker \"Diesel\"?",
+   "o": [
+    "Bier mit Cola",
+    "Bier mit Limonade",
+    "Korn mit Cola",
+    "Wein mit Cola"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welche Spirituose gehört in eine Caipirinha?",
+   "o": [
+    "Cachaça",
+    "Wodka",
+    "Tequila",
+    "Gin"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welche Spirituose gehört in einen klassischen Mojito?",
+   "o": [
+    "Weißer Rum",
+    "Gin",
+    "Wodka",
+    "Whisky"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was kommt neben Aperol in einen Aperol Spritz?",
+   "o": [
+    "Prosecco und Soda",
+    "Bier und Limette",
+    "Gin und Tonic",
+    "Cola und Eis"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welcher Stadt stammt Beck's?",
+   "o": [
+    "Bremen",
+    "Hamburg",
+    "Kiel",
+    "Hannover"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Land kommt Pilsner Urquell?",
+   "o": [
+    "Tschechien",
+    "Deutschland",
+    "Österreich",
+    "Polen"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Wofür steht DAB?",
+   "o": [
+    "Dortmunder Actien-Brauerei",
+    "Deutsche Alt-Brauerei",
+    "Duisburger Arbeiter-Bier",
+    "Dortmunder Arena-Bräu"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Für welchen Bierstil war Dortmund früher weltberühmt?",
+   "o": [
+    "Export",
+    "Kölsch",
+    "Weizen",
+    "Rauchbier"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welcher Stadt stammt das berühmte Rauchbier (Schlenkerla)?",
+   "o": [
+    "Bamberg",
+    "Bayreuth",
+    "Würzburg",
+    "Regensburg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Welche vier Zutaten erlaubt das Reinheitsgebot heute?",
+   "o": [
+    "Wasser, Malz, Hopfen, Hefe",
+    "Wasser, Malz, Zucker, Hefe",
+    "Wasser, Gerste, Hopfen, Honig",
+    "Wasser, Weizen, Mais, Hefe"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Woraus wird schottischer Single Malt Whisky gebrannt?",
+   "o": [
+    "Gemälzte Gerste",
+    "Mais",
+    "Roggen",
+    "Kartoffeln"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Aus welchem Land stammt Bourbon Whiskey?",
+   "o": [
+    "USA",
+    "Schottland",
+    "Irland",
+    "Kanada"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "alk",
+   "q": "Was ist Kirschwasser?",
+   "o": [
+    "Ein Obstbrand aus Kirschen",
+    "Kirschsaft mit Sprudel",
+    "Ein Kirschlikör mit Sahne",
+    "Ein Kirschbier aus Belgien"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welche S-Bahn-Linie hält in Gevelsberg?",
+   "o": [
+    "S8",
+    "S1",
+    "S5",
+    "S9"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wie heißt der höchste Punkt Gevelsbergs?",
+   "o": [
+    "Hageböllinger Kopf",
+    "Kahler Asten",
+    "Ennepekopf",
+    "Silscheder Berg"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wie viele Partnerstädte hat Gevelsberg?",
+   "o": [
+    "3",
+    "2",
+    "4",
+    "5"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Wie hieß die Gemeinde, bevor sie 1867 \"Gevelsberg\" genannt wurde?",
+   "o": [
+    "Mylinghausen",
+    "Asbeck",
+    "Schwelm",
+    "Ennepetal"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Zu welchem Landkreis gehörte Gevelsberg ab 1887?",
+   "o": [
+    "Landkreis Schwelm",
+    "Landkreis Hagen",
+    "Märkischer Kreis",
+    "Kreis Unna"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Nach welcher Partnerstadt ist ein Platz in der Gevelsberger Innenstadt benannt?",
+   "o": [
+    "Vendôme",
+    "Butera",
+    "Sprottau",
+    "Palma"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Zwischen welchen Städten liegt Gevelsberg etwa auf halber Strecke?",
+   "o": [
+    "Wuppertal und Hagen",
+    "Dortmund und Essen",
+    "Bochum und Witten",
+    "Köln und Düsseldorf"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "Welches Fest feiert Gevelsberg traditionell rund um Christi Himmelfahrt?",
+   "o": [
+    "Das Quellenfest",
+    "Die Kirmes",
+    "Das Ennepefest",
+    "Das Bierbrunnenfest"
+   ],
+   "c": 0
+  },
+  {
+   "cat": "gev",
+   "q": "In welchem Gevelsberger Stadtteil gab es schon früh Steinkohlenbergbau?",
+   "o": [
+    "Silschede",
+    "Berge",
+    "Asbeck",
+    "Vogelsang"
+   ],
+   "c": 0
+  }
+ ],
+ "orte": [
+  {
+   "m": "de",
+   "q": "Gevelsberg",
+   "lat": 51.317,
+   "lon": 7.333
+  },
+  {
+   "m": "de",
+   "q": "Berlin",
+   "lat": 52.52,
+   "lon": 13.405
+  },
+  {
+   "m": "de",
+   "q": "Hamburg",
+   "lat": 53.551,
+   "lon": 9.993
+  },
+  {
+   "m": "de",
+   "q": "München",
+   "lat": 48.137,
+   "lon": 11.575
+  },
+  {
+   "m": "de",
+   "q": "Köln",
+   "lat": 50.938,
+   "lon": 6.96
+  },
+  {
+   "m": "de",
+   "q": "Frankfurt am Main",
+   "lat": 50.11,
+   "lon": 8.682
+  },
+  {
+   "m": "de",
+   "q": "Stuttgart",
+   "lat": 48.776,
+   "lon": 9.183
+  },
+  {
+   "m": "de",
+   "q": "Dresden",
+   "lat": 51.051,
+   "lon": 13.738
+  },
+  {
+   "m": "de",
+   "q": "Signal Iduna Park (Dortmund)",
+   "lat": 51.493,
+   "lon": 7.452
+  },
+  {
+   "m": "de",
+   "q": "Bremen",
+   "lat": 53.079,
+   "lon": 8.802
+  },
+  {
+   "m": "de",
+   "q": "Leipzig",
+   "lat": 51.34,
+   "lon": 12.375
+  },
+  {
+   "m": "de",
+   "q": "Nürnberg",
+   "lat": 49.452,
+   "lon": 11.077
+  },
+  {
+   "m": "de",
+   "q": "Rostock",
+   "lat": 54.092,
+   "lon": 12.099
+  },
+  {
+   "m": "de",
+   "q": "Sylt (Westerland)",
+   "lat": 54.907,
+   "lon": 8.31
+  },
+  {
+   "m": "de",
+   "q": "Zugspitze",
+   "lat": 47.421,
+   "lon": 10.985
+  },
+  {
+   "m": "de",
+   "q": "Brocken (Harz)",
+   "lat": 51.8,
+   "lon": 10.616
+  },
+  {
+   "m": "de",
+   "q": "Kiel",
+   "lat": 54.323,
+   "lon": 10.123
+  },
+  {
+   "m": "de",
+   "q": "Freiburg im Breisgau",
+   "lat": 47.999,
+   "lon": 7.842
+  },
+  {
+   "m": "de",
+   "q": "Kassel",
+   "lat": 51.312,
+   "lon": 9.48
+  },
+  {
+   "m": "de",
+   "q": "Passau",
+   "lat": 48.567,
+   "lon": 13.431
+  },
+  {
+   "m": "de",
+   "q": "Saarbrücken",
+   "lat": 49.24,
+   "lon": 6.997
+  },
+  {
+   "m": "de",
+   "q": "Flensburg",
+   "lat": 54.794,
+   "lon": 9.437
+  },
+  {
+   "m": "de",
+   "q": "Erfurt",
+   "lat": 50.978,
+   "lon": 11.029
+  },
+  {
+   "m": "de",
+   "q": "Wolfenbüttel (Jägermeister)",
+   "lat": 52.162,
+   "lon": 10.534
+  },
+  {
+   "m": "de",
+   "q": "Warstein",
+   "lat": 51.444,
+   "lon": 8.349
+  },
+  {
+   "m": "de",
+   "q": "Bitburg",
+   "lat": 49.968,
+   "lon": 6.524
+  },
+  {
+   "m": "de",
+   "q": "Veltins-Arena (Gelsenkirchen)",
+   "lat": 51.555,
+   "lon": 7.068
+  },
+  {
+   "m": "eu",
+   "q": "Palma de Mallorca",
+   "lat": 39.57,
+   "lon": 2.65
+  },
+  {
+   "m": "eu",
+   "q": "Barcelona",
+   "lat": 41.385,
+   "lon": 2.173
+  },
+  {
+   "m": "eu",
+   "q": "Paris",
+   "lat": 48.857,
+   "lon": 2.352
+  },
+  {
+   "m": "eu",
+   "q": "London",
+   "lat": 51.507,
+   "lon": -0.128
+  },
+  {
+   "m": "eu",
+   "q": "Rom",
+   "lat": 41.903,
+   "lon": 12.496
+  },
+  {
+   "m": "eu",
+   "q": "Madrid",
+   "lat": 40.417,
+   "lon": -3.704
+  },
+  {
+   "m": "eu",
+   "q": "Lissabon",
+   "lat": 38.722,
+   "lon": -9.139
+  },
+  {
+   "m": "eu",
+   "q": "Amsterdam",
+   "lat": 52.368,
+   "lon": 4.904
+  },
+  {
+   "m": "eu",
+   "q": "Wien",
+   "lat": 48.208,
+   "lon": 16.373
+  },
+  {
+   "m": "eu",
+   "q": "Prag",
+   "lat": 50.075,
+   "lon": 14.437
+  },
+  {
+   "m": "eu",
+   "q": "Warschau",
+   "lat": 52.23,
+   "lon": 21.012
+  },
+  {
+   "m": "eu",
+   "q": "Athen",
+   "lat": 37.984,
+   "lon": 23.728
+  },
+  {
+   "m": "eu",
+   "q": "Istanbul",
+   "lat": 41.008,
+   "lon": 28.978
+  },
+  {
+   "m": "eu",
+   "q": "Dublin (Guinness)",
+   "lat": 53.35,
+   "lon": -6.26
+  },
+  {
+   "m": "eu",
+   "q": "Oslo",
+   "lat": 59.914,
+   "lon": 10.752
+  },
+  {
+   "m": "eu",
+   "q": "Stockholm",
+   "lat": 59.329,
+   "lon": 18.069
+  },
+  {
+   "m": "eu",
+   "q": "Kopenhagen",
+   "lat": 55.676,
+   "lon": 12.568
+  },
+  {
+   "m": "eu",
+   "q": "Helsinki",
+   "lat": 60.17,
+   "lon": 24.938
+  },
+  {
+   "m": "eu",
+   "q": "Ibiza",
+   "lat": 38.907,
+   "lon": 1.432
+  },
+  {
+   "m": "eu",
+   "q": "Venedig",
+   "lat": 45.441,
+   "lon": 12.316
+  },
+  {
+   "m": "eu",
+   "q": "Budapest",
+   "lat": 47.498,
+   "lon": 19.04
+  },
+  {
+   "m": "eu",
+   "q": "Zürich",
+   "lat": 47.377,
+   "lon": 8.541
+  },
+  {
+   "m": "eu",
+   "q": "Edinburgh",
+   "lat": 55.953,
+   "lon": -3.188
+  },
+  {
+   "m": "eu",
+   "q": "Vendôme (Partnerstadt)",
+   "lat": 47.793,
+   "lon": 1.066
+  },
+  {
+   "m": "eu",
+   "q": "Butera (Partnerstadt)",
+   "lat": 37.19,
+   "lon": 14.18
+  },
+  {
+   "m": "eu",
+   "q": "Pilsen",
+   "lat": 49.738,
+   "lon": 13.373
+  },
+  {
+   "m": "eu",
+   "q": "Moskau",
+   "lat": 55.756,
+   "lon": 37.617
+  },
+  {
+   "m": "world",
+   "q": "New York",
+   "lat": 40.713,
+   "lon": -74.006
+  },
+  {
+   "m": "world",
+   "q": "Tokio",
+   "lat": 35.676,
+   "lon": 139.65
+  },
+  {
+   "m": "world",
+   "q": "Sydney",
+   "lat": -33.869,
+   "lon": 151.209
+  },
+  {
+   "m": "world",
+   "q": "Rio de Janeiro",
+   "lat": -22.907,
+   "lon": -43.173
+  },
+  {
+   "m": "world",
+   "q": "Kapstadt",
+   "lat": -33.925,
+   "lon": 18.424
+  },
+  {
+   "m": "world",
+   "q": "Las Vegas",
+   "lat": 36.17,
+   "lon": -115.14
+  },
+  {
+   "m": "world",
+   "q": "Bangkok",
+   "lat": 13.756,
+   "lon": 100.502
+  },
+  {
+   "m": "world",
+   "q": "Mexiko-Stadt",
+   "lat": 19.433,
+   "lon": -99.133
+  },
+  {
+   "m": "world",
+   "q": "Dubai",
+   "lat": 25.205,
+   "lon": 55.271
+  },
+  {
+   "m": "world",
+   "q": "Reykjavík",
+   "lat": 64.147,
+   "lon": -21.942
+  },
+  {
+   "m": "world",
+   "q": "Los Angeles",
+   "lat": 34.052,
+   "lon": -118.244
+  },
+  {
+   "m": "world",
+   "q": "Peking",
+   "lat": 39.904,
+   "lon": 116.407
+  },
+  {
+   "m": "world",
+   "q": "Mumbai",
+   "lat": 19.076,
+   "lon": 72.878
+  },
+  {
+   "m": "world",
+   "q": "Kairo",
+   "lat": 30.044,
+   "lon": 31.236
+  },
+  {
+   "m": "world",
+   "q": "Buenos Aires",
+   "lat": -34.604,
+   "lon": -58.382
+  },
+  {
+   "m": "world",
+   "q": "Honolulu",
+   "lat": 21.307,
+   "lon": -157.858
+  },
+  {
+   "m": "world",
+   "q": "Toronto",
+   "lat": 43.653,
+   "lon": -79.383
+  },
+  {
+   "m": "world",
+   "q": "Singapur",
+   "lat": 1.352,
+   "lon": 103.82
+  },
+  {
+   "m": "world",
+   "q": "Auckland",
+   "lat": -36.848,
+   "lon": 174.763
+  },
+  {
+   "m": "world",
+   "q": "Nairobi",
+   "lat": -1.292,
+   "lon": 36.822
+  },
+  {
+   "m": "world",
+   "q": "Lima",
+   "lat": -12.046,
+   "lon": -77.043
+  },
+  {
+   "m": "world",
+   "q": "Havanna",
+   "lat": 23.113,
+   "lon": -82.366
+  },
+  {
+   "m": "world",
+   "q": "Anchorage",
+   "lat": 61.218,
+   "lon": -149.9
+  },
+  {
+   "m": "world",
+   "q": "Mount Everest",
+   "lat": 27.988,
+   "lon": 86.925
+  },
+  {
+   "m": "world",
+   "q": "Palma de Mallorca",
+   "lat": 39.57,
+   "lon": 2.65
+  },
+  {
+   "m": "world",
+   "q": "Gevelsberg",
+   "lat": 51.317,
+   "lon": 7.333
+  },
+  {
+   "m": "de",
+   "q": "Bonn",
+   "lat": 50.737,
+   "lon": 7.098
+  },
+  {
+   "m": "de",
+   "q": "Münster",
+   "lat": 51.962,
+   "lon": 7.626
+  },
+  {
+   "m": "de",
+   "q": "Aachen",
+   "lat": 50.776,
+   "lon": 6.084
+  },
+  {
+   "m": "de",
+   "q": "Essen",
+   "lat": 51.456,
+   "lon": 7.012
+  },
+  {
+   "m": "de",
+   "q": "Bochum",
+   "lat": 51.481,
+   "lon": 7.216
+  },
+  {
+   "m": "de",
+   "q": "Hagen",
+   "lat": 51.367,
+   "lon": 7.463
+  },
+  {
+   "m": "de",
+   "q": "Wuppertal",
+   "lat": 51.256,
+   "lon": 7.151
+  },
+  {
+   "m": "de",
+   "q": "Schwelm",
+   "lat": 51.286,
+   "lon": 7.293
+  },
+  {
+   "m": "de",
+   "q": "Trier",
+   "lat": 49.75,
+   "lon": 6.637
+  },
+  {
+   "m": "de",
+   "q": "Heidelberg",
+   "lat": 49.399,
+   "lon": 8.672
+  },
+  {
+   "m": "de",
+   "q": "Würzburg",
+   "lat": 49.792,
+   "lon": 9.953
+  },
+  {
+   "m": "de",
+   "q": "Regensburg",
+   "lat": 49.013,
+   "lon": 12.102
+  },
+  {
+   "m": "de",
+   "q": "Magdeburg",
+   "lat": 52.12,
+   "lon": 11.628
+  },
+  {
+   "m": "de",
+   "q": "Potsdam",
+   "lat": 52.391,
+   "lon": 13.065
+  },
+  {
+   "m": "de",
+   "q": "Schwerin",
+   "lat": 53.635,
+   "lon": 11.401
+  },
+  {
+   "m": "de",
+   "q": "Lübeck",
+   "lat": 53.866,
+   "lon": 10.687
+  },
+  {
+   "m": "de",
+   "q": "Konstanz",
+   "lat": 47.66,
+   "lon": 9.175
+  },
+  {
+   "m": "de",
+   "q": "Garmisch-Partenkirchen",
+   "lat": 47.492,
+   "lon": 11.096
+  },
+  {
+   "m": "de",
+   "q": "Helgoland",
+   "lat": 54.18,
+   "lon": 7.886
+  },
+  {
+   "m": "de",
+   "q": "Bamberg (Rauchbier)",
+   "lat": 49.892,
+   "lon": 10.887
+  },
+  {
+   "m": "de",
+   "q": "Kreuztal (Krombacher)",
+   "lat": 50.962,
+   "lon": 7.988
+  },
+  {
+   "m": "de",
+   "q": "Allianz Arena (München)",
+   "lat": 48.219,
+   "lon": 11.625
+  },
+  {
+   "m": "de",
+   "q": "Nürburgring",
+   "lat": 50.335,
+   "lon": 6.947
+  },
+  {
+   "m": "de",
+   "q": "Kahler Asten",
+   "lat": 51.18,
+   "lon": 8.49
+  },
+  {
+   "m": "de",
+   "q": "Feldberg (Schwarzwald)",
+   "lat": 47.874,
+   "lon": 8.004
+  },
+  {
+   "m": "eu",
+   "q": "Brüssel",
+   "lat": 50.85,
+   "lon": 4.352
+  },
+  {
+   "m": "eu",
+   "q": "Luxemburg",
+   "lat": 49.611,
+   "lon": 6.13
+  },
+  {
+   "m": "eu",
+   "q": "Bern",
+   "lat": 46.948,
+   "lon": 7.447
+  },
+  {
+   "m": "eu",
+   "q": "Mailand",
+   "lat": 45.464,
+   "lon": 9.19
+  },
+  {
+   "m": "eu",
+   "q": "Neapel",
+   "lat": 40.852,
+   "lon": 14.268
+  },
+  {
+   "m": "eu",
+   "q": "Porto",
+   "lat": 41.15,
+   "lon": -8.611
+  },
+  {
+   "m": "eu",
+   "q": "Sevilla",
+   "lat": 37.389,
+   "lon": -5.984
+  },
+  {
+   "m": "eu",
+   "q": "Valencia",
+   "lat": 39.47,
+   "lon": -0.376
+  },
+  {
+   "m": "eu",
+   "q": "Marseille",
+   "lat": 43.296,
+   "lon": 5.37
+  },
+  {
+   "m": "eu",
+   "q": "Nizza",
+   "lat": 43.71,
+   "lon": 7.262
+  },
+  {
+   "m": "eu",
+   "q": "Bordeaux",
+   "lat": 44.838,
+   "lon": -0.579
+  },
+  {
+   "m": "eu",
+   "q": "Krakau",
+   "lat": 50.065,
+   "lon": 19.945
+  },
+  {
+   "m": "eu",
+   "q": "Riga",
+   "lat": 56.95,
+   "lon": 24.105
+  },
+  {
+   "m": "eu",
+   "q": "Tallinn",
+   "lat": 59.437,
+   "lon": 24.754
+  },
+  {
+   "m": "eu",
+   "q": "Bukarest",
+   "lat": 44.427,
+   "lon": 26.103
+  },
+  {
+   "m": "eu",
+   "q": "Belgrad",
+   "lat": 44.787,
+   "lon": 20.457
+  },
+  {
+   "m": "eu",
+   "q": "Zagreb",
+   "lat": 45.815,
+   "lon": 15.982
+  },
+  {
+   "m": "eu",
+   "q": "Dubrovnik",
+   "lat": 42.65,
+   "lon": 18.094
+  },
+  {
+   "m": "eu",
+   "q": "Valletta (Malta)",
+   "lat": 35.899,
+   "lon": 14.514
+  },
+  {
+   "m": "eu",
+   "q": "Ajaccio (Korsika)",
+   "lat": 41.919,
+   "lon": 8.738
+  },
+  {
+   "m": "eu",
+   "q": "Heraklion (Kreta)",
+   "lat": 35.339,
+   "lon": 25.144
+  },
+  {
+   "m": "eu",
+   "q": "Santorini",
+   "lat": 36.393,
+   "lon": 25.461
+  },
+  {
+   "m": "eu",
+   "q": "Monaco",
+   "lat": 43.738,
+   "lon": 7.425
+  },
+  {
+   "m": "eu",
+   "q": "Lloret de Mar",
+   "lat": 41.7,
+   "lon": 2.845
+  },
+  {
+   "m": "world",
+   "q": "San Francisco",
+   "lat": 37.775,
+   "lon": -122.419
+  },
+  {
+   "m": "world",
+   "q": "Chicago",
+   "lat": 41.878,
+   "lon": -87.63
+  },
+  {
+   "m": "world",
+   "q": "Miami",
+   "lat": 25.762,
+   "lon": -80.192
+  },
+  {
+   "m": "world",
+   "q": "Vancouver",
+   "lat": 49.283,
+   "lon": -123.121
+  },
+  {
+   "m": "world",
+   "q": "São Paulo",
+   "lat": -23.55,
+   "lon": -46.633
+  },
+  {
+   "m": "world",
+   "q": "Santiago de Chile",
+   "lat": -33.449,
+   "lon": -70.669
+  },
+  {
+   "m": "world",
+   "q": "Kathmandu",
+   "lat": 27.717,
+   "lon": 85.324
+  },
+  {
+   "m": "world",
+   "q": "Shanghai",
+   "lat": 31.23,
+   "lon": 121.474
+  },
+  {
+   "m": "world",
+   "q": "Seoul",
+   "lat": 37.567,
+   "lon": 126.978
+  },
+  {
+   "m": "world",
+   "q": "Hongkong (längste Rolltreppe)",
+   "lat": 22.32,
+   "lon": 114.17
+  },
+  {
+   "m": "world",
+   "q": "Manila",
+   "lat": 14.6,
+   "lon": 120.984
+  },
+  {
+   "m": "world",
+   "q": "Jakarta",
+   "lat": -6.208,
+   "lon": 106.846
+  },
+  {
+   "m": "world",
+   "q": "Perth",
+   "lat": -31.95,
+   "lon": 115.861
+  },
+  {
+   "m": "world",
+   "q": "Marrakesch",
+   "lat": 31.629,
+   "lon": -7.981
+  },
+  {
+   "m": "world",
+   "q": "Lagos",
+   "lat": 6.524,
+   "lon": 3.379
+  },
+  {
+   "m": "world",
+   "q": "Tel Aviv",
+   "lat": 32.085,
+   "lon": 34.782
+  },
+  {
+   "m": "world",
+   "q": "Bali (Denpasar)",
+   "lat": -8.65,
+   "lon": 115.217
+  },
+  {
+   "m": "world",
+   "q": "Malé (Malediven)",
+   "lat": 4.175,
+   "lon": 73.509
+  },
+  {
+   "m": "world",
+   "q": "Osterinsel",
+   "lat": -27.113,
+   "lon": -109.35
+  },
+  {
+   "m": "world",
+   "q": "Machu Picchu",
+   "lat": -13.163,
+   "lon": -72.545
+  },
+  {
+   "m": "world",
+   "q": "Grand Canyon",
+   "lat": 36.107,
+   "lon": -112.113
+  },
+  {
+   "m": "world",
+   "q": "Niagarafälle",
+   "lat": 43.083,
+   "lon": -79.074
+  },
+  {
+   "m": "world",
+   "q": "Uluru (Ayers Rock)",
+   "lat": -25.344,
+   "lon": 131.036
+  },
+  {
+   "m": "world",
+   "q": "Rom",
+   "lat": 41.903,
+   "lon": 12.496
+  },
+  {
+   "m": "world",
+   "q": "Moskau",
+   "lat": 55.756,
+   "lon": 37.617
+  }
+ ]
+}
