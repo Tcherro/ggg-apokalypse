@@ -31,7 +31,7 @@ const PID = LOCAL ? (sessionStorage.getItem('ggg-pid') || (sessionStorage.setIte
 
 let me = { pid: PID, host: false, code: null, solo: false };
 let S = null, LIVE = {}, QUESTIONS = { schaetzen: [], auswahl: [], orte: [] }, net = null, online = false;
-let liveFns = [], mounted = { key: null, cleanup: null };
+let liveFns = [], gmFns = [], mounted = { key: null, cleanup: null };
 
 fetch('questions.json').then(r => r.json()).then(q => { if (q && q.schaetzen) QUESTIONS = q; }).catch(() => { });
 
@@ -163,6 +163,18 @@ function hostHandle(pid, m) {
     }
     case 'giveskip': if (S.phase === 'results') { S.giveLeft[pid] = 0; commit(); checkAdvance(); } return;
     case 'drank': if (S.phase === 'results') { settleDrink(pid); commit(); checkAdvance(); } return;
+    case 'draw': {
+      if (!S.game || S.game.key !== 'draw' || m.nonce !== S.game.nonce || S.phase !== 'play' || HD.imgs[pid] || !S.game.parts.includes(pid)) return;
+      HD.imgs[pid] = String(m.img || '').slice(0, 70000);
+      if (needed().every(q => HD.imgs[q])) sendGallery();
+      return;
+    }
+    case 'vote': {
+      if (!S.game || S.game.key !== 'draw' || m.nonce !== S.game.nonce || S.phase !== 'play' || !HD.galSent || HD.votes[pid] || !S.game.parts.includes(pid)) return;
+      HD.votes[pid] = m.st && typeof m.st === 'object' ? m.st : {};
+      if (needed().every(q => HD.votes[q] || !HD.imgs[q])) finalizeDraw();
+      return;
+    }
     case 'brave': if (S.ralf && S.players[pid]) { S.ralf.ok[pid] = true; commit(); checkRalfDone(); } return;
     case 'taunt': { const txt = String(m.txt || '').slice(0, 60); net.broadcast({ t: 'tt', from: pid, txt }); showTaunt(pid, txt); return; }
     case 'inp': if (S.phase === 'battle') BATTLE.input(pid, +m.x || 0, +m.y || 0); return;
@@ -172,6 +184,42 @@ function hostHandle(pid, m) {
     default: return;
   }
   commit();
+}
+// --- Nachmalen (draw game): drawings and votes are kept on the host, not in the broadcast state
+let HD = { imgs: {}, votes: {}, order: [], galSent: false, fin: false };
+function sendGallery() {
+  if (HD.galSent || !S.game || S.game.key !== 'draw') return; HD.galSent = true;
+  const nonce = S.game.nonce, pids = shuffle(Object.keys(HD.imgs));
+  HD.order = pids;
+  const msg = { t: 'gm', k: 'gal', nonce, list: pids.map((p, i) => ({ k: i, img: HD.imgs[p], own: p })) };
+  net.broadcast(msg); gmFns.forEach(f => f(msg));
+  Object.keys(S.players).filter(q => S.players[q].bot && S.game.parts.includes(q)).forEach((q, n) => HC.after(() => {
+    if (!S.game || S.game.nonce !== nonce || S.phase !== 'play') return;
+    const st = {}; pids.forEach((p, i) => { if (p !== q) st[i] = 1 + Math.floor(Math.random() * 5); }); hostHandle(q, { t: 'vote', nonce, st });
+  }, 4000 + n * 1500 + Math.random() * 6000));
+  HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') finalizeDraw(); }, GAMES.draw.VOTE_MS + 3000);
+}
+function finalizeDraw() {
+  if (HD.fin || !S.game || S.game.key !== 'draw') return; HD.fin = true;
+  if (!HD.galSent) HD.galSent = true;
+  S.game.parts.forEach(pid => {
+    if (!S.players[pid]) return;
+    const k = HD.order.indexOf(pid);
+    if (k < 0) { S.subs[pid] = { v: null, d: 'nichts gezeichnet' }; return; }
+    const votes = Object.entries(HD.votes).filter(([voter]) => voter !== pid).map(([, st]) => +st[k]).filter(x => x >= 1 && x <= 5);
+    if (!votes.length) { S.subs[pid] = { v: 0, d: 'keine Bewertung' }; return; }
+    const avg = votes.reduce((x, y) => x + y, 0) / votes.length;
+    S.subs[pid] = { v: Math.round(avg * 100), d: `Ø ${avg.toFixed(1).replace('.', ',')} Sterne` };
+  });
+  finishRound();
+}
+function botScribble() {
+  const c = document.createElement('canvas'); c.width = c.height = 200; const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, 200, 200); x.lineCap = 'round'; x.lineWidth = 5 + Math.random() * 4;
+  const col = ['#16162a', '#d81018', '#1060e0', '#18a048']; x.strokeStyle = col[Math.floor(Math.random() * 4)];
+  x.beginPath(); x.moveTo(30 + Math.random() * 140, 30 + Math.random() * 140);
+  for (let i = 0; i < 9; i++) x.lineTo(20 + Math.random() * 160, 20 + Math.random() * 160); x.stroke();
+  return c.toDataURL('image/jpeg', 0.5);
 }
 function dueOf(pid) { return Math.max(0, (S.owed[pid] || 0) - (S.paid[pid] || 0)); }
 function canGo(pid) { return dueOf(pid) === 0 && !(S.giveLeft[pid] > 0); }
@@ -252,7 +300,7 @@ function planGame(repeat = false) {
   };
   if (repeat && S.game) { questions = S.game.questions; places = S.game.places; }
   else if (key === 'guess' && variant !== 'count') questions = pick(QUESTIONS.schaetzen, 's', q => q.cat === (variant === 'gev' ? 'gev' : 'allg'), 3);
-  else if (key === 'quiz') questions = pick(QUESTIONS.auswahl, 'c', q => q.cat === variant, 3).map(q => { const o = shuffle(q.o.map((t, i) => ({ t, ok: i === q.c }))); return { q: q.q, o: o.map(x => x.t), c: o.findIndex(x => x.ok) }; });
+  else if (key === 'quiz') questions = pick(QUESTIONS.auswahl, 'c', q => q.cat === variant, variant === 'iq' ? 5 : 3).map(q => { const o = shuffle(q.o.map((t, i) => ({ t, ok: i === q.c }))); return { q: q.q, o: o.map(x => x.t), c: o.findIndex(x => x.ok) }; });
   else if (key === 'geo') places = pick(QUESTIONS.orte, 'p', q => q.m === variant, 3);
   S.game = { key, variant, seed: Math.floor(Math.random() * 2 ** 31), nonce: ++S.nonce, dur: GAMES[key].variants[variant].dur, startDelay: 7000, duels, cpu, questions, places, parts };
   S.subs = {}; S.results = null; S.phase = 'play'; S.readyNext = {}; LIVE = {};
@@ -263,10 +311,16 @@ function planGame(repeat = false) {
     if (!S.game || S.game.nonce !== nonce) return; LIVE.cpu = { r: cpu.r.slice(0, i + 1) }; liveDirty = true;
   }, S.game.startDelay + (variant === 'mash' ? 8000 : (variant === 'combo' ? 6500 : 4500) * (i + 1)))));
   roundTimer = HC.after(() => { if (S.phase === 'play' && S.game.nonce === nonce && !S.ralf) finishRound(); }, S.game.startDelay + S.game.dur + 5000);
+  if (key === 'draw') {
+    HD = { imgs: {}, votes: {}, order: [], galSent: false, fin: false };
+    parts.filter(q => S.players[q] && S.players[q].bot).forEach(q => { HD.imgs[q] = botScribble(); });
+    HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') sendGallery(); }, S.game.startDelay + GAMES.draw.DRAW_MS + 2500);
+  }
   botPlay();
   commit();
 }
 function finishRound() {
+  if (S.game && S.game.key === 'draw' && !HD.fin) return finalizeDraw();
   HC.cancel(roundTimer);
   const g = S.game, better = GAMES[g.key].variants[g.variant].better;
   if (g.key === 'duel') return finishDuels();
@@ -318,6 +372,7 @@ function botPlay() {
   botTimers.forEach(HC.cancel); botTimers = [];
   const g = S.game, nonce = g.nonce, R = (a, b) => Math.round(a + Math.random() * (b - a));
   Object.keys(S.players).filter(q => S.players[q].bot && g.parts.includes(q)).forEach(q => {
+    if (g.key === 'draw') return;
     let v, d, t = g.startDelay + R(g.dur * 0.35, g.dur * 0.8);
     const k = g.key + '/' + g.variant;
     if (g.key === 'race') { const ms = R(7000, 14000); v = 100000 - ms; d = (ms / 1000).toFixed(2) + ' s'; t = g.startDelay + Math.min(ms, g.dur - 500);
@@ -329,8 +384,9 @@ function botPlay() {
     else if (k === 'duel/mash') { v = R(36, 60); d = v + ' Hits'; t = g.startDelay + 8200; botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: [v] }; liveDirty = true; } }, t)); }
     else if (k === 'guess/count') { v = R(0, 3500); d = 'Bot-Schätzung'; t = g.startDelay + R(6000, 20000); }
     else if (g.key === 'guess') { v = R(800, 7000); d = `Ø ${Math.round(v / 100)} % daneben`; t = g.startDelay + R(30000, 70000); }
-    else if (g.key === 'quiz') { const c = R(0, 3); v = c * 100000 - R(15000, 45000); d = `${c}/3 richtig`; t = g.startDelay + R(20000, 55000); }
+    else if (g.key === 'quiz') { const nq = g.questions.length, c = R(0, nq); v = c * 100000 - R(15000, 45000); d = `${c}/${nq} richtig`; t = g.startDelay + R(20000, 55000 + (nq - 3) * 12000); }
     else if (g.key === 'geo') { const km = { de: [60, 250], eu: [150, 900], world: [600, 4000] }[g.variant]; v = R(km[0] * 3, km[1] * 3); d = `Ø ${Math.round(v / 3)} km daneben`; t = g.startDelay + R(40000, 85000); }
+    else if (g.key === 'seek') { v = R(12000, 52000); d = `Ø ${(v / 3000).toFixed(1).replace('.', ',')} s, ${R(1, 3)}/3 gefunden`; t = g.startDelay + R(45000, 70000); }
     else if (k === 'party/react') { v = R(260, 620); d = v + ' ms'; }
     else if (k === 'party/color') { v = R(3, 11); d = v + ' Punkte'; }
     else { v = R(5000, 12000); d = (v / 1000).toFixed(2) + ' s'; }
@@ -447,6 +503,7 @@ function joinRoom(code) {
     else if (m.t === 'live') { LIVE = m.l; liveFns.forEach(f => f(LIVE)); }
     else if (m.t === 'bs') BATTLE.snap(m);
     else if (m.t === 'tt') showTaunt(m.from, m.txt);
+    else if (m.t === 'gm') gmFns.forEach(f => f(m));
   }, ok => { setStatus(ok); if (ok) net.send({ t: 'hello', pid: me.pid }); });
   try { history.replaceState(null, '', `?room=${code}${LOCAL ? '&local=1' : ''}`); } catch { }
   render();
@@ -475,7 +532,7 @@ function render() {
   if (S.phase === 'battle') return renderBattle();
   if (S.phase === 'final') return renderFinal();
 }
-function cleanupMount() { if (mounted.cleanup) { try { mounted.cleanup(); } catch { } } mounted = { key: null, cleanup: null }; liveFns = []; }
+function cleanupMount() { if (mounted.cleanup) { try { mounted.cleanup(); } catch { } } mounted = { key: null, cleanup: null }; liveFns = []; gmFns = []; }
 function view(key, build, update) {
   if (mounted.key !== key) { cleanupMount(); mounted.key = key; mounted.cleanup = build() || null; }
   if (update) update();
@@ -657,7 +714,8 @@ function renderPlay() {
         duelists: pair, isDuelist: !!pair, cpu: g.cpu, questions: g.questions, places: g.places, sfx: SFX, cry: cryOf,
         submit: (val, d) => act({ t: 'score', nonce: g.nonce, v: val, d }),
         progress: p => { if (me.host) { LIVE[me.pid] = p; liveDirty = true; } else net.send({ t: 'prog', nonce: g.nonce, p }); },
-        onLive: fn => liveFns.push(fn)
+        onLive: fn => liveFns.push(fn),
+        send: m => act(Object.assign({ nonce: g.nonce }, m)), onGm: fn => gmFns.push(fn)
       };
       gameCleanup = mod.play(stage, ctx);
     }, g.startDelay);

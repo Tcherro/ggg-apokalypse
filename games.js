@@ -288,12 +288,16 @@ const GAMES = {
     variants: {
       gev: { name: 'Gevelsberg-Special', desc: '3 Fragen zu Gevelsberg mit je 4 Antworten. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' },
       buli: { name: 'Bundesliga', desc: '3 Fragen zur Bundesliga mit je 4 Antworten. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' },
-      alk: { name: 'Prost-Wissen', desc: '3 Fragen rund um Bier, Schnaps und Brauereien. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' }
+      alk: { name: 'Prost-Wissen', desc: '3 Fragen rund um Bier, Schnaps und Brauereien. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' },
+      iq: { name: 'GGG-IQ-Test', desc: '5 Denkaufgaben mit je 4 Antworten: Zahlenreihen, Logik, Fangfragen. Die meisten richtigen Antworten gewinnen. Wer den niedrigsten IQ hat, trinkt.', dur: 110000, better: 'high' },
+      regeln: { name: 'Verrückte Regelkunde', desc: '3 Fragen zu den Regeln von Sportarten. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' },
+      pokemon: { name: 'Pokémon-Rätsel', desc: '3 Pokémon-Rätsel aus den ersten 151. Du bekommst Pokédex-Nummer, Typ und einen Hinweis. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' },
+      serien: { name: 'Serien der 90er', desc: '3 Serien aus den 90ern, erkennbar an Emojis und einem Hinweis. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' }
     },
     play(el, ctx) {
       const clean = []; const qs = ctx.questions || []; let i = 0, right = 0, ms = 0;
       const next = () => {
-        if (i >= qs.length) { el.innerHTML = `<div class="waitmsg">${right} von ${qs.length} richtig!</div>`; return ctx.submit(right * 100000 - Math.round(ms), `${right}/${qs.length} richtig`); }
+        if (i >= qs.length) { el.innerHTML = `<div class="waitmsg">${right} von ${qs.length} richtig!</div>`; return ctx.submit(right * 100000 - Math.round(ms), ctx.variant === 'iq' ? `IQ ${Math.round(55 + 75 * right / Math.max(1, qs.length))} (${right}/${qs.length} richtig)` : `${right}/${qs.length} richtig`); }
         const q = qs[i], t0 = ctx.now(); let answered = false;
         el.innerHTML = `<div class="qhead">FRAGE ${i + 1} / ${qs.length}</div><div class="question">${esc(q.q)}</div><div class="choices">${q.o.map((o, k) => `<button class="choice" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
         const stopBar = timerBar(el, 20000, t0, ctx);
@@ -316,9 +320,9 @@ const GAMES = {
   geo: {
     title: 'WO ZUM GEIER?', label: 'Karten-Schätzen',
     variants: {
-      de: { name: 'Deutschland', desc: '3 Orte: Setz die Nadel so nah wie möglich. Entfernungen werden addiert, wer am weitesten daneben liegt, trinkt.', dur: 101000, better: 'low' },
-      eu: { name: 'Europa', desc: '3 Orte in Europa: Nadel setzen, bestätigen. Wer insgesamt am weitesten daneben liegt, trinkt.', dur: 101000, better: 'low' },
-      world: { name: 'Weltreise', desc: '3 Orte auf der Weltkarte. Karte seitlich wischen, Nadel setzen, bestätigen.', dur: 101000, better: 'low' }
+      de: { name: 'Deutschland', desc: '3 Orte: Setz die Nadel so nah wie möglich. Mit ZOOM kannst du die Karte vergrößern. Entfernungen werden addiert, wer am weitesten daneben liegt, trinkt.', dur: 101000, better: 'low' },
+      eu: { name: 'Europa', desc: '3 Orte in Europa: Nadel setzen, bestätigen. Mit ZOOM kannst du die Karte vergrößern. Wer insgesamt am weitesten daneben liegt, trinkt.', dur: 101000, better: 'low' },
+      world: { name: 'Weltreise', desc: '3 Orte auf der Weltkarte. Mit ZOOM vergrößern, Karte wischen, Nadel setzen, bestätigen.', dur: 101000, better: 'low' }
     },
     play(el, ctx) {
       const clean = []; const M = MAPS[ctx.variant], qs = ctx.places || []; let i = 0, total = 0;
@@ -329,13 +333,31 @@ const GAMES = {
         if (i >= qs.length) { const avg = Math.round(total / Math.max(1, qs.length)); el.innerHTML = `<div class="waitmsg">Fertig!<br><small>Im Schnitt ${avg} km daneben</small></div>`; return ctx.submit(Math.round(total), `Ø ${avg} km daneben`); }
         const q = qs[i]; let pin = null, answered = false;
         el.innerHTML = `<div class="qhead">ORT ${i + 1} / ${qs.length}</div><div class="question small-q">Wo liegt <b>${esc(q.q)}</b>?</div>
-          ${ctx.variant === 'world' ? '<button class="pill zoombtn">ZOOM +</button>' : ''}
+          <div class="zoomrow"><button class="pill zoombtn">ZOOM x1</button></div>
           <div class="mapwrap ${ctx.variant}"><div class="mapinner" style="aspect-ratio:${M.W}/${M.H}">${M.svg}<span class="mpin hidden"></span><span class="tpin hidden"></span></div></div>
           <div class="controls"><button class="big green" disabled>NADEL SETZEN</button></div>`;
         const stopBar = timerBar(el, 30000, ctx.now(), ctx);
         const wrap = el.querySelector('.mapwrap'), inner = el.querySelector('.mapinner'), mp = el.querySelector('.mpin'), btn = el.querySelector('.controls button');
-        const zb = el.querySelector('.zoombtn');
-        if (zb) zb.onclick = () => { const z = wrap.classList.toggle('zoomed'); zb.textContent = z ? 'ZOOM −' : 'ZOOM +'; if (z) requestAnimationFrame(() => { wrap.scrollLeft = pin ? Math.max(0, inner.scrollWidth * pin[0] / 100 - wrap.clientWidth / 2) : (inner.scrollWidth - wrap.clientWidth) * 0.5; }); };
+        { // reference grid (degrees), so a zoomed map still has landmarks without revealing any answer
+          const step = { de: 1, eu: 5, world: 15 }[ctx.variant]; let ln = '', lab = '';
+          for (let lo = Math.ceil(M.lon[0] / step) * step; lo <= M.lon[1]; lo += step) { const x = toXY(M.lat[1], lo)[0]; ln += `<line x1="${x}" y1="0" x2="${x}" y2="100"/>`; for (let t = 4; t < 100; t += 16) lab += `<span class="glab" style="left:${x}%;top:${t}%">${Math.abs(lo)}°${lo < 0 ? 'W' : 'O'}</span>`; }
+          for (let la = Math.ceil(M.lat[0] / step) * step; la <= M.lat[1]; la += step) { const y = toXY(la, M.lon[0])[1]; ln += `<line x1="0" y1="${y}" x2="100" y2="${y}"/>`; for (let t = 2; t < 100; t += 16) lab += `<span class="glab" style="left:${t}%;top:${y}%">${Math.abs(la)}°${la < 0 ? 'S' : 'N'}</span>`; }
+          inner.insertAdjacentHTML('beforeend', `<svg class="grat" viewBox="0 0 100 100" preserveAspectRatio="none">${ln}</svg>${lab}`);
+        }
+        const zb = el.querySelector('.zoombtn'), LV = [1, 2.5, 4.5]; let lv = 0;
+        const focus = (px, py) => { // keep a map point centred after zooming
+          requestAnimationFrame(() => {
+            const cx = px == null ? 50 : px, cy = py == null ? 50 : py;
+            wrap.scrollLeft = Math.max(0, inner.scrollWidth * cx / 100 - wrap.clientWidth / 2);
+            wrap.scrollTop = Math.max(0, inner.scrollHeight * cy / 100 - wrap.clientHeight / 2);
+          });
+        };
+        zb.onclick = () => {
+          lv = (lv + 1) % LV.length; ctx.sfx.tap();
+          inner.style.width = (LV[lv] * 100) + '%'; wrap.classList.toggle('zoomed', lv > 0);
+          zb.textContent = 'ZOOM x' + (LV[lv] === 1 ? '1' : String(LV[lv]).replace('.', ','));
+          focus(pin ? pin[0] : null, pin ? pin[1] : null);
+        };
         inner.addEventListener('click', e => {
           if (answered) return; const r = inner.getBoundingClientRect();
           pin = [(e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100];
@@ -349,7 +371,7 @@ const GAMES = {
           if (pin) { const [la, lo] = toLL(pin[0], pin[1]); km = Math.min(pen, haversine(la, lo, q.lat, q.lon)); }
           total += km; ctx.sfx[km < pen * 0.08 ? 'win' : 'blip']();
           el.querySelector('.controls').innerHTML = `<div class="feedback ${km < pen * 0.08 ? 'good' : ''}">${pin ? `<b>${Math.round(km)} km</b> daneben` : 'Keine Nadel gesetzt'}</div>`;
-          if (wrap.classList.contains('zoomed')) { wrap.scrollLeft = Math.max(0, inner.scrollWidth * tx / 100 - wrap.clientWidth / 2); }
+          if (lv > 0) focus(tx, ty);
           const t = ctx.after(() => { i++; next(); }, 2800); clean.push(() => ctx.cancel(t));
         };
         clean.push(onTap(btn, () => { if (pin) answer(); }));
@@ -357,6 +379,129 @@ const GAMES = {
       };
       next();
       return () => clean.forEach(f => f());
+    }
+  },
+
+  // ---------------------------------------------------------------- SEEK (Wimmelbild)
+  seek: {
+    title: 'WHERE IS RALLUM?', label: 'Wimmelbild',
+    variants: {
+      ralf: { name: 'Such den Rallum', desc: '3 Wimmelbilder. Finde Rallum in der Menge und tippe ihn an. Falsch getippt kostet 1,5 Sekunden. Wer insgesamt am längsten sucht, trinkt.', dur: 80000, better: 'low' }
+    },
+    play(el, ctx) {
+      const clean = [], N = 3, LIM = 22000, PEN = 1500;
+      const FACES = ['01_dr-gosse', '02_h-2-o-k-o-p-f', '03_tamma-hanken', '04_yen', '05_zlatan', '06_adev', '07_luecke', '08_busfahrer', '09_hooooooopp-e', '10_schlomo', '11_gaul', '12_der-wuerger'].map(f => `badges/${f}.png`);
+      const PROPS = ['🍺', '🍻', '🎳', '🥨', '🧢', '🥃', '🍗', '🎯'];
+      const rng = ctx.rng; let i = 0, total = 0, found = 0;
+      const next = () => {
+        if (i >= N) { const avg = (total / N / 1000).toFixed(1).replace('.', ','); el.innerHTML = `<div class="waitmsg">Fertig!<br><small>Ø ${avg} s pro Suche</small></div>`; return ctx.submit(Math.round(total), `Ø ${avg} s, ${found}/${N} gefunden`); }
+        const R = () => rng();
+        const rx = 8 + R() * 84, ry = 8 + R() * 84; // Rallum's centre in %
+        const items = []; let guard = 0;
+        const total_items = 78;
+        for (let k = 0; k < total_items && guard < 600; guard++) {
+          const x = 4 + R() * 92, y = 4 + R() * 92, late = k > total_items * 0.55;
+          if (late && Math.hypot(x - rx, (y - ry) * 1.15) < 7.5) continue; // nothing may fully cover Rallum
+          const prop = R() < 0.22, sz = prop ? 8 + R() * 3 : 10.5 + R() * 3;
+          items.push({ x, y, sz, prop, f: prop ? PROPS[Math.floor(R() * PROPS.length)] : FACES[Math.floor(R() * FACES.length)], rot: Math.round((R() - 0.5) * 50), flip: R() < 0.5 });
+          k++;
+        }
+        const mid = Math.floor(items.length * 0.55);
+        const html = items.map((t, k) => `${k === mid ? `<img class="sk r" data-r="1" src="badges/00_ralf.png" style="left:${rx}%;top:${ry}%;width:11.5%;transform:translate(-50%,-50%) rotate(${Math.round((R() - 0.5) * 30)}deg)">` : ''}${t.prop
+          ? `<span class="sk p" style="left:${t.x}%;top:${t.y}%;font-size:${t.sz * 3.1}px;transform:translate(-50%,-50%) rotate(${t.rot}deg)">${t.f}</span>`
+          : `<img class="sk" src="${t.f}" style="left:${t.x}%;top:${t.y}%;width:${t.sz}%;transform:translate(-50%,-50%) rotate(${t.rot}deg) scaleX(${t.flip ? -1 : 1})">`}`).join('');
+        el.innerHTML = `<div class="qhead">SUCHE ${i + 1} / ${N}</div><div class="seekhint"><img src="badges/00_ralf.png"><span>Finde <b>Rallum</b>!</span><i id="skclock">0,0 s</i></div><div class="seekscene" id="scene">${html}</div><div class="seekmsg" id="skmsg"></div>`;
+        const scene = el.querySelector('#scene'), clk = el.querySelector('#skclock'), msg = el.querySelector('#skmsg'), t0 = ctx.now(); let done = false, wrong = 0, lastWrong = -1e9, pen = 0;
+        const fin = (ok) => {
+          if (done) return; done = true; ctx.cancel(to); ctx.cancel(tick);
+          const ms = ok ? Math.min(LIM, ctx.now() - t0) + pen : LIM + pen; total += ms; if (ok) found++;
+          const r = scene.querySelector('[data-r]'); r.classList.add('hit');
+          scene.insertAdjacentHTML('beforeend', `<span class="skring" style="left:${rx}%;top:${ry}%"></span>`);
+          msg.innerHTML = ok ? `<div class="feedback good">GEFUNDEN! <b>${(ms / 1000).toFixed(1).replace('.', ',')} s</b>${wrong ? ` (inkl. ${wrong} Fehlgriffe)` : ''}</div>` : `<div class="feedback">Zeit um! Da war er.</div>`;
+          ctx.sfx[ok ? 'win' : 'bad'](); const t = ctx.after(() => { i++; next(); }, 2200); clean.push(() => ctx.cancel(t));
+        };
+        const onDown = e => {
+          if (done) return; e.preventDefault();
+          if (e.target.dataset && e.target.dataset.r) return fin(true);
+          const n = ctx.now(); if (n - lastWrong < 450) return; lastWrong = n; wrong++; pen += PEN; ctx.sfx.bad(); scene.classList.add('shake'); setTimeout(() => scene.classList.remove('shake'), 250);
+        };
+        scene.addEventListener('pointerdown', onDown); clean.push(() => scene.removeEventListener('pointerdown', onDown));
+        const tick = ctx.every(() => { if (!done) clk.textContent = ((ctx.now() - t0 + pen) / 1000).toFixed(1).replace('.', ',') + ' s'; }, 100);
+        const to = ctx.after(() => fin(false), LIM);
+      };
+      next();
+      return () => clean.forEach(f => f());
+    }
+  },
+
+  // ---------------------------------------------------------------- DRAW (Nachmalen mit Abstimmung)
+  draw: {
+    title: 'KRITZEL-KRIEG', label: 'Nachmalen',
+    variants: {
+      copy: { name: 'Nachmalen und Bewerten', desc: 'Male das Bild mit dem Finger so gut du kannst nach (45 Sekunden). Danach bewertet ihr alle Zeichnungen anonym mit 1 bis 5 Sternen. Die schlechteste Zeichnung trinkt.', dur: 105000, better: 'high' }
+    },
+    DRAW_MS: 45000, VOTE_MS: 40000,
+    REFS: [
+      ['Haus vom Nikolaus', '<path d="M20 85V52H80V85ZM20 52L80 85M80 52L20 85M20 52L50 22L80 52"/>'],
+      ['Kegel', '<path d="M42 14q8-7 16 0q5 12-2 21q16 19 13 47q-19 8-38 0q-3-28 13-47q-7-9-2-21Z"/><path d="M38 52q12 6 24 0M36 62q14 7 28 0" stroke="#d81018"/>'],
+      ['Bierkrug', '<path d="M26 32H66V84H26Z"/><path d="M66 42H76q9 0 9 10V62q0 10-9 10H66"/><path d="M26 32q-4-12 8-12q4-8 14-4q10-4 14 6q6 2 4 10"/><path d="M36 44V74M46 44V74M56 44V74"/>'],
+      ['Burg', '<path d="M14 86V40H26V30H34V40H42V30H50V40H58V30H66V40H74V30H82V40H86V86ZM42 86V64q8-10 16 0V86"/><path d="M14 40V24l8-8l8 8V40"/>'],
+      ['Rakete', '<path d="M50 10q16 18 12 50H38q-4-32 12-50Z"/><circle cx="50" cy="38" r="6"/><path d="M38 60L24 76L38 72M62 60L76 76L62 72M44 66Q50 90 56 66"/>'],
+      ['Fisch', '<path d="M18 50Q42 22 70 50Q42 78 18 50Z"/><path d="M70 50L88 34V66Z"/><circle cx="32" cy="46" r="3"/><path d="M46 38Q52 50 46 62"/>'],
+      ['Segelboot', '<path d="M18 70H82L72 86H28Z"/><path d="M50 70V14"/><path d="M50 16L78 64H50ZM46 28L24 64H46Z"/>'],
+      ['Katze', '<path d="M24 44L26 14L42 28Q50 26 58 28L74 14L76 44Q82 70 50 80Q18 70 24 44Z"/><circle cx="40" cy="46" r="3"/><circle cx="60" cy="46" r="3"/><path d="M46 56H54L50 61ZM14 54L34 58M14 66L34 62M86 54L66 58M86 66L66 62"/>'],
+      ['Stern mit Gesicht', '<path d="M50 8L61 38L92 38L67 57L77 88L50 69L23 88L33 57L8 38L39 38Z"/><circle cx="42" cy="46" r="2.5"/><circle cx="58" cy="46" r="2.5"/><path d="M40 58Q50 68 60 58"/>']
+    ],
+    play(el, ctx) {
+      const clean = [], pick = ctx.rng(), refs = GAMES.draw.REFS, ref = refs[Math.floor(pick * refs.length) % refs.length];
+      const D = GAMES.draw.DRAW_MS, V = GAMES.draw.VOTE_MS; let sent = false, voted = false, galleryShown = false;
+      const refSvg = `<svg viewBox="0 0 100 100" class="drawref" fill="none" stroke="#16162a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ref[1]}</svg>`;
+      el.innerHTML = `<div class="qhead">MALE: <b>${esc(ref[0])}</b></div><div class="drawbox"><div class="drawrefbox">${refSvg}</div>
+        <canvas id="dcv" width="400" height="400"></canvas></div>
+        <div class="palette" id="pal">${['#16162a', '#d81018', '#1060e0', '#18a048', '#f0b800'].map((c, k) => `<button class="sw ${k ? '' : 'on'}" data-c="${c}" style="background:${c}"></button>`).join('')}<button class="pill" id="dclr">WEG DAMIT</button></div>
+        <button class="big green" id="ddone">FERTIG</button>`;
+      const stopBar = timerBar(el, D, ctx.now(), ctx); clean.push(stopBar);
+      const cv = el.querySelector('#dcv'), c2 = cv.getContext('2d'); c2.fillStyle = '#fff'; c2.fillRect(0, 0, 400, 400); c2.lineCap = 'round'; c2.lineJoin = 'round'; c2.lineWidth = 7; c2.strokeStyle = '#16162a';
+      let drawing = false, lx = 0, ly = 0;
+      const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 400, (e.clientY - r.top) / r.height * 400]; };
+      const down = e => { if (sent) return; e.preventDefault(); drawing = true; [lx, ly] = pos(e); c2.beginPath(); c2.moveTo(lx, ly); c2.lineTo(lx + .1, ly + .1); c2.stroke(); try { cv.setPointerCapture(e.pointerId); } catch { } };
+      const move = e => { if (!drawing || sent) return; e.preventDefault(); const [x, y] = pos(e); c2.beginPath(); c2.moveTo(lx, ly); c2.lineTo(x, y); c2.stroke(); lx = x; ly = y; };
+      const up = () => { drawing = false; };
+      cv.addEventListener('pointerdown', down); cv.addEventListener('pointermove', move); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+      el.querySelectorAll('.sw').forEach(b => clean.push(onTap(b, () => { c2.strokeStyle = b.dataset.c; el.querySelectorAll('.sw').forEach(x => x.classList.toggle('on', x === b)); ctx.sfx.tap(); })));
+      clean.push(onTap(el.querySelector('#dclr'), () => { if (sent) return; c2.fillStyle = '#fff'; c2.fillRect(0, 0, 400, 400); ctx.sfx.blip(); }));
+      const showWait = txt => { el.innerHTML = `<div class="waitmsg">${txt}</div>`; };
+      const sendDraw = () => {
+        if (sent) return; sent = true; stopBar(); ctx.cancel(to1);
+        const t = document.createElement('canvas'); t.width = 200; t.height = 200; const x = t.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 200, 200); x.drawImage(cv, 0, 0, 200, 200);
+        ctx.send({ t: 'draw', img: t.toDataURL('image/jpeg', 0.55) });
+        showWait('Zeichnung abgegeben!<br><small>Warte auf die anderen Künstler ...</small>'); ctx.sfx.win();
+      };
+      clean.push(onTap(el.querySelector('#ddone'), sendDraw));
+      const to1 = ctx.after(sendDraw, D);
+      ctx.onGm(m => {
+        if (m.k !== 'gal' || galleryShown) return; galleryShown = true; ctx.cancel(to1); if (!sent) { sent = true; stopBar(); }
+        const list = (m.list || []).filter(x => x.own !== ctx.me), rate = {};
+        el.innerHTML = `<div class="qhead">ABSTIMMUNG</div><p class="small">Vergib 1 bis 5 Sterne. Deine eigene Zeichnung ist nicht dabei.</p>
+          <div class="gallery">${list.map(x => `<div class="gcard" data-k="${x.k}"><img src="${x.img}"><div class="stars">${[1, 2, 3, 4, 5].map(s => `<button data-s="${s}">&#9733;</button>`).join('')}</div></div>`).join('')}</div>
+          <button class="big green" id="vgo" ${list.length ? 'disabled' : ''}>ABSTIMMEN</button>`;
+        const stopV = timerBar(el, V, ctx.now(), ctx); clean.push(stopV);
+        const go = el.querySelector('#vgo');
+        const submit = () => {
+          if (voted) return; voted = true; stopV(); ctx.cancel(to2);
+          list.forEach(x => { if (rate[x.k] == null) rate[x.k] = 3; });
+          ctx.send({ t: 'vote', st: rate }); showWait('Stimmen abgegeben!<br><small>Gleich gibt es das Ergebnis ...</small>'); ctx.sfx.win();
+        };
+        el.querySelectorAll('.gcard').forEach(card => card.querySelectorAll('button').forEach(b => clean.push(onTap(b, () => {
+          if (voted) return; const s = +b.dataset.s; rate[card.dataset.k] = s; ctx.sfx.tap();
+          card.querySelectorAll('button').forEach(x => x.classList.toggle('on', +x.dataset.s <= s));
+          go.disabled = Object.keys(rate).length < list.length;
+        }))));
+        clean.push(onTap(go, () => { if (!go.disabled) submit(); }));
+        const to2 = ctx.after(submit, V); clean.push(() => ctx.cancel(to2));
+        if (!list.length) submit();
+      });
+      return () => { clean.forEach(f => f()); ctx.cancel(to1); cv.removeEventListener('pointerdown', down); };
     }
   },
 
