@@ -274,8 +274,8 @@ function galBroadcast() { if (!S.game || S.game.key !== 'draw' || !HD.galSent) r
 function sendGallery() {
   if (HD.galSent || !S.game || S.game.key !== 'draw') return; HD.galSent = true;
   const nonce = S.game.nonce, pids = shuffle(Object.keys(HD.imgs));
-  HD.order = pids; HD.voteMs = Math.max(30000, Math.min(90000, 14000 + 6000 * pids.length));
-  galBroadcast(); HC.after(galBroadcast, 6000); HC.after(galBroadcast, 15000); // repeats: clients ignore images they already have
+  HD.order = pids; HD.voteMs = Math.max(40000, Math.min(100000, 16000 + 7000 * pids.length));
+  galBroadcast(); HC.after(galBroadcast, 4000); HC.after(galBroadcast, 10000); HC.after(galBroadcast, 20000); // repeats: clients ignore images they already have
   Object.keys(S.players).filter(q => S.players[q].bot && S.game.parts.includes(q)).forEach((q, n) => HC.after(() => {
     if (!S.game || S.game.nonce !== nonce || S.phase !== 'play') return;
     const st = {}; pids.forEach((p, i) => { if (p !== q) st[i] = 1 + Math.floor(Math.random() * 5); }); hostHandle(q, { t: 'vote', nonce, st });
@@ -397,7 +397,7 @@ function planGame(repeat = false) {
   if (key === 'draw') {
     HD = { imgs: {}, votes: {}, order: [], galSent: false, fin: false };
     parts.filter(q => S.players[q] && S.players[q].bot).forEach(q => { HD.imgs[q] = botScribble(); });
-    HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') sendGallery(); }, S.game.startDelay + GAMES.draw.DRAW_MS + 2500);
+    HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') sendGallery(); }, S.game.startDelay + GAMES.draw.DRAW_MS + 9000);
   }
   botPlay();
   commit();
@@ -961,7 +961,7 @@ function renderBattle() {
     const isP = B.pids.includes(me.pid);
     app.innerHTML = `<div class="gamehead"><span class="glabel">FINALE · ALLE ${B.pids.length} SPIELEN MIT</span><h2>BALLON-SCHLACHT</h2><div class="vname">3 Ballons · Power-Ups · wer zuerst raus ist, muss EXEN!</div></div>
       <div class="stage" id="bstage"><div class="intro"><div class="gpv">${gamePreview('battle')}</div><div class="bplayers">${B.pids.map((q, i) => `<span class="chip" style="border-color:${BATTLE.COLORS[i % BATTLE.COLORS.length]}"><img src="${dimg(q)}">${esc(dname(q))}</span>`).join('')}</div>
-        <p class="desc">Alle gegen alle, jeder hat 3 Ballons. Links lenken, KEGELN wirft, DASH weicht aus. Sammle Power-Ups: Stern (rammt Gegner um), Banane (andere rutschen aus), Bier-Bombe (sprengt im Umkreis), Schild, Turbo, Dreifach. Wer als Erster alle Ballons verliert, muss EXEN. Nach 75 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
+        <p class="desc">Alle gegen alle, jeder hat 3 Ballons. Links lenken, KEGELN wirft, DASH weicht aus. Sammle Power-Ups: Stern (rammt Gegner um), Banane (andere rutschen aus), Bier-Bombe (sprengt im Umkreis), Schild, Turbo, Dreifach. Wer als Erster alle Ballons verliert, muss EXEN. Die Bahn ist doppelt so groß: du siehst nur deinen Ausschnitt, die Minimap zeigt alle. Gelbe Felder boosten, rote Kreise sind Meteore, und RALLUM jagt als Abrissbirne alle. Nach 60 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
     let fav = null;
     const stage = document.getElementById('bstage'), startAt = performance.now() + B.startDelay; let last = null, cleanup = null;
     const tick = setInterval(() => {

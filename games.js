@@ -476,24 +476,24 @@ const GAMES = {
   draw: {
     title: 'KRITZEL-KRIEG', label: 'Nachmalen',
     variants: {
-      copy: { name: 'Nachmalen und Bewerten', desc: 'Male das Bild mit dem Finger so gut du kannst nach (45 Sekunden). Danach bewertet ihr alle Zeichnungen anonym mit 1 bis 5 Sternen. Die schlechteste Zeichnung trinkt.', dur: 105000, better: 'high' }
+      copy: { name: 'Nachmalen und Bewerten', desc: 'Male das berühmte Kunstwerk mit dem Finger so gut du kannst nach (75 Sekunden, schwer!). Danach bewertet ihr alle Zeichnungen anonym mit 1 bis 5 Sternen. Die schlechteste Zeichnung trinkt.', dur: 185000, better: 'high' }
     },
-    DRAW_MS: 45000, VOTE_MS: 40000,
+    DRAW_MS: 75000, VOTE_MS: 40000,
     REFS: [
-      ['Haus vom Nikolaus', '<path d="M20 85V52H80V85ZM20 52L80 85M80 52L20 85M20 52L50 22L80 52"/>'],
-      ['Kegel', '<path d="M42 14q8-7 16 0q5 12-2 21q16 19 13 47q-19 8-38 0q-3-28 13-47q-7-9-2-21Z"/><path d="M38 52q12 6 24 0M36 62q14 7 28 0" stroke="#d81018"/>'],
-      ['Bierkrug', '<path d="M26 32H66V84H26Z"/><path d="M66 42H76q9 0 9 10V62q0 10-9 10H66"/><path d="M26 32q-4-12 8-12q4-8 14-4q10-4 14 6q6 2 4 10"/><path d="M36 44V74M46 44V74M56 44V74"/>'],
-      ['Burg', '<path d="M14 86V40H26V30H34V40H42V30H50V40H58V30H66V40H74V30H82V40H86V86ZM42 86V64q8-10 16 0V86"/><path d="M14 40V24l8-8l8 8V40"/>'],
-      ['Rakete', '<path d="M50 10q16 18 12 50H38q-4-32 12-50Z"/><circle cx="50" cy="38" r="6"/><path d="M38 60L24 76L38 72M62 60L76 76L62 72M44 66Q50 90 56 66"/>'],
-      ['Fisch', '<path d="M18 50Q42 22 70 50Q42 78 18 50Z"/><path d="M70 50L88 34V66Z"/><circle cx="32" cy="46" r="3"/><path d="M46 38Q52 50 46 62"/>'],
-      ['Segelboot', '<path d="M18 70H82L72 86H28Z"/><path d="M50 70V14"/><path d="M50 16L78 64H50ZM46 28L24 64H46Z"/>'],
-      ['Katze', '<path d="M24 44L26 14L42 28Q50 26 58 28L74 14L76 44Q82 70 50 80Q18 70 24 44Z"/><circle cx="40" cy="46" r="3"/><circle cx="60" cy="46" r="3"/><path d="M46 56H54L50 61ZM14 54L34 58M14 66L34 62M86 54L66 58M86 66L66 62"/>'],
-      ['Stern mit Gesicht', '<path d="M50 8L61 38L92 38L67 57L77 88L50 69L23 88L33 57L8 38L39 38Z"/><circle cx="42" cy="46" r="2.5"/><circle cx="58" cy="46" r="2.5"/><path d="M40 58Q50 68 60 58"/>']
+      ['Sternennacht (Van Gogh)', '<path d="M0 74Q18 64 38 72T76 68T100 66V100H0Z" stroke-width="1.4"/><path d="M12 100Q3 72 9 52Q7 42 13 32Q18 46 20 58Q24 80 18 100M13 40Q15 52 15 64" stroke-width="1.6"/><path d="M0 42Q14 32 28 42T56 40T84 38T100 40M0 52Q14 44 28 52T56 50T84 48T100 50M6 31Q22 22 36 30T66 28" stroke-width="1.3"/><path d="M26 30C26 20 42 18 46 26C50 34 40 40 36 36C32 32 38 28 41 31"/><path d="M62 38C60 30 70 26 74 32C78 38 70 42 68 38"/><circle cx="85" cy="16" r="6.5"/><path d="M82 11a5.5 5.5 0 1 0 5 10a4.5 4.5 0 1 1-5-10Z" fill="#16162a"/><circle cx="85" cy="16" r="10" stroke-dasharray="2 2.5"/><g stroke-width="1.2"><circle cx="58" cy="12" r="2.5"/><circle cx="58" cy="12" r="5" stroke-dasharray="1.5 2"/><circle cx="70" cy="22" r="2.2"/><circle cx="70" cy="22" r="4.5" stroke-dasharray="1.5 2"/><circle cx="46" cy="8" r="2"/><circle cx="46" cy="8" r="4" stroke-dasharray="1.5 2"/><circle cx="30" cy="14" r="2"/></g><path d="M58 82V70L62 58L66 70V82M44 84V77H52V84M70 84V78H78V84M84 84V79H92V84M30 86V80H38V86" stroke-width="1.4"/>'],
+      ['Der Schrei (Munch)', '<path d="M0 12Q20 4 40 14T80 10T100 14M0 24Q20 16 40 26T80 22T100 26M0 36Q20 28 40 38T80 34T100 38" stroke-width="1.5"/><path d="M0 52Q22 46 44 56T88 52T100 54" stroke-width="1.3"/><path d="M0 100L64 52M0 88L56 50M10 100L66 56M22 100L68 60" stroke-width="1.5"/><path d="M14 64Q30 60 46 68M0 74Q20 68 40 74" stroke-width="1.2"/><path d="M68 100Q64 80 68 62Q70 52 80 52Q90 52 90 64Q92 82 88 100" stroke-width="1.7"/><ellipse cx="79" cy="40" rx="8.5" ry="11.5"/><ellipse cx="75.5" cy="37" rx="2.4" ry="3"/><ellipse cx="83" cy="37" rx="2.4" ry="3"/><ellipse cx="79" cy="47" rx="3" ry="5" fill="#16162a"/><path d="M70 50Q64 46 70 38M88 50Q94 46 88 38" stroke-width="1.5"/><path d="M26 54L28 62M34 56L33 64" stroke-width="2"/>'],
+      ['Die große Welle (Hokusai)', '<path d="M0 100V78C6 60 18 36 40 26C56 20 72 24 76 38C70 32 62 32 56 38C66 38 70 48 64 58C58 50 50 50 46 58C54 56 56 66 48 72C40 66 32 68 30 76" stroke-width="1.8"/><path d="M40 26C44 18 52 16 58 20M48 24C52 18 60 18 62 22M56 28C62 22 68 24 70 28M34 32C36 26 42 24 46 26" stroke-width="1.3"/><path d="M0 84Q16 76 30 82T60 82T100 78M0 92Q18 86 34 92T68 90T100 88M0 100Q20 94 40 100T80 98T100 96" stroke-width="1.4"/><path d="M74 66L86 52L98 66" stroke-width="1.8"/><path d="M82 58L86 52L90 58" stroke-width="1.2"/><path d="M72 84Q84 80 98 82L96 86Q84 88 74 88Z M4 92Q16 88 28 90L26 94Q14 96 6 95Z" stroke-width="1.4"/>'],
+      ['Mona Lisa (da Vinci)', '<path d="M0 46Q20 40 34 48M66 48Q80 42 100 46M0 54Q22 50 34 56M66 56Q82 52 100 56" stroke-width="1.3"/><path d="M10 100Q22 80 50 76Q78 80 90 100" stroke-width="1.7"/><path d="M34 62Q22 70 28 90M66 62Q78 70 72 90" stroke-width="1.5"/><path d="M50 76Q44 74 40 70M50 76Q56 74 60 70" stroke-width="1.5"/><ellipse cx="50" cy="42" rx="14" ry="18"/><path d="M36 38Q34 14 50 12Q66 14 64 38M36 38Q30 50 32 66M64 38Q70 50 68 66" stroke-width="1.7"/><path d="M42 36Q45 34 48 36M52 36Q55 34 58 36" stroke-width="1.4"/><circle cx="45" cy="38" r="1.2" fill="#16162a"/><circle cx="55" cy="38" r="1.2" fill="#16162a"/><path d="M50 40V47Q48 49 46 48M50 47Q52 49 54 48" stroke-width="1.3"/><path d="M44 54Q50 57 56 53" stroke-width="1.6"/><path d="M34 90Q44 80 56 86Q64 90 72 86M36 96Q46 88 58 92" stroke-width="1.5"/><path d="M10 60Q4 76 14 86M90 60Q96 76 86 86" stroke-width="1.2"/><path d="M0 62C8 60 8 70 16 68" stroke-width="1.2"/>'],
+      ['Der Kuss (Klimt)', '<path d="M30 100Q24 60 36 40Q50 30 66 42Q76 62 68 100Z" stroke-width="1.7"/><circle cx="48" cy="26" r="9"/><circle cx="60" cy="30" r="8"/><path d="M38 22Q40 12 50 14Q60 12 64 22M44 12l-2-5M52 11l1-5M60 13l3-4" stroke-width="1.4"/><path d="M48 35Q54 42 58 36" stroke-width="1.4"/><g stroke-width="1.2"><circle cx="40" cy="58" r="3.5"/><circle cx="50" cy="66" r="3.5"/><circle cx="60" cy="58" r="3.5"/><circle cx="46" cy="80" r="3.5"/><circle cx="58" cy="76" r="3.5"/><rect x="36" y="68" width="6" height="9"/><rect x="62" y="64" width="6" height="9"/><rect x="50" y="48" width="6" height="8"/><path d="M34 90H70M32 96H72"/></g><path d="M0 100H100M4 94l2-8M12 94l-1-9M80 94l2-8M90 94l-1-9M96 94l1-6" stroke-width="1.3"/><path d="M0 0H100V100H0Z" stroke-width="1" stroke-dasharray="3 3"/>'],
+      ['Komposition (Mondrian)', '<rect x="4" y="4" width="34" height="46" fill="#d81018" stroke="none"/><rect x="74" y="74" width="22" height="22" fill="#1060e0" stroke="none"/><rect x="4" y="84" width="22" height="12" fill="#f0b800" stroke="none"/><path d="M4 4H96V96H4Z M38 4V96 M4 50H96 M74 50V96 M4 84H74 M26 84V96 M38 18H96 M60 18V50" stroke="#16162a" stroke-width="2.6" stroke-linecap="butt"/>'],
+      ['Mädchen mit dem Perlenohrring (Vermeer)', '<path d="M32 40Q28 12 52 10Q76 12 70 40" stroke-width="1.8"/><path d="M34 22Q50 14 68 24M32 30Q50 22 70 32" stroke-width="1.3"/><path d="M68 18Q86 30 84 60Q82 72 74 70M70 24Q80 36 78 58" stroke-width="1.5"/><ellipse cx="52" cy="48" rx="15" ry="19"/><path d="M42 44Q46 41 50 44M56 44Q60 41 64 44" stroke-width="1.4"/><circle cx="46" cy="46" r="1.5" fill="#16162a"/><circle cx="60" cy="46" r="1.5" fill="#16162a"/><path d="M53 48L51 55Q53 57 56 55" stroke-width="1.3"/><path d="M45 61Q52 65 59 61Q52 58 45 61Z" stroke-width="1.5"/><path d="M38 66Q36 76 24 84Q18 94 22 100M66 66Q70 76 82 84Q88 94 84 100" stroke-width="1.7"/><path d="M40 70Q52 78 64 70" stroke-width="1.4"/><circle cx="68" cy="62" r="3.4" fill="#fff"/><path d="M66 60l1.5-1.5" stroke-width="1.3"/><path d="M0 100H100" stroke-width="1.2"/>'],
+      ['Sonnenblumen (Van Gogh)', '<path d="M38 100Q32 82 38 68H62Q68 82 62 100Z M38 78H62 M44 70V66H56V70" stroke-width="1.6"/><g stroke-width="1.3"><circle cx="30" cy="30" r="9"/><circle cx="30" cy="30" r="15" stroke-dasharray="4 2.5"/><circle cx="62" cy="22" r="9"/><circle cx="62" cy="22" r="15" stroke-dasharray="4 2.5"/><circle cx="48" cy="46" r="8"/><circle cx="48" cy="46" r="14" stroke-dasharray="4 2.5"/><circle cx="80" cy="46" r="7"/><circle cx="80" cy="46" r="12" stroke-dasharray="4 2.5"/><circle cx="16" cy="58" r="6"/><circle cx="16" cy="58" r="10" stroke-dasharray="4 2.5"/></g><path d="M44 66Q40 58 36 44M54 66Q58 56 62 34M58 68Q70 60 76 52M42 68Q28 64 20 62" stroke-width="1.6"/><path d="M8 98H92" stroke-width="1.3"/>'],
+      ['Der vitruvianische Mensch (da Vinci)', '<circle cx="50" cy="52" r="42" stroke-width="1.5"/><rect x="12" y="10" width="76" height="76" stroke-width="1.5"/><circle cx="50" cy="26" r="6"/><path d="M50 32V58M50 36L14 42M50 36L86 42M50 38L22 24M50 38L78 24" stroke-width="1.6"/><path d="M50 58L38 86M50 58L62 86M50 58L28 80M50 58L72 80" stroke-width="1.6"/><path d="M42 36Q50 44 58 36M44 46H56" stroke-width="1.3"/>']
     ],
     play(el, ctx) {
       const clean = [], pick = ctx.rng(), refs = GAMES.draw.REFS, ref = refs[Math.floor(pick * refs.length) % refs.length];
       const D = GAMES.draw.DRAW_MS, V = GAMES.draw.VOTE_MS; let sent = false, voted = false, galleryShown = false;
-      const refSvg = `<svg viewBox="0 0 100 100" class="drawref" fill="none" stroke="#16162a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ref[1]}</svg>`;
+      const refSvg = `<svg viewBox="0 0 100 100" class="drawref" fill="none" stroke="#16162a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ref[1]}</svg>`;
       el.innerHTML = `<div class="qhead">MALE: <b>${esc(ref[0])}</b></div><div class="drawbox"><div class="drawrefbox">${refSvg}</div>
         <canvas id="dcv" width="400" height="400"></canvas></div>
         <div class="palette" id="pal">${['#16162a', '#d81018', '#1060e0', '#18a048', '#f0b800'].map((c, k) => `<button class="sw ${k ? '' : 'on'}" data-c="${c}" style="background:${c}"></button>`).join('')}<button class="pill" id="dclr">WEG DAMIT</button></div>
@@ -511,8 +511,8 @@ const GAMES = {
       const showWait = txt => { el.innerHTML = `<div class="waitmsg">${txt}</div>`; };
       const sendDraw = () => {
         if (sent) return; sent = true; stopBar(); ctx.cancel(to1);
-        const t = document.createElement('canvas'); t.width = 200; t.height = 200; const x = t.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 200, 200); x.drawImage(cv, 0, 0, 200, 200);
-        ctx.send({ t: 'draw', img: t.toDataURL('image/jpeg', 0.55) });
+        const t = document.createElement('canvas'); t.width = 280; t.height = 280; const x = t.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 280, 280); x.drawImage(cv, 0, 0, 280, 280);
+        ctx.send({ t: 'draw', img: t.toDataURL('image/jpeg', 0.6) });
         showWait('Zeichnung abgegeben!<br><small>Warte auf die anderen Künstler ...</small>'); ctx.sfx.win();
       };
       clean.push(onTap(el.querySelector('#ddone'), sendDraw));
@@ -523,20 +523,21 @@ const GAMES = {
         list.forEach(x => { if (rate[x.k] == null) rate[x.k] = 3; });
         ctx.send({ t: 'vote', st: rate }); showWait('Stimmen abgegeben!<br><small>Gleich gibt es das Ergebnis ...</small>'); ctx.sfx.win();
       };
+      const upd = () => { const r = el.querySelector('#vcount'); if (r) r.textContent = Object.keys(rate).length + ' bewertet, ' + (have.size - (have.has(-1) ? 1 : 0)) + ' von ' + tot + ' Bildern da'; };
       const addCard = x => {
         const card = document.createElement('div'); card.className = 'gcard'; card.dataset.k = x.k;
         card.innerHTML = `<img src="${x.img}"><div class="stars">${[1, 2, 3, 4, 5].map(s => `<button data-s="${s}">&#9733;</button>`).join('')}</div>`;
-        gallery.appendChild(card);
+        const nxt = [...gallery.children].find(c => +c.dataset.k > x.k); gallery.insertBefore(card, nxt || null);
         card.querySelectorAll('button').forEach(b => clean.push(onTap(b, () => {
           if (voted) return; const s = +b.dataset.s; rate[x.k] = s; ctx.sfx.tap();
           card.querySelectorAll('button').forEach(y => y.classList.toggle('on', +y.dataset.s <= s));
-          const r = el.querySelector('#vcount'); if (r) r.textContent = Object.keys(rate).length + ' von ' + list.length + ' bewertet';
+          upd();
         })));
       };
       // Pictures arrive one message each (robust on slow links); unrated pictures count as 3 stars, the vote can be sent any time
       const buildUI = ms => {
-        built = true; ctx.cancel(to1); if (!sent) { sent = true; stopBar(); } clearInterval(galPoll);
-        el.innerHTML = `<div class="qhead">ABSTIMMUNG</div><p class="small">Gib jeder Zeichnung 1 bis 5 Sterne. Deine eigene fehlt. Nicht bewertet = 3 Sterne. <b id="vcount"></b></p>
+        built = true; ctx.cancel(to1); if (!sent) { sent = true; stopBar(); }
+        el.innerHTML = `<div class="qhead">ABSTIMMUNG</div><p class="small">Gib jeder Zeichnung 1 bis 5 Sterne. Deine eigene fehlt. Alle Bilder laden nach, einfach scrollen. Nicht bewertet = 3 Sterne. <b id="vcount"></b></p>
           <div class="gallery" id="gal"></div><button class="big green" id="vgo">ABSTIMMEN</button>`;
         gallery = el.querySelector('#gal'); go = el.querySelector('#vgo');
         const stopV = timerBar(el, ms, ctx.now(), ctx); clean.push(stopV);
@@ -545,11 +546,11 @@ const GAMES = {
       ctx.onGm(m => {
         if (m.k !== 'gimg' || voted) return;
         if (!built) buildUI(m.ms || V);
-        tot = m.tot || tot; if (have.has(m.n)) return; have.add(m.n);
-        if (m.own !== ctx.me) { const x = { k: m.n, img: m.img }; list.push(x); addCard(x); const r = el.querySelector('#vcount'); if (r) r.textContent = Object.keys(rate).length + ' von ' + list.length + ' bewertet'; }
-        if (have.size >= tot && !list.length) submit();
+        tot = m.tot || tot; if (built && !galPoll) startPoll(); if (have.has(m.n)) return; have.add(m.n);
+        if (m.own !== ctx.me) { const x = { k: m.n, img: m.img }; list.push(x); addCard(x); }
+        upd(); if (have.size >= tot) { clearInterval(galPoll); if (!list.length) submit(); }
       });
-      const startPoll = () => { clearInterval(galPoll); galPoll = setInterval(() => { if (!built && sent) ctx.send({ t: 'galreq' }); }, 4000); clean.push(() => clearInterval(galPoll)); };
+      const startPoll = () => { clearInterval(galPoll); galPoll = setInterval(() => { if (sent && !voted && (!built || have.size < tot)) ctx.send({ t: 'galreq' }); }, 4000); clean.push(() => clearInterval(galPoll)); };
       startPoll();
       return () => { clean.forEach(f => f()); ctx.cancel(to1); cv.removeEventListener('pointerdown', down); };
     }
