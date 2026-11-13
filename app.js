@@ -13,6 +13,12 @@ CHARS.push({ id: CHAL_ID, name: 'Herausforderer', img: 'badges/13_herausforderer
 const PROST = ['Sauber runtergespült!', 'Gluck, gluck, weg!', 'Die Leber grüßt.', 'Schluck-Beweis akzeptiert.', 'Ehrenrunde für dich!', 'Respekt, du Tier!', 'Und nochmal, aber nicht jetzt.'];
 const RALF_IMG = 'badges/00_ralf.png', RALF_FIG = 'figs/00_ralf.jpg';
 const PREFIX = 'ggg-apokalypse-';
+// STUN + TURN: without a relay, WebRTC fails behind carrier NAT or WLANs with client isolation (typical on Samsung phones / venue WLAN)
+const ICE = { iceServers: [
+  { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] },
+  { urls: ['turn:staticauth.openrelay.metered.ca:80', 'turn:staticauth.openrelay.metered.ca:80?transport=tcp', 'turn:staticauth.openrelay.metered.ca:443', 'turns:staticauth.openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
+], iceCandidatePoolSize: 4 };
+let netDiag = '';
 const PASS_TASKS = ['{n} Kniebeugen', '{n} Liegestütze', '{n}x Hampelmann', '{n} Sekunden Planke', 'Einen Trinkspruch ausbringen'];
 const params = new URLSearchParams(location.search);
 const LOCAL = params.has('local');
@@ -58,7 +64,7 @@ function hostNet(code, onMsg, onLeave, onReady, onFail) {
   }
   const conns = new Map(); let peer, tries = 0;
   const start = () => {
-    peer = new Peer(PREFIX + code.toLowerCase(), { debug: 0 });
+    peer = new Peer(PREFIX + code.toLowerCase(), { debug: 0, config: ICE });
     peer.on('open', () => { tries = 0; onReady(); });
     peer.on('connection', c => {
       c.on('open', () => conns.set(c.peer, c));
@@ -92,9 +98,9 @@ function clientNet(code, onMsg, onStatus) {
   const connect = () => {
     clearTimeout(retry);
     if (!peer || peer.destroyed) {
-      peer = new Peer({ debug: 0 });
+      peer = new Peer({ debug: 0, config: ICE });
       peer.on('open', connect);
-      peer.on('error', e => { onStatus(false, e.type); retry = setTimeout(connect, 2500); });
+      peer.on('error', e => { netDiag = 'Server: ' + e.type; onStatus(false, e.type); retry = setTimeout(connect, 2500); });
       peer.on('disconnected', () => { try { peer.reconnect(); } catch { } });
       return;
     }
@@ -103,7 +109,8 @@ function clientNet(code, onMsg, onStatus) {
     conn.on('open', () => onStatus(true));
     conn.on('data', onMsg);
     conn.on('close', () => { onStatus(false); retry = setTimeout(connect, 1500); });
-    conn.on('error', () => { });
+    conn.on('error', e => { netDiag = 'Verbindung: ' + ((e && e.type) || 'Fehler'); });
+    clearTimeout(conn._to); conn._to = setTimeout(() => { if (conn && !conn.open) { netDiag = 'Host nicht erreichbar (Timeout)'; try { conn.close(); } catch { } retry = setTimeout(connect, 500); render(); } }, 12000);
   };
   connect();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (!conn || !conn.open)) connect(); });
@@ -523,7 +530,7 @@ function updateStatus() {
 function render() {
   renderRalf(); updateStatus();
   if (!me.code) return renderStart();
-  if (!S) { cleanupMount(); app.innerHTML = '<div class="card center"><div class="spinner"></div><p>Verbinde mit Raum ' + me.code + ' ...</p><p class="small">Alle im selben WLAN oder Hotspot? Host-Handy entsperrt?</p></div>'; return; }
+  if (!S) { cleanupMount(); app.innerHTML = '<div class="card center"><div class="spinner"></div><p>Verbinde mit Raum ' + me.code + ' ...</p><p class="small">Host-Handy muss die App offen und entsperrt haben. Verbindung läuft über Internet, WLAN oder Mobilfunk ist egal.</p>' + (netDiag ? '<p class="small">' + esc(netDiag) + '</p>' : '') + '<button class="pill" id="rejoin">NEU VERBINDEN</button></div>'; const rj = document.getElementById('rejoin'); if (rj) rj.onclick = () => location.reload(); return; }
   const mine = P(me.pid);
   const watchOnly = me.host && S.phase !== 'lobby' && (!mine || mine.char == null) && !pickMode; // host without a character stays game master
   if ((!mine || mine.char == null || S.phase === 'lobby') && !watchOnly) return renderLobby();

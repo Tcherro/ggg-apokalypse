@@ -253,7 +253,7 @@ input.num { width: 100%; font-family: var(--font); font-size: 30px; text-align: 
 .choice.wrong { background: linear-gradient(#ff7a7a, #d81018); color: #fff; }
 .choice.dim { opacity: .45; }
 .mapwrap { border: 4px solid #000; border-radius: 14px; overflow: hidden; background: #7cc4ff; margin: 8px 0; }
-.mapwrap { overflow: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
+.mapwrap { overflow: auto; -webkit-overflow-scrolling: touch; touch-action: none; }
 .mapwrap.zoomed { max-height: 56vh; }
 .mapinner { position: relative; width: 100%; }
 .mapinner svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }

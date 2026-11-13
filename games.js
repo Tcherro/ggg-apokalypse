@@ -344,7 +344,7 @@ const GAMES = {
           for (let la = Math.ceil(M.lat[0] / step) * step; la <= M.lat[1]; la += step) { const y = toXY(la, M.lon[0])[1]; ln += `<line x1="0" y1="${y}" x2="100" y2="${y}"/>`; for (let t = 2; t < 100; t += 16) lab += `<span class="glab" style="left:${t}%;top:${y}%">${Math.abs(la)}°${la < 0 ? 'S' : 'N'}</span>`; }
           inner.insertAdjacentHTML('beforeend', `<svg class="grat" viewBox="0 0 100 100" preserveAspectRatio="none">${ln}</svg>${lab}`);
         }
-        const zb = el.querySelector('.zoombtn'), LV = [1, 2.5, 4.5]; let lv = 0;
+        const zb = el.querySelector('.zoombtn'), LV = [1, 2.5, 4.5, 7]; let zoom = 1;
         const focus = (px, py) => { // keep a map point centred after zooming
           requestAnimationFrame(() => {
             const cx = px == null ? 50 : px, cy = py == null ? 50 : py;
@@ -352,17 +352,55 @@ const GAMES = {
             wrap.scrollTop = Math.max(0, inner.scrollHeight * cy / 100 - wrap.clientHeight / 2);
           });
         };
-        zb.onclick = () => {
-          lv = (lv + 1) % LV.length; ctx.sfx.tap();
-          inner.style.width = (LV[lv] * 100) + '%'; wrap.classList.toggle('zoomed', lv > 0);
-          zb.textContent = 'ZOOM x' + (LV[lv] === 1 ? '1' : String(LV[lv]).replace('.', ','));
-          focus(pin ? pin[0] : null, pin ? pin[1] : null);
+        const setZoom = (z, ax, ay) => { // zoom around a screen point (pinch centre); null = view centre
+          z = Math.max(1, Math.min(7, z));
+          const wr = wrap.getBoundingClientRect(), r = inner.getBoundingClientRect();
+          const sx = ax == null ? wr.left + wr.width / 2 : ax, sy = ay == null ? wr.top + wr.height / 2 : ay;
+          const fx = (sx - r.left) / r.width, fy = (sy - r.top) / r.height;
+          zoom = z; inner.style.width = (z * 100) + '%'; wrap.classList.toggle('zoomed', z > 1.02);
+          zb.textContent = 'ZOOM x' + (Math.round(z * 10) / 10).toString().replace('.', ',');
+          wrap.scrollLeft = fx * inner.scrollWidth - (sx - wr.left);
+          wrap.scrollTop = fy * inner.scrollHeight - (sy - wr.top);
         };
-        inner.addEventListener('click', e => {
+        const place = (cx, cy) => {
           if (answered) return; const r = inner.getBoundingClientRect();
-          pin = [(e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100];
+          pin = [(cx - r.left) / r.width * 100, (cy - r.top) / r.height * 100];
           mp.style.left = pin[0] + '%'; mp.style.top = pin[1] + '%'; mp.classList.remove('hidden'); btn.disabled = false; ctx.sfx.tap();
-        });
+        };
+        zb.onclick = () => {
+          const nx = LV.find(l => l > zoom + 0.05) || 1; ctx.sfx.tap();
+          setZoom(nx, null, null); if (pin) focus(pin[0], pin[1]);
+        };
+        // touch: two fingers = pinch zoom (+ pan with the pinch centre), one finger = pan when zoomed / page scroll when not, short tap = pin
+        { let mode = null, d0 = 0, z0 = 1, lx = 0, ly = 0, sx0 = 0, sy0 = 0, moved = 0, lastTouch = 0;
+          const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+          const mid = t => [(t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2];
+          wrap.style.touchAction = 'none';
+          wrap.addEventListener('touchstart', e => {
+            if (e.touches.length >= 2) { mode = 'pinch'; d0 = dist(e.touches) || 1; z0 = zoom; [lx, ly] = mid(e.touches); moved = 99; }
+            else { mode = 'one'; lx = sx0 = e.touches[0].clientX; ly = sy0 = e.touches[0].clientY; moved = 0; }
+          }, { passive: true });
+          wrap.addEventListener('touchmove', e => {
+            if (!mode) return; e.preventDefault();
+            if (e.touches.length >= 2) {
+              if (mode !== 'pinch') { mode = 'pinch'; d0 = dist(e.touches) || 1; z0 = zoom; [lx, ly] = mid(e.touches); }
+              const [mx, my] = mid(e.touches); setZoom(z0 * dist(e.touches) / d0, mx, my);
+              wrap.scrollLeft -= mx - lx; wrap.scrollTop -= my - ly; lx = mx; ly = my; moved = 99;
+            } else if (mode === 'one') {
+              const x = e.touches[0].clientX, y = e.touches[0].clientY; moved += Math.abs(x - lx) + Math.abs(y - ly);
+              if (zoom > 1.02) { wrap.scrollLeft -= x - lx; wrap.scrollTop -= y - ly; } else window.scrollBy(0, -(y - ly));
+              lx = x; ly = y;
+            }
+          }, { passive: false });
+          wrap.addEventListener('touchend', e => {
+            if (e.touches.length === 0) {
+              if (mode === 'one' && moved < 12) { e.preventDefault(); lastTouch = Date.now(); place(sx0, sy0); }
+              mode = null;
+            } else if (e.touches.length === 1) { mode = 'one'; lx = e.touches[0].clientX; ly = e.touches[0].clientY; moved = 99; }
+          }, { passive: false });
+          wrap.addEventListener('touchcancel', () => { mode = null; });
+          inner.addEventListener('click', e => { if (Date.now() - lastTouch < 600) return; place(e.clientX, e.clientY); });
+        }
         const answer = () => {
           if (answered) return; answered = true; stopBar(); ctx.cancel(to);
           const [tx, ty] = toXY(q.lat, q.lon), tp = el.querySelector('.tpin');
@@ -371,7 +409,7 @@ const GAMES = {
           if (pin) { const [la, lo] = toLL(pin[0], pin[1]); km = Math.min(pen, haversine(la, lo, q.lat, q.lon)); }
           total += km; ctx.sfx[km < pen * 0.08 ? 'win' : 'blip']();
           el.querySelector('.controls').innerHTML = `<div class="feedback ${km < pen * 0.08 ? 'good' : ''}">${pin ? `<b>${Math.round(km)} km</b> daneben` : 'Keine Nadel gesetzt'}</div>`;
-          if (lv > 0) focus(tx, ty);
+          if (zoom > 1.02) focus(tx, ty);
           const t = ctx.after(() => { i++; next(); }, 2800); clean.push(() => ctx.cancel(t));
         };
         clean.push(onTap(btn, () => { if (pin) answer(); }));
