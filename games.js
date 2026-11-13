@@ -109,14 +109,40 @@ const GAMES = {
     variants: {
       quick: { name: 'Schnellziehen', desc: '3 Runden: Warte auf "SCHLAG!" und tippe sofort. Fehlstart kostet 1,5 s. Schnellste Gesamtzeit gewinnt.', dur: 24000, better: 'low' },
       combo: { name: 'Combo-Kette', desc: '3 Runden: Gib die Pfeil-Kombo so schnell wie möglich ein. Falscher Pfeil +0,4 s.', dur: 30000, better: 'low' },
+      fighter: { name: 'Kegel-Fighter (Lutz gegen Lutz)', desc: 'Street Fighter mit Lutz-Kopf: Wähle deinen Kämpfer, dann 7 Runden Schlag, Wurf, Block oder Spezial gleichzeitig. Schlag schlägt Wurf, Wurf schlägt Block, Block schlägt Schlag und Spezial. Spezial schlägt Schlag und Wurf, braucht aber Ladung. Wer mehr Lebensenergie übrig hat, gewinnt.', dur: 64000, better: 'high' },
       mash: { name: 'Hammer-Mash', desc: '8 Sekunden lang so oft wie möglich auf den Hammer hauen.', dur: 11000, better: 'high' }
+    },
+    LUTZ: 'badges/lutz.png',
+    LUTZ_SVG: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ffd21a"/><path d="M22 34Q50 6 78 34" fill="none" stroke="#5a3a1a" stroke-width="3"/><ellipse cx="50" cy="56" rx="44" ry="40" fill="#f6c59a" stroke="#16162a" stroke-width="3"/><path d="M32 34Q50 28 68 34M38 30Q50 24 62 30" fill="none" stroke="#5a3a1a" stroke-width="2"/><circle cx="34" cy="48" r="4.5" fill="#fff" stroke="#16162a" stroke-width="2"/><circle cx="66" cy="48" r="4.5" fill="#fff" stroke="#16162a" stroke-width="2"/><circle cx="35" cy="49" r="2" fill="#16162a"/><circle cx="65" cy="49" r="2" fill="#16162a"/><path d="M26 40L42 43M74 40L58 43" stroke="#16162a" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="60" rx="7" ry="6" fill="#e8a276" stroke="#16162a" stroke-width="2"/><path d="M26 70Q50 96 74 70Q50 80 26 70Z" fill="#fff" stroke="#16162a" stroke-width="3"/><path d="M34 74v5M42 77v6M50 78v6M58 77v6M66 74v5" stroke="#16162a" stroke-width="1.5"/><ellipse cx="22" cy="62" rx="6" ry="4" fill="#ff8a8a" opacity=".6"/><ellipse cx="78" cy="62" rx="6" ry="4" fill="#ff8a8a" opacity=".6"/></svg>'),
+    FIGHTERS: [
+      { n: 'LUTZ', d: 'Allrounder', hp: 110, atk: 1, def: 1 },
+      { n: 'LUTZ DER KOLOSS', d: 'Tank, zäh', hp: 140, atk: 0.85, def: 1.15 },
+      { n: 'LUTZ TURBO', d: 'Schnell, zerbrechlich', hp: 90, atk: 1.2, def: 0.95 },
+      { n: 'LUTZ WUT', d: 'Haut hart zu', hp: 100, atk: 1.35, def: 0.8 },
+      { n: 'JAJA BINKS', d: 'Chaos, Schaden schwankt', hp: 100, atk: 1, def: 1, chaos: true }
+    ],
+    MOVES: ['SCHLAG', 'WURF', 'BLOCK', 'SPEZIAL'],
+    // deterministic fight: both clients and spectators compute the same result from the picks
+    sim(fa, fb, pa, pb) {
+      const F = [GAMES.duel.FIGHTERS[fa == null ? 0 : fa] || GAMES.duel.FIGHTERS[0], GAMES.duel.FIGHTERS[fb == null ? 0 : fb] || GAMES.duel.FIGHTERS[0]];
+      const hp = [F[0].hp, F[1].hp], ch = [1, 1], log = [], beats = (x, y) => (x === 0 && y === 1) || (x === 1 && y === 2) || (x === 2 && y === 0) || (x === 2 && y === 3) || (x === 3 && y === 0) || (x === 3 && y === 1);
+      for (let i = 0; i < 7; i++) {
+        if (pa[i] == null || pb[i] == null || hp[0] <= 0 || hp[1] <= 0) break;
+        const m = [pa[i], pb[i]]; for (let s = 0; s < 2; s++) { if (m[s] === 3) { if (ch[s] < 1) m[s] = 0; else ch[s]--; } }
+        let w = -1; if (beats(m[0], m[1])) w = 0; else if (beats(m[1], m[0])) w = 1;
+        const dm = [0, 0];
+        if (w < 0) { if (!(m[0] === 2 && m[1] === 2)) { dm[0] = 4; dm[1] = 4; } }
+        else { const base = [14, 18, 12, 32][m[w]], l = 1 - w, chaos = F[w].chaos ? 0.5 + ((i * 37 + 11) % 14) / 10 : 1; dm[l] = Math.max(1, Math.round(base * F[w].atk * chaos / F[l].def)); ch[w] = Math.min(2, ch[w] + 1); }
+        hp[0] -= dm[0]; hp[1] -= dm[1]; log.push({ m, w, dm, hp: hp.slice(), ch: ch.slice() });
+      }
+      return { hp: [Math.max(0, hp[0]), Math.max(0, hp[1])], max: [F[0].hp, F[1].hp], log, ch };
     },
     play(el, ctx) {
       const [a, b] = ctx.duelists, pa = ctx.players.find(p => p.pid === a), pb = ctx.players.find(p => p.pid === b);
-      const rounds = ctx.variant === 'mash' ? 1 : 3;
+      const rounds = ctx.variant === 'mash' ? 1 : (ctx.variant === 'fighter' ? 7 : 3);
       const cry = p => (ctx.cry ? ctx.cry(p) : '');
-      el.innerHTML = `<div class="duel"><div class="fighter left" data-pid="${a}"><div class="fimg"><img src="${pa.img}"></div><b>${esc(pa.name)}</b><div class="hp"><i></i></div><div class="rv"></div><i class="fcry">"${esc(cry(a))}"</i></div>
-        <div class="vs">VS</div><div class="fighter right" data-pid="${b}"><div class="fimg"><img src="${pb.img}"></div><b>${esc(pb.name)}</b><div class="hp"><i></i></div><div class="rv"></div><i class="fcry">"${esc(cry(b))}"</i></div></div>
+      el.innerHTML = `<div class="duel"><div class="fighter left" data-pid="${a}"><div class="fimg"><img src="${ctx.variant === 'fighter' ? GAMES.duel.LUTZ : pa.img}" ${ctx.variant === 'fighter' ? `onerror="this.onerror=null;this.src=GAMES.duel.LUTZ_SVG"` : ''}></div><b>${esc(pa.name)}</b><div class="hp"><i></i></div><div class="rv"></div><i class="fcry">"${esc(cry(a))}"</i></div>
+        <div class="vs">VS</div><div class="fighter right" data-pid="${b}"><div class="fimg"><img src="${ctx.variant === 'fighter' ? GAMES.duel.LUTZ : pb.img}" ${ctx.variant === 'fighter' ? `onerror="this.onerror=null;this.src=GAMES.duel.LUTZ_SVG"` : ''}></div><b>${esc(pb.name)}</b><div class="hp"><i></i></div><div class="rv"></div><i class="fcry">"${esc(cry(b))}"</i></div></div>
         <div class="fightflash">FIGHT!</div><div class="arena"></div>`;
       ctx.after(() => { const f = el.querySelector('.fightflash'); if (f) f.remove(); }, 1100);
       const POW = ['POW!', 'KLATSCH!', 'BAMM!', 'WUMMS!', 'KAWUMM!', 'ZACK!', 'BUMM!', 'PATSCH!'];
@@ -136,11 +162,26 @@ const GAMES = {
       };
       const arena = el.querySelector('.arena'); const clean = [];
       const better = this.variants[ctx.variant].better;
-      const fmtV = v => ctx.variant === 'mash' ? v + ' Hits' : (v / 1000).toFixed(3) + ' s';
+      const fmtV = v => ctx.variant === 'fighter' ? (v > 0 ? '+' : '') + v + ' HP' : ctx.variant === 'mash' ? v + ' Hits' : (v / 1000).toFixed(3) + ' s';
       const live = {}, pos = {}; live[a] = []; live[b] = []; pos[a] = 0; pos[b] = 0;
       const dmg = { [a]: [], [b]: [] }; let mashLast = { [a]: 0, [b]: 0 };
       // live HP: every resolved round hits the slower fighter, harder the bigger the gap; mash drains HP continuously
+      const fch = {}, fb = {}; let fShown = 0, fFinal = null;
+      const effPicks = () => { const pa2 = (live[a] || []).slice(), pb2 = (live[b] || []).slice(), oppArr = ctx.me === a ? pb2 : (ctx.me === b ? pa2 : null); if (oppArr) for (let i = 0; i < 7; i++) if (oppArr[i] == null && fb[i] != null) oppArr[i] = fb[i]; return [pa2, pb2]; };
+      function renderFight() {
+        const [pa2, pb2] = effPicks(); const sim = GAMES.duel.sim(fch[a], fch[b], pa2, pb2);
+        while (fShown < sim.log.length) { const L = sim.log[fShown], mv = GAMES.duel.MOVES;
+          if (L.w >= 0) { const w = L.w === 0 ? a : b, l = L.w === 0 ? b : a; hit(w, l, L.m[L.w] === 3); floatTxt(l, '-' + L.dm[L.w === 0 ? 1 : 0]); floatTxt(w, mv[L.m[L.w]] + '!', 'good'); }
+          else { floatTxt(a, mv[L.m[0]]); floatTxt(b, mv[L.m[1]]); ctx.sfx.blip(); }
+          fShown++; }
+        const hpA = sim.hp[0] / sim.max[0] * 100, hpB = sim.hp[1] / sim.max[1] * 100; setHP(a, hpA); setHP(b, hpB);
+        [a, b].forEach((p, k) => { const f = GAMES.duel.FIGHTERS[fch[p] == null ? 0 : fch[p]]; el.querySelector(`.fighter[data-pid="${p}"] .rv`).textContent = `${f.n} · ${sim.hp[k]} HP · Ladung ${sim.ch[k]}`; });
+        if (!koDone && (sim.hp[0] <= 0 || sim.hp[1] <= 0)) ctx.after(() => ko(sim.hp[0] <= 0 ? a : b), 600);
+        else if (!koDone && sim.log.length >= 7 && sim.hp[0] !== sim.hp[1]) ctx.after(() => ko(sim.hp[0] < sim.hp[1] ? a : b), 800);
+        fFinal = sim; return sim;
+      }
       function renderHP() {
+        if (ctx.variant === 'fighter') return renderFight();
         let hpA = 100, hpB = 100;
         if (ctx.variant === 'mash') {
           const va = live[a][0] || 0, vb = live[b][0] || 0;
@@ -171,7 +212,7 @@ const GAMES = {
       }
       const setHP = (p, hp) => { const i = el.querySelector(`.fighter[data-pid="${p}"] .hp i`); i.style.width = hp + '%'; i.classList.toggle('low', hp < 35); };
       const floatTxt = (p, txt, cls) => { const f = fEl(p); if (!f) return; const s = document.createElement('span'); s.className = 'dmg ' + (cls || ''); s.textContent = txt; f.querySelector('.fimg').appendChild(s); ctx.after(() => s.remove(), 1100); };
-      ctx.onLive(l => { [a, b].forEach(p => { if (l[p]) { if (l[p].r) { const before = live[p].length; live[p] = l[p].r; if (live[p].length > before && p !== ctx.me && ctx.variant !== 'mash') floatTxt(p, fmtV(live[p][live[p].length - 1]), 'time'); } pos[p] = l[p].p || 0; } }); renderHP(); });
+      ctx.onLive(l => { [a, b].forEach(p => { if (l[p]) { if (l[p].r) { const before = live[p].length; live[p] = l[p].r; if (l[p].f != null) fch[p] = l[p].f; if (live[p].length > before && p !== ctx.me && ctx.variant !== 'mash' && ctx.variant !== 'fighter') floatTxt(p, fmtV(live[p][live[p].length - 1]), 'time'); } pos[p] = l[p].p || 0; } }); renderHP(); });
       if (ctx.variant === 'mash') { const kt = ctx.after(() => { const va = live[a][0] || 0, vb = live[b][0] || 0; if (va !== vb) ko(va < vb ? a : b); }, 9500); clean.push(() => ctx.cancel(kt)); }
       if (!ctx.isDuelist) {
         arena.innerHTML = '<div class="waitmsg">Zuschauen und anfeuern!<br><small>Tipp: Wettet einen Schluck auf euren Favoriten.</small></div>';
@@ -187,8 +228,8 @@ const GAMES = {
       let finished = false;
       const finish = () => {
         if (finished) return; finished = true;
-        const total = ctx.variant === 'mash' ? (mine[0] || 0) : mine.reduce((s, x) => s + (x == null ? 3000 : x), 0) + (rounds - mine.length) * 3000;
-        arena.innerHTML = `<div class="waitmsg">Fertig: ${fmtV(total)}</div>`;
+        const total = ctx.variant === 'fighter' ? (() => { const s = renderFight(); const k = ctx.me === a ? 0 : 1; return s.hp[k] - s.hp[1 - k]; })() : ctx.variant === 'mash' ? (mine[0] || 0) : mine.reduce((s, x) => s + (x == null ? 3000 : x), 0) + (rounds - mine.length) * 3000;
+        arena.innerHTML = `<div class="waitmsg">${ctx.variant === 'fighter' ? (total > 0 ? 'GEWONNEN!' : total < 0 ? 'Verloren ...' : 'Unentschieden') + '<br><small>' + fmtV(total) + '</small>' : 'Fertig: ' + fmtV(total)}</div>`;
         ctx.submit(total, fmtV(total));
       };
       if (ctx.variant === 'mash') {
@@ -196,6 +237,25 @@ const GAMES = {
         const d = arena.querySelector('.dist');
         clean.push(onTap(arena.querySelector('button'), () => { if (finished) return; hits++; d.textContent = hits; ctx.sfx.tap(); mine[0] = hits; report(false); }));
         const t = ctx.after(() => { mine[0] = hits; report(); finish(); }, 8000); clean.push(() => ctx.cancel(t));
+      } else if (ctx.variant === 'fighter') {
+        const opp = ctx.me === a ? b : a, mv = GAMES.duel.MOVES, mi = ctx.me === a ? 0 : 1; let r = 0, chosen = false, locked = false;
+        const send = () => { live[ctx.me] = mine.slice(); ctx.progress({ r: mine.slice(), p: 0, f: fch[ctx.me] }); };
+        const mineHP = () => renderFight().hp;
+        const round = () => {
+          if (finished) return; const sim = renderFight();
+          if (r >= 7 || sim.hp[0] <= 0 || sim.hp[1] <= 0) { ctx.after(finish, 1800); return; }
+          const ch = sim.ch[mi]; locked = false;
+          arena.innerHTML = `<div class="dist">Runde ${r + 1} von 7 · Ladung ${ch}</div><div class="pad f4">${mv.map((m, i) => `<button class="arrow mvb" data-i="${i}" ${i === 3 && ch < 1 ? 'disabled style="opacity:.35"' : ''}>${m}</button>`).join('')}</div><small id="ftm"></small>`;
+          let left = 5; const tick = () => { const t = arena.querySelector('#ftm'); if (t && !locked) t.textContent = left + ' s'; if (left-- <= 0) pickMove(Math.floor(Math.random() * 3)); else tm = ctx.after(tick, 1000); }; let tm = ctx.after(tick, 0);
+          const pickMove = i => { if (locked || finished) return; locked = true; ctx.cancel(tm); mine[r] = i; send(); ctx.sfx.tap(); arena.innerHTML = `<div class="waitmsg">${mv[i]}!<br><small>Warte auf den Gegner ...</small></div>`;
+            const my = r, wt = ctx.after(() => { if (fb[my] == null && (live[opp] || [])[my] == null) { fb[my] = my % 3; renderHP(); } }, 6500); clean.push(() => ctx.cancel(wt));
+            const poll = () => { if (finished) return; const s2 = renderFight(); if (s2.log.length > my) { r = my + 1; ctx.after(round, 1500); } else ctx.after(poll, 250); }; poll(); };
+          arena.querySelectorAll('.mvb').forEach(bt => clean.push(onTap(bt, () => { if (!bt.disabled) pickMove(+bt.dataset.i); })));
+        };
+        arena.innerHTML = `<div class="dist">WÄHLE DEINEN KÄMPFER</div><div class="fsel">${GAMES.duel.FIGHTERS.map((f, i) => `<button class="arrow fpick" data-i="${i}"><b>${f.n}</b><br><small>${f.d} · ${f.hp} HP</small></button>`).join('')}</div>`;
+        const go = () => { if (chosen) return; chosen = true; renderHP(); round(); };
+        arena.querySelectorAll('.fpick').forEach(bt => clean.push(onTap(bt, () => { if (chosen) return; fch[ctx.me] = +bt.dataset.i; send(); ctx.sfx.blip(); renderHP(); arena.innerHTML = `<div class="waitmsg">${GAMES.duel.FIGHTERS[fch[ctx.me]].n}<br><small>Warte auf den Gegner ...</small></div>`; const w0 = ctx.after(go, 6000); clean.push(() => ctx.cancel(w0)); const pl = () => { if (chosen) return; if (fch[opp] != null) go(); else ctx.after(pl, 250); }; pl(); })));
+        const auto = ctx.after(() => { if (!chosen && fch[ctx.me] == null) { fch[ctx.me] = 0; send(); go(); } }, 9000); clean.push(() => ctx.cancel(auto));
       } else if (ctx.variant === 'quick') {
         let r = 0, state = 'wait', sigAt = 0, tmr;
         arena.innerHTML = '<button class="big signal wait">BEREIT ...</button>';
@@ -643,6 +703,7 @@ function gamePreview(key, variant) {
     duel: {
       quick: frame(`<circle cx="44" cy="52" r="24" fill="#ffd9a8" stroke="${K}" stroke-width="3"/><circle cx="156" cy="52" r="24" fill="#ffd9a8" stroke="${K}" stroke-width="3"/><text x="100" y="60" text-anchor="middle" font-size="22" font-weight="900" fill="${R}">VS</text>${btn(50, 88, 100, 26, 'SCHLAG!', R)}`),
       combo: frame(`<text x="100" y="26" text-anchor="middle" font-size="12" font-weight="900" fill="${K}">COMBO</text>${['&#9664;', '&#9650;', '&#9654;', '&#9660;'].map((a, i) => `<rect x="${24 + i * 40}" y="36" width="34" height="34" rx="8" fill="${i < 2 ? G : W}" stroke="${K}" stroke-width="3"/><text x="${41 + i * 40}" y="60" text-anchor="middle" font-size="18" fill="${K}">${a}</text>`).join('')}${btn(40, 84, 50, 26, '&#9664;', B)}${btn(110, 84, 50, 26, '&#9654;', B)}`),
+      fighter: frame(`<circle cx="50" cy="56" r="34" fill="#f6c59a" stroke="${K}" stroke-width="3"/><circle cx="150" cy="56" r="34" fill="#f6c59a" stroke="${K}" stroke-width="3"/><text x="100" y="64" text-anchor="middle" font-size="22" font-weight="900" fill="#d81018">VS</text><path d="M36 68Q50 82 64 68" fill="#fff" stroke="${K}" stroke-width="3"/><path d="M136 68Q150 82 164 68" fill="#fff" stroke="${K}" stroke-width="3"/>`),
       mash: frame(`<rect x="86" y="14" width="28" height="64" rx="6" fill="#8a5a2b" stroke="${K}" stroke-width="3" transform="rotate(-25 100 60)"/><rect x="64" y="8" width="72" height="26" rx="6" fill="#999" stroke="${K}" stroke-width="3" transform="rotate(-25 100 60)"/>${btn(50, 86, 100, 26, 'HAUEN!', R)}`)
     },
     guess: {

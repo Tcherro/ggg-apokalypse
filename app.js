@@ -365,8 +365,8 @@ function planGame(repeat = false) {
     else { const sh = shuffle(parts); duels = []; for (let i = 0; i < sh.length; i += 2) duels.push([sh[i], sh[i + 1] || 'cpu']); }
     if (duels.some(d => d.includes('cpu'))) {
       const R = (a, b) => Math.round(a + Math.random() * (b - a));
-      const r = variant === 'quick' ? [R(300, 520), R(300, 520), R(300, 520)] : variant === 'combo' ? [R(2300, 3400), R(2300, 3400), R(2300, 3400)] : [R(30, 44)];
-      cpu = { r, total: r.reduce((x, y) => x + y, 0) };
+      const r = variant === 'fighter' ? Array.from({ length: 7 }, () => R(0, 2)) : variant === 'quick' ? [R(300, 520), R(300, 520), R(300, 520)] : variant === 'combo' ? [R(2300, 3400), R(2300, 3400), R(2300, 3400)] : [R(30, 44)];
+      cpu = { r, total: variant === 'fighter' ? 0 : r.reduce((x, y) => x + y, 0), f: R(0, 4) };
     }
   }
   let questions = null, places = null;
@@ -391,8 +391,9 @@ function planGame(repeat = false) {
   const nonce = S.game.nonce;
   if (!repeat && S.ralfAt.includes(S.round)) ralfTimer = HC.after(() => { if (S.phase === 'play' && S.game.nonce === nonce) triggerRalf(); }, S.game.startDelay + 3000 + Math.random() * Math.min(15000, S.game.dur * 0.5));
   if (cpu) cpu.r.forEach((_, i) => cpuTimers.push(HC.after(() => {
-    if (!S.game || S.game.nonce !== nonce) return; LIVE.cpu = { r: cpu.r.slice(0, i + 1) }; liveDirty = true;
-  }, S.game.startDelay + (variant === 'mash' ? 8000 : (variant === 'combo' ? 6500 : 4500) * (i + 1)))));
+    if (!S.game || S.game.nonce !== nonce) return; LIVE.cpu = { r: cpu.r.slice(0, i + 1), f: cpu.f }; liveDirty = true;
+  }, S.game.startDelay + (variant === 'fighter' ? 8000 + 5500 * i : variant === 'mash' ? 8000 : (variant === 'combo' ? 6500 : 4500) * (i + 1)))));
+  if (cpu && variant === 'fighter') cpuTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE.cpu = { r: [], f: cpu.f }; liveDirty = true; } }, S.game.startDelay + 1000));
   roundTimer = HC.after(() => { if (S.phase === 'play' && S.game.nonce === nonce && !S.ralf) finishRound(); }, S.game.startDelay + S.game.dur + 5000);
   if (key === 'draw') {
     HD = { imgs: {}, votes: {}, order: [], galSent: false, fin: false };
@@ -464,6 +465,9 @@ function botPlay() {
       r.forEach((_, i) => botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: r.slice(0, i + 1) }; liveDirty = true; } }, g.startDelay + 4500 * (i + 1)))); t = g.startDelay + 14000; }
     else if (k === 'duel/combo') { const r = [R(2200, 3600), R(2200, 3600), R(2200, 3600)]; v = r[0] + r[1] + r[2]; d = (v / 1000).toFixed(3) + ' s';
       r.forEach((_, i) => botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: r.slice(0, i + 1) }; liveDirty = true; } }, g.startDelay + 6500 * (i + 1)))); t = g.startDelay + 20000; }
+    else if (k === 'duel/fighter') { const r = Array.from({ length: 7 }, () => R(0, 3)), f = R(0, 4); v = R(-40, 40); d = 'Bot'; t = g.startDelay + 56000;
+      botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: [], f }; liveDirty = true; } }, g.startDelay + 1500));
+      r.forEach((_, i) => botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: r.slice(0, i + 1), f }; liveDirty = true; } }, g.startDelay + 8000 + 5500 * i))); }
     else if (k === 'duel/mash') { v = R(36, 60); d = v + ' Hits'; t = g.startDelay + 8200; botTimers.push(HC.after(() => { if (S.game && S.game.nonce === nonce) { LIVE[q] = { r: [v] }; liveDirty = true; } }, t)); }
     else if (k === 'guess/count') { v = R(0, 3500); d = 'Bot-Schätzung'; t = g.startDelay + R(6000, 20000); }
     else if (g.key === 'guess') { v = R(800, 7000); d = `Ø ${Math.round(v / 100)} % daneben`; t = g.startDelay + R(30000, 70000); }
@@ -478,12 +482,13 @@ function botPlay() {
 }
 function finishDuels() {
   const g = S.game, better = GAMES.duel.variants[g.variant].better;
-  const fmt = v => v == null ? 'nicht fertig' : (g.variant === 'mash' ? v + ' Hits' : (v / 1000).toFixed(3) + ' s');
+  const fmt = v => v == null ? 'nicht fertig' : (g.variant === 'fighter' ? (v > 0 ? '+' : '') + v + ' HP' : g.variant === 'mash' ? v + ' Hits' : (v / 1000).toFixed(3) + ' s');
   const val = p => p === 'cpu' ? g.cpu.total : (S.subs[p] ? S.subs[p].v : null);
   const rows = [], duels = []; let chal = null;
   resetDrinks();
   g.duels.forEach(([a, b]) => {
-    const va = val(a), vb = val(b); let w = null, tie = false;
+    let va = val(a), vb = val(b); let w = null, tie = false;
+    if (g.variant === 'fighter') { const isB = p => p === 'cpu' || (S.players[p] && S.players[p].bot); if (isB(a) && !isB(b)) va = vb == null ? null : -vb; else if (isB(b) && !isB(a)) vb = va == null ? null : -va; }
     if (va == null && vb == null) tie = true; else if (va == null) w = b; else if (vb == null) w = a;
     else if (va === vb) tie = true; else w = better === 'high' ? (va > vb ? a : b) : (va < vb ? a : b);
     const l = w === a ? b : (w === b ? a : null);
@@ -727,7 +732,7 @@ function renderLobby() {
     if (hb.dataset.sig === hsig) return; hb.dataset.sig = hsig;
     if (me.host && !late) {
       const n = participants().length;
-      hb.innerHTML = `<div class="hostpanel"><div class="small">ANZAHL SPIELE (danach Ballon-Finale)</div><div class="toggle dur">${[10, 20, 30].map(d => `<button data-d="${d}" class="${S.games === d ? 'on' : ''}">${d} SPIELE</button>`).join('')}</div>
+      hb.innerHTML = `<div class="hostpanel"><div class="small">ANZAHL SPIELE: 3 oder 5 = Express (danach Ballon-Finale)</div><div class="toggle dur">${[3, 5, 10, 20, 30].map(d => `<button data-d="${d}" class="${S.games === d ? 'on' : ''}">${d} SPIELE</button>`).join('')}</div>
         <div class="small" style="margin-top:10px">HERAUSFORDERER-MODUS</div>
         <div class="toggle"><button data-ch="0" class="${S.chal.on ? '' : 'on'}">AUS</button><button data-ch="1" class="${S.chal.on ? 'on' : ''}">AN (externer Gast)</button></div>
         ${S.chal.on ? `<div class="chalcfg"><label>PayPal.me-Name <input id="ppName" maxlength="40" placeholder="z. B. ggg-kasse" value="${esc(S.chal.paypal)}"></label>

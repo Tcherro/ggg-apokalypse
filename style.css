@@ -552,3 +552,6 @@ input.num { width: 100%; font-family: var(--font); font-size: 30px; text-align: 
 .bhud.many .bh { padding: 1px 6px 1px 1px; border-width: 3px; font-size: 10px; gap: 3px; }
 .bhud.many .bh img { width: 24px; height: 24px; } .bhud.many .bh b { display: none; }
 .bhud.many .bh .bl u { width: 9px; height: 11px; }
+.fsel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.fsel .arrow { font-size: 12px; padding: 8px 4px; line-height: 1.2; }
+.pad.f4 .arrow { font-size: 15px; padding: 14px 4px; }
