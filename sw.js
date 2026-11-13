@@ -1,7 +1,7 @@
-const CACHE = 'ggg-apok-v14';
+const CACHE = 'ggg-apok-v15';
 const FILES = [
   './', 'index.html', 'style.css', 'app.js', 'games.js', 'battle.js', 'maps.js', 'audio.js', 'questions.json', 'manifest.json',
-  'vendor/peerjs.min.js', 'vendor/qrcode.js', 'fonts/titan.woff2',
+  'vendor/peerjs.min.js', 'vendor/mqtt.min.js', 'vendor/qrcode.js', 'fonts/titan.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/logo.png',
   'media/intro.mp4', 'media/intro-poster.jpg', 'badges/00_ralf.png', 'badges/01_dr-gosse.png', 'badges/02_h-2-o-k-o-p-f.png', 'badges/03_tamma-hanken.png',
   'badges/04_yen.png', 'badges/05_zlatan.png', 'badges/06_adev.png', 'badges/07_luecke.png',

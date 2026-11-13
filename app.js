@@ -55,6 +55,28 @@ async function keepAwake() { try { if ('wakeLock' in navigator) wakeLock = await
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
 
 // ------------------------------------------------------------------ transport
+// Two channels in parallel, results de-duplicated: WebRTC (fast, direct, only works in friendly networks) and
+// MQTT over WebSocket through public brokers (works from any network, WLAN or mobile). Every message carries an id.
+const BROKERS = params.get('mqtt') ? params.get('mqtt').split(',') : ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081'];
+const FAST = new Set(['inp', 'prog', 'bs', 'live']); // high-rate messages: WebRTC only when it is open
+const MYID = rid(6) + '.'; let mseq = 0;
+const stampMsg = m => Object.assign({}, m, { _i: MYID + (++mseq) });
+const seenIds = new Set();
+function fresh(id) { if (!id) return true; if (seenIds.has(id)) return false; seenIds.add(id); if (seenIds.size > 1500) { const it = seenIds.values(); for (let i = 0; i < 500; i++) seenIds.delete(it.next().value); } return true; }
+function mqHub(topics, onMsg, onUp) {
+  const cl = [];
+  if (typeof mqtt !== 'undefined') BROKERS.forEach(url => {
+    let c; try { c = mqtt.connect(url, { clientId: 'ggg' + rid(12), clean: true, reconnectPeriod: 2500, connectTimeout: 9000, keepalive: 25, resubscribe: true }); } catch { return; }
+    c.on('connect', () => { try { c.subscribe(topics, { qos: 0 }); } catch { } if (onUp) onUp(); });
+    c.on('message', (t, buf) => { let m; try { m = JSON.parse(buf.toString()); } catch { return; } onMsg(m); });
+    c.on('error', () => { });
+    cl.push(c);
+  });
+  return {
+    pub: (topic, msg) => { const s = JSON.stringify(msg); cl.forEach(c => { if (c.connected) { try { c.publish(topic, s, { qos: 0 }); } catch { } } }); },
+    n: () => cl.filter(c => c.connected).length
+  };
+}
 function hostNet(code, onMsg, onLeave, onReady, onFail) {
   if (LOCAL) {
     const bc = new BroadcastChannel('ggg-' + code);
@@ -62,28 +84,45 @@ function hostNet(code, onMsg, onLeave, onReady, onFail) {
     setTimeout(onReady, 50);
     return { broadcast: msg => bc.postMessage({ to: '*', msg }), send: (k, msg) => bc.postMessage({ to: k, msg }) };
   }
-  const conns = new Map(); let peer, tries = 0;
+  const base = 'ggg-apokalypse/' + code.toLowerCase();
+  const conns = new Map(), seenAt = {}, gone = {}; let peer, tries = 0, readyFired = false;
+  const fireReady = () => { if (!readyFired) { readyFired = true; onReady(); } };
+  const handle = m => {
+    if (!m || typeof m !== 'object' || !m.pid || !fresh(m._i)) return;
+    const pid = m.pid; seenAt[pid] = Date.now();
+    if (gone[pid]) { delete gone[pid]; if (m.t !== 'hello') onMsg(pid, { t: 'hello', pid }); }
+    if (m.t === 'hb') return;
+    if (m.t === 'bye') { gone[pid] = true; onLeave(pid); return; }
+    onMsg(pid, m);
+  };
+  const hub = mqHub([base + '/up'], handle, fireReady);
   const start = () => {
     peer = new Peer(PREFIX + code.toLowerCase(), { debug: 0, config: ICE });
-    peer.on('open', () => { tries = 0; onReady(); });
+    peer.on('open', fireReady);
     peer.on('connection', c => {
-      c.on('open', () => conns.set(c.peer, c));
-      c.on('data', d => onMsg(c.peer, d));
-      c.on('close', () => { conns.delete(c.peer); onLeave(c.peer); });
+      c.on('data', d => { if (d && d.pid) conns.set(d.pid, c); handle(d); });
+      c.on('close', () => { for (const [k, v] of conns) if (v === c) conns.delete(k); });
       c.on('error', () => { });
     });
     peer.on('disconnected', () => { try { peer.reconnect(); } catch { } });
     peer.on('error', e => {
       if (e.type === 'unavailable-id' && tries++ < 8) { peer.destroy(); setTimeout(start, 2500); return; } // old host session still registered
-      if (e.type === 'unavailable-id') onFail('Raumcode belegt');
-      else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(e.type)) { setStatus(false); setTimeout(() => { try { peer.reconnect(); } catch { } }, 2000); }
+      if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(e.type)) setTimeout(() => { try { peer.reconnect(); } catch { } }, 4000);
     });
   };
   start();
-  return {
-    broadcast: msg => conns.forEach(c => { if (c.open) c.send(msg); }),
-    send: (k, msg) => { const c = conns.get(k); if (c && c.open) c.send(msg); }
+  const needMq = () => Object.keys(seenAt).some(p => !gone[p] && !(conns.get(p) && conns.get(p).open));
+  setInterval(() => {
+    const now = Date.now();
+    Object.keys(seenAt).forEach(p => { if (!gone[p] && now - seenAt[p] > 16000) { gone[p] = true; onLeave(p); } });
+    out.broadcast({ t: 'hb' });
+  }, 4000);
+  const out = {
+    broadcast: msg => { const o = stampMsg(msg); conns.forEach(c => { if (c.open) c.send(o); }); if (!FAST.has(msg.t) || needMq()) hub.pub(base + '/down', o); },
+    send: (pid, msg) => { const o = stampMsg(msg), c = conns.get(pid), rtc = !!(c && c.open); if (rtc) c.send(o); if (!FAST.has(msg.t) || !rtc) hub.pub(base + '/to/' + pid, o); },
+    relays: () => hub.n()
   };
+  return out;
 }
 function clientNet(code, onMsg, onStatus) {
   if (LOCAL) {
@@ -94,27 +133,49 @@ function clientNet(code, onMsg, onStatus) {
     setTimeout(() => onStatus(true), 30);
     return { send };
   }
-  let peer = null, conn = null, retry = null;
+  const base = 'ggg-apokalypse/' + code.toLowerCase();
+  let peer = null, conn = null, retry = null, up = false, lastHost = 0, tick = 0;
+  const gotHost = m => {
+    if (!m || typeof m !== 'object' || !fresh(m._i)) return;
+    lastHost = Date.now(); if (!up) { up = true; onStatus(true); }
+    if (m.t === 'hb') return;
+    onMsg(m);
+  };
+  const hub = mqHub([base + '/down', base + '/to/' + me.pid], gotHost, () => send({ t: 'hello' }));
+  const rtcOpen = () => !!(conn && conn.open);
+  const send = msg => {
+    const o = stampMsg(Object.assign({ pid: me.pid }, msg));
+    if (rtcOpen()) conn.send(o);
+    if (!FAST.has(msg.t) || !rtcOpen()) hub.pub(base + '/up', o);
+  };
   const connect = () => {
     clearTimeout(retry);
     if (!peer || peer.destroyed) {
       peer = new Peer({ debug: 0, config: ICE });
       peer.on('open', connect);
-      peer.on('error', e => { netDiag = 'Server: ' + e.type; onStatus(false, e.type); retry = setTimeout(connect, 2500); });
+      peer.on('error', e => { netDiag = 'WebRTC: ' + e.type; retry = setTimeout(connect, 4000); });
       peer.on('disconnected', () => { try { peer.reconnect(); } catch { } });
       return;
     }
     if (!peer.open) return;
     conn = peer.connect(PREFIX + code.toLowerCase(), { reliable: true, serialization: 'json' });
-    conn.on('open', () => onStatus(true));
-    conn.on('data', onMsg);
-    conn.on('close', () => { onStatus(false); retry = setTimeout(connect, 1500); });
-    conn.on('error', e => { netDiag = 'Verbindung: ' + ((e && e.type) || 'Fehler'); });
-    clearTimeout(conn._to); conn._to = setTimeout(() => { if (conn && !conn.open) { netDiag = 'Host nicht erreichbar (Timeout)'; try { conn.close(); } catch { } retry = setTimeout(connect, 500); render(); } }, 12000);
+    const c = conn;
+    c.on('open', () => send({ t: 'hello' }));
+    c.on('data', gotHost);
+    c.on('close', () => { retry = setTimeout(connect, 2500); });
+    c.on('error', () => { });
+    setTimeout(() => { if (c === conn && !c.open) { try { c.close(); } catch { } retry = setTimeout(connect, 800); } }, 12000);
   };
   connect();
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (!conn || !conn.open)) connect(); });
-  return { send: msg => { if (conn && conn.open) conn.send(msg); } };
+  setInterval(() => {
+    tick++;
+    if (up && Date.now() - lastHost > 20000) { up = false; onStatus(false); }
+    if (!up) send({ t: 'hello' }); else if (tick % 2 === 0) send({ t: 'hb' });
+    if (!up) { netDiag = 'Relay ' + hub.n() + '/' + BROKERS.length + ' verbunden' + (hub.n() === 0 ? ' (kein Internet oder Server blockiert?)' : ', warte auf Host'); const d = document.getElementById('diag'); if (d) d.textContent = netDiag; }
+  }, 2000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { send({ t: 'hello' }); if (!rtcOpen()) connect(); } });
+  window.addEventListener('pagehide', () => send({ t: 'bye' }));
+  return { send };
 }
 
 // ------------------------------------------------------------------ host logic
@@ -146,11 +207,17 @@ function hostHandle(pid, m) {
       if (taken || m.char < 0 || m.char >= CHARS.length) return;
       if (m.char === CHAL_ID && !S.chal.on) return;
       p.char = m.char; p.challenger = m.char === CHAL_ID; if (p.challenger) p.pass = false;
-      if (S.phase !== 'lobby') p.ready = true; break;
+      if (S.phase !== 'lobby') { if (p.ready || p.fee) p.ready = true; else p.late = true; } break; // latecomers pay the entry fee first
     }
     case 'nick': if (p) p.nick = String(m.v || '').slice(0, 18); break;
     case 'pass': if (p && !p.challenger) p.pass = !!m.v; break;
-    case 'ready': if (p && p.char != null) p.ready = !!m.v; break;
+    case 'ready':
+      if (!p || p.char == null) break;
+      if (S.phase !== 'lobby' && !p.ready && !p.fee && m.v) { // entry fee for latecomers: 10 sips + one beer ex
+        if (!m.fee) return;
+        p.fee = true; p.late = false; p.sips = (p.sips || 0) + 10; p.ex = (p.ex || 0) + 1;
+      }
+      p.ready = !!m.v; break;
     case 'score':
       if (!S.game || m.nonce !== S.game.nonce || S.phase !== 'play' || S.subs[pid]) return;
       S.subs[pid] = { v: m.v, d: m.d };
@@ -182,6 +249,11 @@ function hostHandle(pid, m) {
       if (needed().every(q => HD.votes[q] || !HD.imgs[q])) finalizeDraw();
       return;
     }
+    case 'galreq': { // a client that missed the gallery asks for it again
+      if (!S.game || S.game.key !== 'draw' || S.phase !== 'play' || !HD.galSent) return;
+      const key = Object.keys(KEYS).find(k => KEYS[k] === pid) || pid;
+      galMsgs().forEach(g => { if (pid === me.pid) gmFns.forEach(f => f(g)); else net.send(key, g); }); return;
+    }
     case 'brave': if (S.ralf && S.players[pid]) { S.ralf.ok[pid] = true; commit(); checkRalfDone(); } return;
     case 'taunt': { const txt = String(m.txt || '').slice(0, 60); net.broadcast({ t: 'tt', from: pid, txt }); showTaunt(pid, txt); return; }
     case 'inp': if (S.phase === 'battle') BATTLE.input(pid, +m.x || 0, +m.y || 0); return;
@@ -194,17 +266,21 @@ function hostHandle(pid, m) {
 }
 // --- Nachmalen (draw game): drawings and votes are kept on the host, not in the broadcast state
 let HD = { imgs: {}, votes: {}, order: [], galSent: false, fin: false };
+function galMsgs() {
+  const nonce = S.game.nonce, n = HD.order.length, ms = HD.voteMs;
+  return HD.order.map((p, i) => ({ t: 'gm', k: 'gimg', nonce, n: i, tot: n, ms, img: HD.imgs[p], own: p }));
+}
+function galBroadcast() { if (!S.game || S.game.key !== 'draw' || !HD.galSent) return; galMsgs().forEach(m => { net.broadcast(m); gmFns.forEach(f => f(m)); }); }
 function sendGallery() {
   if (HD.galSent || !S.game || S.game.key !== 'draw') return; HD.galSent = true;
   const nonce = S.game.nonce, pids = shuffle(Object.keys(HD.imgs));
-  HD.order = pids;
-  const msg = { t: 'gm', k: 'gal', nonce, list: pids.map((p, i) => ({ k: i, img: HD.imgs[p], own: p })) };
-  net.broadcast(msg); gmFns.forEach(f => f(msg));
+  HD.order = pids; HD.voteMs = Math.max(30000, Math.min(90000, 14000 + 6000 * pids.length));
+  galBroadcast(); HC.after(galBroadcast, 6000); HC.after(galBroadcast, 15000); // repeats: clients ignore images they already have
   Object.keys(S.players).filter(q => S.players[q].bot && S.game.parts.includes(q)).forEach((q, n) => HC.after(() => {
     if (!S.game || S.game.nonce !== nonce || S.phase !== 'play') return;
     const st = {}; pids.forEach((p, i) => { if (p !== q) st[i] = 1 + Math.floor(Math.random() * 5); }); hostHandle(q, { t: 'vote', nonce, st });
   }, 4000 + n * 1500 + Math.random() * 6000));
-  HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') finalizeDraw(); }, GAMES.draw.VOTE_MS + 3000);
+  HC.after(() => { if (S.game && S.game.nonce === nonce && S.phase === 'play') finalizeDraw(); }, HD.voteMs + 4000);
 }
 function finalizeDraw() {
   if (HD.fin || !S.game || S.game.key !== 'draw') return; HD.fin = true;
@@ -279,7 +355,7 @@ function planGame(repeat = false) {
       if (!S.bag.length) S.bag = shuffle(Object.keys(GAMES));
       key = S.bag.shift(); if (key !== 'duel' || parts.length >= 2) break;
     }
-    const vs = Object.keys(GAMES[key].variants).filter(v => v !== S.lastVar[key]);
+    let vs = Object.keys(GAMES[key].variants).filter(v => v !== S.lastVar[key]); if (!vs.length) vs = Object.keys(GAMES[key].variants); // single-variant games (seek, draw) may come up twice
     variant = vs[Math.floor(Math.random() * vs.length)]; S.lastVar[key] = variant;
     S.round++;
   }
@@ -309,7 +385,7 @@ function planGame(repeat = false) {
   else if (key === 'guess' && variant !== 'count') questions = pick(QUESTIONS.schaetzen, 's', q => q.cat === (variant === 'gev' ? 'gev' : 'allg'), 3);
   else if (key === 'quiz') questions = pick(QUESTIONS.auswahl, 'c', q => q.cat === variant, variant === 'iq' ? 5 : 3).map(q => { const o = shuffle(q.o.map((t, i) => ({ t, ok: i === q.c }))); return { q: q.q, o: o.map(x => x.t), c: o.findIndex(x => x.ok) }; });
   else if (key === 'geo') places = pick(QUESTIONS.orte, 'p', q => q.m === variant, 3);
-  S.game = { key, variant, seed: Math.floor(Math.random() * 2 ** 31), nonce: ++S.nonce, dur: GAMES[key].variants[variant].dur, startDelay: 7000, duels, cpu, questions, places, parts };
+  S.game = { key, variant, seed: Math.floor(Math.random() * 2 ** 31), nonce: ++S.nonce, dur: GAMES[key].variants[variant].dur, startDelay: 10000, duels, cpu, questions, places, parts };
   S.subs = {}; S.results = null; S.phase = 'play'; S.readyNext = {}; LIVE = {};
   HC.cancel(roundTimer); HC.cancel(ralfTimer); cpuTimers.forEach(HC.cancel); cpuTimers = [];
   const nonce = S.game.nonce;
@@ -438,8 +514,8 @@ function nextRound() {
 function startBattle() {
   const parts = participants().filter(q => S.players[q].online !== false && !S.players[q].challenger);
   if (parts.length < 2) { S.phase = 'final'; S.game = null; return commit(); }
-  const pids = shuffle(parts).sort((a, b) => S.players[a].score - S.players[b].score).slice(0, 4);
-  S.phase = 'battle'; S.game = null; S.battle = { pids, nonce: ++S.nonce, startDelay: 6500, over: false, losers: [], order: [], exPids: [], exDone: {} };
+  const pids = shuffle(parts).sort((a, b) => S.players[a].score - S.players[b].score).slice(0, 14); // everyone plays the finale
+  S.phase = 'battle'; S.game = null; S.battle = { pids, nonce: ++S.nonce, startDelay: 9500, over: false, losers: [], order: [], exPids: [], exDone: {} };
   const nonce = S.battle.nonce;
   setTimeout(() => {
     if (S.phase !== 'battle' || S.battle.nonce !== nonce) return;
@@ -530,7 +606,7 @@ function updateStatus() {
 function render() {
   renderRalf(); updateStatus();
   if (!me.code) return renderStart();
-  if (!S) { cleanupMount(); app.innerHTML = '<div class="card center"><div class="spinner"></div><p>Verbinde mit Raum ' + me.code + ' ...</p><p class="small">Host-Handy muss die App offen und entsperrt haben. Verbindung läuft über Internet, WLAN oder Mobilfunk ist egal.</p>' + (netDiag ? '<p class="small">' + esc(netDiag) + '</p>' : '') + '<button class="pill" id="rejoin">NEU VERBINDEN</button></div>'; const rj = document.getElementById('rejoin'); if (rj) rj.onclick = () => location.reload(); return; }
+  if (!S) { cleanupMount(); app.innerHTML = '<div class="card center"><div class="spinner"></div><p>Verbinde mit Raum ' + me.code + ' ...</p><p class="small">Host-Handy muss die App offen und entsperrt haben. Die Verbindung läuft über das Internet, WLAN oder Mobilfunk ist egal.</p><p class="small" id="diag">' + esc(netDiag) + '</p><button class="pill" id="rejoin">NEU VERBINDEN</button></div>'; const rj = document.getElementById('rejoin'); if (rj) rj.onclick = () => location.reload(); return; }
   const mine = P(me.pid);
   const watchOnly = me.host && S.phase !== 'lobby' && (!mine || mine.char == null) && !pickMode; // host without a character stays game master
   if ((!mine || mine.char == null || S.phase === 'lobby') && !watchOnly) return renderLobby();
@@ -595,7 +671,7 @@ function renderLobby() {
   view('lobby' + late + S.chal.on, () => {
     app.innerHTML = `
       <div class="roombar"><span>Raum <b>${me.code}</b></span>${me.solo ? '<span class="pill">SOLO-TEST</span>' : '<button class="pill" id="bQR">QR / EINLADEN</button>'}</div>
-      ${late ? '<div class="banner">Spiel läuft. Wähle deinen Charakter, du steigst in der nächsten Runde ein.</div>' : ''}
+      ${late ? '<div class="banner">Spiel läuft. Wähle deinen Charakter, zahle die Einstiegsgebühr (10 Schlücke und 1 Bier auf Ex) und du bist ab dem nächsten Spiel dabei.</div>' : ''}
       <h2 class="section">WÄHLE DEINEN CHARAKTER</h2>
       <div class="grid" id="grid">${CHARS.filter(c => c.id !== CHAL_ID || S.chal.on).map(c => `<div class="slot" data-c="${c.id}"><img src="${c.img}" alt=""><span class="nm">${esc(c.name)}</span><span class="tk"></span></div>`).join('')}</div>
       <div class="panel" id="panel"></div>
@@ -634,13 +710,14 @@ function renderLobby() {
           ${chal ? `<label>Dein Name <input id="nick" maxlength="18" placeholder="z. B. Onkel Jürgen"></label>
             <p class="small">Du spielst aus der Ferne gegen die GGG. Verlierst du die Wertung, spendest du ${esc(S.chal.amount)} € per PayPal.</p>`
           : '<div class="toggle"><button data-pass="0">VOLL</button><button data-pass="1">PASS (alkoholfrei)</button></div>'}
+          ${late ? '<p class="small feenote"><b>Einstiegsgebühr:</b> 10 Schlücke und 1 Bier auf Ex (PASS: alkoholfreie Variante). Erst trinken, dann tippen.</p>' : ''}
           <button class="big green" id="bReady">BEREIT!</button></div>`;
         const nick = panel.querySelector('#nick'); if (nick) { nick.value = mine.nick || ''; nick.onchange = () => act({ t: 'nick', v: nick.value }); }
         panel.querySelectorAll('[data-pass]').forEach(b => b.onclick = () => { SFX.blip(); act({ t: 'pass', v: b.dataset.pass === '1' }); });
-        panel.querySelector('#bReady').onclick = () => { SFX.go(); if (nick) act({ t: 'nick', v: nick.value }); act({ t: 'ready', v: !P(me.pid).ready }); };
+        panel.querySelector('#bReady').onclick = () => { SFX.go(); if (nick) act({ t: 'nick', v: nick.value }); const pp = P(me.pid); act({ t: 'ready', v: !pp.ready, fee: S.phase !== 'lobby' }); };
       }
       panel.querySelectorAll('[data-pass]').forEach(b => b.classList.toggle('on', (b.dataset.pass === '1') === !!mine.pass));
-      const br = panel.querySelector('#bReady'); br.textContent = mine.ready ? (late ? 'DABEI!' : 'BEREIT ✓') : 'BEREIT!'; br.classList.toggle('done', !!mine.ready);
+      const br = panel.querySelector('#bReady'); br.textContent = mine.ready ? (late ? 'DABEI!' : 'BEREIT ✓') : (late ? '10 SCHLÜCKE + EX GETRUNKEN: DABEI!' : 'BEREIT!'); br.classList.toggle('done', !!mine.ready);
     }
     document.getElementById('plist').innerHTML = Object.keys(S.players).filter(q => S.players[q].char != null).map(q =>
       `<span class="chip ${S.players[q].ready ? 'ok' : ''} ${S.players[q].online === false ? 'off' : ''}"><img src="${dimg(q)}">${esc(dname(q))}${S.players[q].bot ? ' (Bot)' : ''}${S.players[q].pass ? ' (P)' : ''}</span>`).join('');
@@ -692,18 +769,18 @@ function renderPlay() {
       const mp = P(me.pid) || {};
       const why = me.host && mp.char == null ? ['SPIELLEITER-ANSICHT', 'Du spielst nicht mit, weil du keinen Charakter gewählt hast. Du siehst hier, wer fertig ist. Mitspielen kannst du ab dem nächsten Spiel, wenn du unten einen Charakter wählst.']
         : mp.char == null ? ['DU BIST NOCH NICHT DABEI', 'Wähle unten einen Charakter, dann spielst du ab dem nächsten Spiel mit.']
-        : !mp.ready ? ['DU BIST NICHT BEREIT', 'Tippe unten auf "ICH SPIEL MIT", dann bist du ab dem nächsten Spiel dabei.']
+        : !mp.ready ? ['DU BIST NICHT BEREIT', 'Einstiegsgebühr: 10 Schlücke und 1 Bier auf Ex (PASS: alkoholfrei). Erst trinken, dann unten tippen, dann bist du ab dem nächsten Spiel dabei.']
         : ['DU STEIGST SPÄTER EIN', 'Dieses Spiel läuft schon ohne dich. Ab dem nächsten Spiel bist du dabei.'];
       stage.innerHTML = `<div class="specbox"><div class="gtitle">${why[0]}</div><p>${why[1]}</p><div id="specstat" class="plist"></div>
-        ${mp.char != null && !mp.ready ? '<button class="big green" id="bJoinNow">ICH SPIEL MIT</button>' : ''}${me.host && mp.char == null ? '<button class="big sec" id="bPickNow">CHARAKTER WÄHLEN UND MITSPIELEN</button>' : ''}</div>` + scoreboard();
-      const jn = stage.querySelector('#bJoinNow'); if (jn) jn.onclick = () => { SFX.go(); act({ t: 'ready', v: true }); };
+        ${mp.char != null && !mp.ready ? '<button class="big green" id="bJoinNow">GETRUNKEN: ICH SPIEL MIT</button>' : ''}${me.host && mp.char == null ? '<button class="big sec" id="bPickNow">CHARAKTER WÄHLEN UND MITSPIELEN</button>' : ''}</div>` + scoreboard();
+      const jn = stage.querySelector('#bJoinNow'); if (jn) jn.onclick = () => { SFX.go(); act({ t: 'ready', v: true, fee: true }); };
       const pk = stage.querySelector('#bPickNow'); if (pk) pk.onclick = () => { pickMode = true; render(); };
       return () => clk.clear();
     }
     const startAt = clk.now() + g.startDelay;
     const pair = g.duels ? g.duels.find(d => d.includes(me.pid)) : null;
     const duelNote = pair ? `<div class="duelists"><img src="${dimg(pair[0])}"><b>VS</b><img src="${dimg(pair[1])}"></div><p class="vsnames">${esc(dname(pair[0]))} gegen ${esc(dname(pair[1]))}</p><p class="cry">"${esc(cryOf(pair[0]))}"<br>"${esc(cryOf(pair[1]))}"</p>` : '';
-    stage.innerHTML = `<div class="intro">${duelNote}<p class="desc">${esc(v.desc)}</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div>`;
+    stage.innerHTML = `<div class="intro"><div class="gpv">${gamePreview(g.key, g.variant)}</div>${duelNote}<p class="desc">${esc(v.desc)}</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div>`;
     let gameCleanup = null, last = null;
     const tick = clk.every(() => {
       const left = Math.ceil((startAt - clk.now()) / 1000);
@@ -882,9 +959,9 @@ function renderBattle() {
   const B = S.battle;
   view('battle' + B.nonce, () => {
     const isP = B.pids.includes(me.pid);
-    app.innerHTML = `<div class="gamehead"><span class="glabel">FINALE · DIE LETZTEN ${B.pids.length}</span><h2>BALLON-SCHLACHT</h2><div class="vname">3 Ballons · Power-Ups · wer zuerst raus ist, EXT!</div></div>
-      <div class="stage" id="bstage"><div class="intro"><div class="bplayers">${B.pids.map((q, i) => `<span class="chip" style="border-color:${BATTLE.COLORS[i]}"><img src="${dimg(q)}">${esc(dname(q))}</span>`).join('')}</div>
-        <p class="desc">Jeder hat 3 Ballons. Wirf Kegelkugeln, weiche aus, sammle Power-Ups. Wer als Erster alle Ballons verliert, muss EXEN. Nach 75 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
+    app.innerHTML = `<div class="gamehead"><span class="glabel">FINALE · ALLE ${B.pids.length} SPIELEN MIT</span><h2>BALLON-SCHLACHT</h2><div class="vname">3 Ballons · Power-Ups · wer zuerst raus ist, muss EXEN!</div></div>
+      <div class="stage" id="bstage"><div class="intro"><div class="gpv">${gamePreview('battle')}</div><div class="bplayers">${B.pids.map((q, i) => `<span class="chip" style="border-color:${BATTLE.COLORS[i % BATTLE.COLORS.length]}"><img src="${dimg(q)}">${esc(dname(q))}</span>`).join('')}</div>
+        <p class="desc">Alle gegen alle, jeder hat 3 Ballons. Links lenken, KEGELN wirft, DASH weicht aus. Sammle Power-Ups: Stern (rammt Gegner um), Banane (andere rutschen aus), Bier-Bombe (sprengt im Umkreis), Schild, Turbo, Dreifach. Wer als Erster alle Ballons verliert, muss EXEN. Nach 75 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
     let fav = null;
     const stage = document.getElementById('bstage'), startAt = performance.now() + B.startDelay; let last = null, cleanup = null;
     const tick = setInterval(() => {

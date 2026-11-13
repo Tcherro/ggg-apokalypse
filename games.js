@@ -517,28 +517,40 @@ const GAMES = {
       };
       clean.push(onTap(el.querySelector('#ddone'), sendDraw));
       const to1 = ctx.after(sendDraw, D);
+      let galPoll = null; const rate = {}, have = new Set(), list = []; let built = false, tot = 0, go = null, to2 = null, gallery = null;
+      const submit = () => {
+        if (voted) return; voted = true; clearInterval(galPoll); if (to2) ctx.cancel(to2);
+        list.forEach(x => { if (rate[x.k] == null) rate[x.k] = 3; });
+        ctx.send({ t: 'vote', st: rate }); showWait('Stimmen abgegeben!<br><small>Gleich gibt es das Ergebnis ...</small>'); ctx.sfx.win();
+      };
+      const addCard = x => {
+        const card = document.createElement('div'); card.className = 'gcard'; card.dataset.k = x.k;
+        card.innerHTML = `<img src="${x.img}"><div class="stars">${[1, 2, 3, 4, 5].map(s => `<button data-s="${s}">&#9733;</button>`).join('')}</div>`;
+        gallery.appendChild(card);
+        card.querySelectorAll('button').forEach(b => clean.push(onTap(b, () => {
+          if (voted) return; const s = +b.dataset.s; rate[x.k] = s; ctx.sfx.tap();
+          card.querySelectorAll('button').forEach(y => y.classList.toggle('on', +y.dataset.s <= s));
+          const r = el.querySelector('#vcount'); if (r) r.textContent = Object.keys(rate).length + ' von ' + list.length + ' bewertet';
+        })));
+      };
+      // Pictures arrive one message each (robust on slow links); unrated pictures count as 3 stars, the vote can be sent any time
+      const buildUI = ms => {
+        built = true; ctx.cancel(to1); if (!sent) { sent = true; stopBar(); } clearInterval(galPoll);
+        el.innerHTML = `<div class="qhead">ABSTIMMUNG</div><p class="small">Gib jeder Zeichnung 1 bis 5 Sterne. Deine eigene fehlt. Nicht bewertet = 3 Sterne. <b id="vcount"></b></p>
+          <div class="gallery" id="gal"></div><button class="big green" id="vgo">ABSTIMMEN</button>`;
+        gallery = el.querySelector('#gal'); go = el.querySelector('#vgo');
+        const stopV = timerBar(el, ms, ctx.now(), ctx); clean.push(stopV);
+        clean.push(onTap(go, submit)); to2 = ctx.after(submit, ms); clean.push(() => ctx.cancel(to2));
+      };
       ctx.onGm(m => {
-        if (m.k !== 'gal' || galleryShown) return; galleryShown = true; ctx.cancel(to1); if (!sent) { sent = true; stopBar(); }
-        const list = (m.list || []).filter(x => x.own !== ctx.me), rate = {};
-        el.innerHTML = `<div class="qhead">ABSTIMMUNG</div><p class="small">Vergib 1 bis 5 Sterne. Deine eigene Zeichnung ist nicht dabei.</p>
-          <div class="gallery">${list.map(x => `<div class="gcard" data-k="${x.k}"><img src="${x.img}"><div class="stars">${[1, 2, 3, 4, 5].map(s => `<button data-s="${s}">&#9733;</button>`).join('')}</div></div>`).join('')}</div>
-          <button class="big green" id="vgo" ${list.length ? 'disabled' : ''}>ABSTIMMEN</button>`;
-        const stopV = timerBar(el, V, ctx.now(), ctx); clean.push(stopV);
-        const go = el.querySelector('#vgo');
-        const submit = () => {
-          if (voted) return; voted = true; stopV(); ctx.cancel(to2);
-          list.forEach(x => { if (rate[x.k] == null) rate[x.k] = 3; });
-          ctx.send({ t: 'vote', st: rate }); showWait('Stimmen abgegeben!<br><small>Gleich gibt es das Ergebnis ...</small>'); ctx.sfx.win();
-        };
-        el.querySelectorAll('.gcard').forEach(card => card.querySelectorAll('button').forEach(b => clean.push(onTap(b, () => {
-          if (voted) return; const s = +b.dataset.s; rate[card.dataset.k] = s; ctx.sfx.tap();
-          card.querySelectorAll('button').forEach(x => x.classList.toggle('on', +x.dataset.s <= s));
-          go.disabled = Object.keys(rate).length < list.length;
-        }))));
-        clean.push(onTap(go, () => { if (!go.disabled) submit(); }));
-        const to2 = ctx.after(submit, V); clean.push(() => ctx.cancel(to2));
-        if (!list.length) submit();
+        if (m.k !== 'gimg' || voted) return;
+        if (!built) buildUI(m.ms || V);
+        tot = m.tot || tot; if (have.has(m.n)) return; have.add(m.n);
+        if (m.own !== ctx.me) { const x = { k: m.n, img: m.img }; list.push(x); addCard(x); const r = el.querySelector('#vcount'); if (r) r.textContent = Object.keys(rate).length + ' von ' + list.length + ' bewertet'; }
+        if (have.size >= tot && !list.length) submit();
       });
+      const startPoll = () => { clearInterval(galPoll); galPoll = setInterval(() => { if (!built && sent) ctx.send({ t: 'galreq' }); }, 4000); clean.push(() => clearInterval(galPoll)); };
+      startPoll();
       return () => { clean.forEach(f => f()); ctx.cancel(to1); cv.removeEventListener('pointerdown', down); };
     }
   },
@@ -612,3 +624,41 @@ const GAMES = {
     }
   }
 };
+
+// ------------------------------------------------------------------ preview pictures for the intro screen (inline SVG, 200x120)
+function gamePreview(key, variant) {
+  const K = '#16162a', Y = '#f0b800', R = '#d81018', B = '#1060e0', G = '#18a048', W = '#fff';
+  const frame = inner => `<svg viewBox="0 0 200 120" class="gpvsvg" role="img" aria-hidden="true"><rect width="200" height="120" rx="10" fill="#fff6d6"/>${inner}</svg>`;
+  const btn = (x, y, w, h, t, c, tc = W) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${c}" stroke="${K}" stroke-width="2.5"/><text x="${x + w / 2}" y="${y + h / 2 + 4.5}" text-anchor="middle" font-size="12" font-weight="900" fill="${tc}" font-family="Arial Black,Arial,sans-serif">${t}</text>`;
+  const kart = (x, y, c) => `<g transform="translate(${x},${y})"><rect x="0" y="4" width="26" height="12" rx="5" fill="${c}" stroke="${K}" stroke-width="2.5"/><circle cx="5" cy="17" r="4" fill="${K}"/><circle cx="21" cy="17" r="4" fill="${K}"/><circle cx="13" cy="3" r="4.5" fill="#ffd9a8" stroke="${K}" stroke-width="2"/></g>`;
+  const q = (lines) => `<rect x="14" y="10" width="172" height="34" rx="8" fill="${W}" stroke="${K}" stroke-width="2.5"/>` + lines;
+  const ans = (hi) => [0, 1, 2, 3].map(i => btn(14 + (i % 2) * 88, 54 + Math.floor(i / 2) * 31, 84, 26, ['A', 'B', 'C', 'D'][i], i === hi ? G : B)).join('');
+  const P = {
+    race: {
+      tap: frame(`<rect x="10" y="14" width="180" height="16" fill="#bbb" stroke="${K}" stroke-width="2"/>${kart(20, 12, R)}<rect x="10" y="38" width="180" height="16" fill="#bbb" stroke="${K}" stroke-width="2"/>${kart(60, 36, B)}<path d="M176 10V58" stroke="${K}" stroke-width="4" stroke-dasharray="4 4"/><circle cx="100" cy="92" r="22" fill="${R}" stroke="${K}" stroke-width="3"/><text x="100" y="97" text-anchor="middle" font-size="14" font-weight="900" fill="${W}" font-family="Arial Black,Arial">GAS</text>`),
+      lr: frame(`${kart(86, 8, R)}<rect x="22" y="44" width="68" height="64" rx="10" fill="${Y}" stroke="${K}" stroke-width="3"/><rect x="110" y="44" width="68" height="64" rx="10" fill="#ccc" stroke="${K}" stroke-width="3"/><text x="56" y="84" text-anchor="middle" font-size="22" font-weight="900" fill="${K}">&#9664;</text><text x="144" y="84" text-anchor="middle" font-size="22" font-weight="900" fill="${K}">&#9654;</text>`),
+      turbo: frame(`${kart(20, 14, R)}<rect x="14" y="62" width="172" height="22" rx="11" fill="#ddd" stroke="${K}" stroke-width="3"/><rect x="92" y="62" width="34" height="22" fill="${G}" stroke="${K}" stroke-width="3"/><path d="M118 52L118 94" stroke="${R}" stroke-width="5"/>${btn(62, 94, 76, 20, 'BOOST', Y, K)}`)
+    },
+    duel: {
+      quick: frame(`<circle cx="44" cy="52" r="24" fill="#ffd9a8" stroke="${K}" stroke-width="3"/><circle cx="156" cy="52" r="24" fill="#ffd9a8" stroke="${K}" stroke-width="3"/><text x="100" y="60" text-anchor="middle" font-size="22" font-weight="900" fill="${R}">VS</text>${btn(50, 88, 100, 26, 'SCHLAG!', R)}`),
+      combo: frame(`<text x="100" y="26" text-anchor="middle" font-size="12" font-weight="900" fill="${K}">COMBO</text>${['&#9664;', '&#9650;', '&#9654;', '&#9660;'].map((a, i) => `<rect x="${24 + i * 40}" y="36" width="34" height="34" rx="8" fill="${i < 2 ? G : W}" stroke="${K}" stroke-width="3"/><text x="${41 + i * 40}" y="60" text-anchor="middle" font-size="18" fill="${K}">${a}</text>`).join('')}${btn(40, 84, 50, 26, '&#9664;', B)}${btn(110, 84, 50, 26, '&#9654;', B)}`),
+      mash: frame(`<rect x="86" y="14" width="28" height="64" rx="6" fill="#8a5a2b" stroke="${K}" stroke-width="3" transform="rotate(-25 100 60)"/><rect x="64" y="8" width="72" height="26" rx="6" fill="#999" stroke="${K}" stroke-width="3" transform="rotate(-25 100 60)"/>${btn(50, 86, 100, 26, 'HAUEN!', R)}`)
+    },
+    guess: {
+      mix: frame(q(`<text x="100" y="32" text-anchor="middle" font-size="12" font-weight="900" fill="${K}">Wie viele ...?</text>`) + `<rect x="50" y="56" width="100" height="26" rx="6" fill="${W}" stroke="${K}" stroke-width="3"/><text x="100" y="75" text-anchor="middle" font-size="16" font-weight="900" fill="${K}">1234</text>${btn(50, 90, 100, 24, 'ABGEBEN', G)}`),
+      count: frame(`${[[40, 30], [90, 22], [150, 36], [64, 68], [120, 62], [166, 84], [30, 94]].map(([x, y]) => `<path d="M${x} ${y + 24}q-8-10-4-22q4-4 8 0q4 12-4 22Z" fill="${W}" stroke="${K}" stroke-width="2.5"/>`).join('')}<text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${R}">3 SEKUNDEN, DANN ZÄHLEN</text>`)
+    },
+    quiz: frame(q(`<rect x="28" y="20" width="144" height="5" rx="2" fill="#bbb"/><rect x="28" y="30" width="96" height="5" rx="2" fill="#bbb"/>`) + ans(2)),
+    geo: frame(`<rect x="10" y="8" width="180" height="82" rx="8" fill="#7cc4ff" stroke="${K}" stroke-width="3"/><path d="M70 22L110 18L130 30L124 56L136 70L100 82L82 66L60 62L58 38Z" fill="#e9d47a" stroke="${K}" stroke-width="2"/><path d="M10 30H190M10 56H190M60 8V90M110 8V90M150 8V90" stroke="#fff" stroke-width="1" opacity=".7"/><path d="M104 36q-9-14 0-20q9 6 0 20Z" fill="${R}" stroke="${K}" stroke-width="2"/>${btn(10, 96, 60, 20, 'ZOOM', Y, K)}${btn(80, 96, 110, 20, 'NADEL SETZEN', G)}`),
+    seek: frame(`${Array.from({ length: 34 }, (_, i) => `<circle cx="${14 + (i * 47) % 176}" cy="${14 + (i * 31) % 92}" r="${6 + (i % 3) * 2}" fill="${[R, B, G, Y, '#c070e0', '#ff8040'][i % 6]}" stroke="${K}" stroke-width="1.5" opacity=".85"/>`).join('')}<circle cx="128" cy="62" r="13" fill="${W}" stroke="${R}" stroke-width="3"/><image href="badges/00_ralf.png" x="117" y="51" width="22" height="22"/><text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${K}" stroke="${W}" stroke-width="3" paint-order="stroke">FINDE RALLUM</text>`),
+    draw: frame(`<rect x="12" y="8" width="176" height="84" rx="8" fill="${W}" stroke="${K}" stroke-width="3"/><g transform="translate(16 12) scale(.42)" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"><path d="M20 85V52H80V85ZM20 52L80 85M80 52L20 85M20 52L50 22L80 52"/></g><path d="M80 70Q100 30 120 62T164 50" fill="none" stroke="${R}" stroke-width="5" stroke-linecap="round"/>${[K, R, B, G, Y].map((c, i) => `<circle cx="${30 + i * 18}" cy="106" r="7" fill="${c}" stroke="${K}" stroke-width="2"/>`).join('')}${btn(128, 98, 62, 20, 'FERTIG', G)}`),
+    party: {
+      react: frame(`<circle cx="100" cy="52" r="38" fill="${G}" stroke="${K}" stroke-width="4"/><text x="100" y="58" text-anchor="middle" font-size="18" font-weight="900" fill="${W}">JETZT!</text><text x="100" y="110" text-anchor="middle" font-size="11" font-weight="900" fill="${K}">WARTEN, BIS ES GRÜN WIRD</text>`),
+      color: frame(`<text x="100" y="62" text-anchor="middle" font-size="40" font-weight="900" fill="${B}" font-family="Arial Black,Arial">ROT</text>${btn(20, 82, 74, 28, 'PASST', G)}${btn(106, 82, 74, 28, 'FALSCH', R)}`),
+      pins: frame(`${Array.from({ length: 12 }, (_, i) => `<path d="M${28 + (i % 6) * 28} ${50 + Math.floor(i / 6) * 38}q-8-10-4-24q4-4 8 0q4 14-4 24Z" fill="${W}" stroke="${K}" stroke-width="2.5"/>`).join('')}<text x="100" y="112" text-anchor="middle" font-size="11" font-weight="900" fill="${K}">ALLE 12 ANTIPPEN</text>`)
+    },
+    battle: frame(`<rect x="8" y="8" width="184" height="104" rx="10" fill="#555" stroke="${K}" stroke-width="3"/><path d="M30 30H170V90H30Z" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6 6"/>${kart(40, 38, R)}${kart(120, 62, B)}${kart(130, 26, G)}<circle cx="100" cy="60" r="6" fill="${Y}" stroke="${K}" stroke-width="2"/><path d="M70 50L96 56" stroke="${Y}" stroke-width="3" stroke-dasharray="3 3"/>`)
+  };
+  const g = P[key]; const s = typeof g === 'string' ? g : (g && (g[variant] || Object.values(g)[0]));
+  return s || '';
+}

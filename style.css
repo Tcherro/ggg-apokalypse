@@ -541,3 +541,14 @@ input.num { width: 100%; font-family: var(--font); font-size: 30px; text-align: 
 .mapinner .grat { z-index: 1; pointer-events: none; }
 .mapinner .grat line { stroke: rgba(22,22,42,.3); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 3; }
 .glab { position: absolute; z-index: 2; font: 700 9px/1.1 sans-serif; color: rgba(22,22,42,.8); background: rgba(255,255,255,.65); padding: 0 2px; border-radius: 3px; pointer-events: none; transform: translate(2px, 2px); }
+
+/* intro preview */
+.intro .gtitle { font-family: 'Titan One', 'Titan', sans-serif; font-size: 22px; text-align: center; margin: 4px 0 0; }
+.intro .gsub { text-align: center; font-weight: 800; color: #b00; margin-bottom: 6px; }
+.gpv { max-width: 300px; margin: 6px auto 8px; border: 4px solid #000; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 0 #000; background: #fff6d6; }
+.gpvsvg { display: block; width: 100%; height: auto; }
+.feenote { background: #fff0c0; border: 2px solid #000; border-radius: 10px; padding: 6px 8px; }
+.bhud.many { gap: 4px; margin-bottom: 4px; }
+.bhud.many .bh { padding: 1px 6px 1px 1px; border-width: 3px; font-size: 10px; gap: 3px; }
+.bhud.many .bh img { width: 24px; height: 24px; } .bhud.many .bh b { display: none; }
+.bhud.many .bh .bl u { width: 9px; height: 11px; }
