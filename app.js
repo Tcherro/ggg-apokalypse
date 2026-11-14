@@ -196,6 +196,7 @@ function newState(code) {
 }
 function commit() {
   S.ver++;
+  if (S.atBase) S.at = atMerge();
   if (!me.solo) store.set('ggg-host', { code: me.code, S });
   if (net) net.broadcast({ t: 'state', s: S });
   render();
@@ -346,6 +347,7 @@ function startSession() {
   const parts = participants(); if (parts.length < 2) return toast('Mindestens 2 Spieler müssen BEREIT sein');
   Object.values(S.players).forEach(p => { p.score = 0; p.sips = 0; p.ex = 0; p.tasks = 0; });
   S.chal.team = 0; S.chal.ch = 0; S.chal.paidOut = false; resetDrinks();
+  S.atBase = store.get(ATKEY) || S.atBase || {}; S.atDone = null;
   S.sessionStart = Date.now(); S.fighterDone = false; S.round = 0; S.bag = []; S.ralfCount = 0; S.ralf = null; S.battle = null;
   const n = S.games <= 10 ? 1 : 2, pool = shuffle(Array.from({ length: S.games - 2 }, (_, i) => i + 2));
   S.ralfAt = pool.slice(0, n).sort((a, b) => a - b);
@@ -482,6 +484,7 @@ function botPlay() {
     else if (g.key === 'guess') { v = R(800, 7000); d = `Ø ${Math.round(v / 100)} % daneben`; t = g.startDelay + (g.variant === 'preis' ? R(35000, 85000) : R(30000, 70000)); }
     else if (g.key === 'quiz' || g.key === 'cmp') { const nq = g.questions.length, c = R(0, nq); v = c * 100000 - R(15000, 45000); d = `${c}/${nq} richtig`; t = g.startDelay + (g.key === 'cmp' ? R(25000, 70000) : R(20000, 55000 + (nq - 3) * 12000)); }
     else if (g.key === 'geo') { const km = { de: [60, 250], eu: [150, 900], world: [600, 4000] }[g.variant]; v = R(km[0] * 3, km[1] * 3); d = `Ø ${Math.round(v / 3)} km daneben`; t = g.startDelay + R(40000, 85000); }
+    else if (g.key === 'polish') { v = R(9000, 26000); d = (v / 1000).toFixed(1).replace('.', ',') + ' s'; t = g.startDelay + v + 400; }
     else if (g.key === 'seek') { v = R(12000, 52000); d = `Ø ${(v / 3000).toFixed(1).replace('.', ',')} s, ${R(1, 3)}/3 gefunden`; t = g.startDelay + R(45000, 70000); }
     else if (k === 'party/react') { v = R(260, 620); d = v + ' ms'; }
     else if (k === 'party/color') { v = R(3, 11); d = v + ' Punkte'; }
@@ -645,7 +648,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v27</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v28</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
@@ -1045,6 +1048,7 @@ function chalFinal() {
     : `<b>${esc(dname(c))}</b> hat die GGG geschlagen! Strafe: Alle GGG trinken 2 Schlücke.`}</div></div>`;
 }
 function renderFinal() {
+  if (me.host && S.sessionStart && S.atDone !== S.sessionStart) { S.atBase = atMerge(); S.atDone = S.sessionStart; S.at = S.atBase; store.set(ATKEY, S.atBase); }
   view('final' + S.sessionStart + S.chal.paidOut, () => {
     const ids = Object.keys(S.players).filter(q => S.players[q].char != null).sort((x, y) => S.players[y].score - S.players[x].score);
     const thirsty = ids.filter(q => !S.players[q].pass).sort((x, y) => S.players[y].sips - S.players[x].sips)[0];
@@ -1078,6 +1082,34 @@ function schlomoLaugh() {
   el.innerHTML = `<div class="lt">HAHAHA, DU TROTTEL!</div><div class="lfaces">${others.map((q, i) => `<div class="lf" style="animation-delay:${(i % 5) * 0.08}s"><img src="${dimg(q)}"><b>HAHA</b></div>`).join('')}</div>`;
   document.body.appendChild(el); SFX.laugh(1); if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 240]); setTimeout(() => el.remove(), 2800);
 }
+
+// ------------------------------------------------------------------ ALL-TIME-TABELLE
+const ATKEY = 'ggg-alltime';
+function atMerge() {
+  const base = JSON.parse(JSON.stringify(S.atBase || {}));
+  if (!S.sessionStart || S.atDone === S.sessionStart) return base;
+  Object.values(S.players).forEach(p => {
+    if (p.char == null || p.challenger || !(p.ready || p.score || p.sips)) return;
+    const e = base[p.char] || (base[p.char] = { pts: 0, sips: 0, s: 0 });
+    e.pts += p.score || 0; e.sips += p.sips || 0; e.s += 1;
+  });
+  return base;
+}
+function showAllTime() {
+  const T = (me.host ? atMerge() : S && S.at) || {}, ids = Object.keys(T).sort((a, b) => T[b].pts - T[a].pts);
+  const el = document.createElement('div'); el.id = 'atov';
+  const king = ids[0], saufer = ids.slice().sort((a, b) => T[b].sips - T[a].sips)[0];
+  el.innerHTML = `<div class="atbox"><h2>ALL-TIME-TABELLE</h2>
+    ${ids.length ? `<div class="attitles"><div>ALL-TIME-KÖNIG<br><img src="${CHARS[king].img}"><b>${esc(CHARS[king].name)}</b></div>
+      <div>ALL-TIME-VOLLPFOSTEN<br><img src="${CHARS[saufer].img}"><b>${esc(CHARS[saufer].name)}</b><small>${T[saufer].sips} Schlücke</small></div></div>
+      <table class="attab"><tr><th></th><th>SPIELER</th><th>PUNKTE</th><th>SCHLÜCKE</th><th>RUNDEN</th></tr>${ids.map((c, i) => `<tr><td>${i + 1}</td><td><img src="${CHARS[c].img}">${esc(CHARS[c].name)}</td><td>${T[c].pts}</td><td>${T[c].sips}</td><td>${T[c].s}</td></tr>`).join('')}</table>` : '<p class="center">Noch keine Daten. Nach dem ersten Spiel wird mitgezählt.</p>'}
+    <button class="big gas" id="atClose">ZU</button></div>`;
+  document.body.appendChild(el); el.querySelector('#atClose').onclick = () => el.remove();
+}
+(() => {
+  const b = document.createElement('button'); b.id = 'atBtn'; b.textContent = 'ALL-TIME'; b.onclick = () => { if (!document.getElementById('atov')) showAllTime(); };
+  document.body.appendChild(b); setInterval(() => { b.style.display = S && S.phase !== 'play' && me.code ? '' : 'none'; }, 700);
+})();
 // ------------------------------------------------------------------ RALLUMKALYPSE
 let ralfShown = null;
 function renderRalf() {
@@ -1149,7 +1181,7 @@ const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 // ------------------------------------------------------------------ boot
 { const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
   setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v27'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v28'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();

@@ -464,6 +464,56 @@ const GAMES = {
     play(el, ctx) { return GAMES.quiz.play(el, ctx); }
   },
 
+  // ---------------------------------------------------------------- KUGEL POLIEREN (Wischen)
+  polish: {
+    title: 'KUGEL POLIEREN', label: 'Wisch-Rennen',
+    variants: {
+      ruben: { name: 'Rubens Glatze', desc: 'Rubens Glatze ist verschmiert. Wische mit dem Finger kreuz und quer darüber, bis sie blitzblank glänzt. Wer am schnellsten fertig ist, gewinnt. Wer am längsten braucht, trinkt. Bei Blitzblank geht ein Leuchtfeuer an.', dur: 36000, better: 'low' }
+    },
+    play(el, ctx) {
+      const clean = [], LIM = 30000, W = 280, H = 317, rng = ctx.rng;
+      el.innerHTML = `<div class="qhead">KUGEL POLIEREN</div><div class="polhint">Wische die Glatze blitzblank!</div><div class="polbox" id="pb"><img class="polimg" src="badges/ruben.jpg" alt=""><canvas class="polcan" width="${W}" height="${H}"></canvas><div class="polgloss"></div></div><div class="polbar"><i></i></div><div id="polmsg"></div>`;
+      const cv = el.querySelector('canvas'), c = cv.getContext('2d', { willReadFrequently: true }), img = el.querySelector('.polimg'), gl = el.querySelector('.polgloss'), bar = el.querySelector('.polbar i'), msg = el.querySelector('#polmsg'), box = el.querySelector('#pb');
+      // Schmutzschicht
+      c.fillStyle = 'rgba(86,72,58,0.96)'; c.fillRect(0, 0, W, H);
+      for (let i = 0; i < 260; i++) { const x = rng() * W, y = rng() * H, r = 4 + rng() * 22; c.fillStyle = `rgba(${48 + rng() * 34 | 0},${40 + rng() * 28 | 0},${32 + rng() * 22 | 0},${0.3 + rng() * 0.4})`; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }
+      for (let i = 0; i < 16; i++) { const x = rng() * W, y = rng() * H; c.strokeStyle = 'rgba(190,175,150,.35)'; c.lineWidth = 2; for (let k = 1; k < 5; k++) { c.beginPath(); c.ellipse(x, y, 5 + k * 3.2, 7 + k * 4, 0.5, 0, 7); c.stroke(); } }
+      c.font = '16px sans-serif'; c.fillStyle = 'rgba(255,255,255,.35)'; c.textAlign = 'center'; c.fillText('SCHMUTZ', W / 2, H * 0.5);
+      const cx = W / 2, cy = H * 0.5, rx = W * 0.46, ry = H * 0.46, pts = [];
+      for (let y = cy - ry; y <= cy + ry; y += 7) for (let x = cx - rx; x <= cx + rx; x += 7) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 0.9) pts.push([Math.round(x), Math.round(y)]);
+      const cover = () => { const d = c.getImageData(0, 0, W, H).data; let n = 0; for (const [x, y] of pts) if (d[(y * W + x) * 4 + 3] < 60) n++; return n / pts.length; };
+      let done = false, last = null, cov = 0, t0 = ctx.now(), strokes = 0;
+      const fire = () => {
+        const f = document.createElement('div'); f.id = 'polfire'; f.innerHTML = '<div class="rays"></div><div class="beam"></div><div class="ring"></div><div class="ring r2"></div><div class="big">BLITZBLANK!</div>';
+        document.body.appendChild(f); const rm = ctx.after(() => f.remove(), 3300); clean.push(() => { ctx.cancel(rm); f.remove(); });
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80, 40, 300]);
+      };
+      const fin = ok => {
+        if (done) return; done = true; ctx.cancel(to); ctx.cancel(tick);
+        const ms = ok ? Math.round(ctx.now() - t0) : LIM + Math.round((1 - cov) * 30000), pct = Math.round(cov * 100);
+        if (ok) { c.clearRect(0, 0, W, H); img.style.filter = 'brightness(1.35) saturate(1.2) contrast(1.1)'; gl.style.opacity = 1; box.style.boxShadow = '0 0 40px 12px #fff3a0, 0 0 90px 30px #ffd21a'; fire(); ctx.sfx.win(); setTimeout(() => ctx.sfx.win(), 350); }
+        else ctx.sfx.bad();
+        bar.style.width = (ok ? 100 : pct) + '%';
+        msg.innerHTML = ok ? `<div class="feedback good">BLITZBLANK in <b>${(ms / 1000).toFixed(1).replace('.', ',')} s</b></div>` : `<div class="feedback">Zeit um: nur ${pct} % poliert.</div>`;
+        ctx.submit(ms, ok ? `${(ms / 1000).toFixed(1).replace('.', ',')} s` : `${pct} % poliert`);
+      };
+      const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
+      const wipe = (a, b) => { c.globalCompositeOperation = 'destination-out'; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = 46; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke(); c.globalCompositeOperation = 'source-over'; strokes++; };
+      const dn = e => { if (done) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch { } last = pos(e); wipe(last, [last[0] + 0.1, last[1]]); };
+      const mv = e => { if (done) return; if (!last) { if (!(e.buttons & 1) && e.pointerType !== 'touch') return; last = pos(e); } e.preventDefault(); const p = pos(e); wipe(last, p); last = p; };
+      const up = () => { last = null; };
+      cv.addEventListener('pointerdown', dn); cv.addEventListener('pointermove', mv); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+      clean.push(() => { cv.removeEventListener('pointerdown', dn); cv.removeEventListener('pointermove', mv); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); });
+      const tick = ctx.every(() => {
+        if (done) return; cov = cover(); const p = Math.min(1, cov / 0.95);
+        bar.style.width = Math.round(p * 100) + '%'; img.style.filter = `brightness(${1 + p * 0.3}) saturate(${1 + p * 0.2})`; gl.style.opacity = p * p * 0.8;
+        if (cov >= 0.95) fin(true);
+      }, 160);
+      const to = ctx.after(() => { cov = cover(); fin(cov >= 0.95); }, LIM);
+      return () => clean.forEach(f => f());
+    }
+  },
+
   // ---------------------------------------------------------------- GEO (pin on map)
   geo: {
     title: 'WO ZUM GEIER?', label: 'Karten-Schätzen',
@@ -803,6 +853,7 @@ function gamePreview(key, variant) {
       count: frame(`${[[40, 30], [90, 22], [150, 36], [64, 68], [120, 62], [166, 84], [30, 94]].map(([x, y]) => `<path d="M${x} ${y + 24}q-8-10-4-22q4-4 8 0q4 12-4 22Z" fill="${W}" stroke="${K}" stroke-width="2.5"/>`).join('')}<text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${R}">3 SEKUNDEN, DANN ZÄHLEN</text>`)
     },
     cmp: frame(`<rect x="14" y="10" width="172" height="30" rx="8" fill="#fff" stroke="#16162a" stroke-width="2.5"/><text x="100" y="31" text-anchor="middle" font-family="Titan One,sans-serif" font-size="15" fill="#16162a">WAS IST GRÖSSER?</text>` + btn(12, 50, 82, 56, 'A', B) + btn(106, 50, 82, 56, 'B', R) + `<circle cx="100" cy="78" r="13" fill="#f0b800" stroke="#16162a" stroke-width="2.5"/><text x="100" y="83" text-anchor="middle" font-size="12" font-family="Titan One,sans-serif" fill="#16162a">VS</text>`),
+    polish: frame(`<ellipse cx="100" cy="62" rx="54" ry="50" fill="#e8b48a" stroke="#16162a" stroke-width="3"/><ellipse cx="82" cy="40" rx="16" ry="9" fill="#fff" opacity=".85" transform="rotate(-25 82 40)"/><path d="M150 25 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#f0b800" stroke="#16162a" stroke-width="2"/><path d="M40 92 q30 -26 62 -10" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".9"/>`),
     quiz: frame(q(`<rect x="28" y="20" width="144" height="5" rx="2" fill="#bbb"/><rect x="28" y="30" width="96" height="5" rx="2" fill="#bbb"/>`) + ans(2)),
     geo: frame(`<rect x="10" y="8" width="180" height="82" rx="8" fill="#7cc4ff" stroke="${K}" stroke-width="3"/><path d="M70 22L110 18L130 30L124 56L136 70L100 82L82 66L60 62L58 38Z" fill="#e9d47a" stroke="${K}" stroke-width="2"/><path d="M10 30H190M10 56H190M60 8V90M110 8V90M150 8V90" stroke="#fff" stroke-width="1" opacity=".7"/><path d="M104 36q-9-14 0-20q9 6 0 20Z" fill="${R}" stroke="${K}" stroke-width="2"/>${btn(10, 96, 60, 20, 'ZOOM', Y, K)}${btn(80, 96, 110, 20, 'NADEL SETZEN', G)}`),
     seek: frame(`${Array.from({ length: 34 }, (_, i) => `<circle cx="${14 + (i * 47) % 176}" cy="${14 + (i * 31) % 92}" r="${6 + (i % 3) * 2}" fill="${[R, B, G, Y, '#c070e0', '#ff8040'][i % 6]}" stroke="${K}" stroke-width="1.5" opacity=".85"/>`).join('')}<circle cx="128" cy="62" r="13" fill="${W}" stroke="${R}" stroke-width="3"/><image href="badges/00_ralf.png" x="117" y="51" width="22" height="22"/><text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${K}" stroke="${W}" stroke-width="3" paint-order="stroke">FINDE RALLUM</text>`),
