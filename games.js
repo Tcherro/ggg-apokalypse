@@ -433,25 +433,34 @@ const GAMES = {
       serien: { name: 'Serien der 90er', desc: '3 Serien aus den 90ern, erkennbar an Emojis und einem Hinweis. Richtige Antworten zählen, bei Gleichstand gewinnt der Schnellere.', dur: 68000, better: 'high' }
     },
     play(el, ctx) {
-      const clean = []; const qs = ctx.questions || []; let i = 0, right = 0, ms = 0;
+      const TL = ctx.variant === 'vs' ? 10000 : 20000; const clean = []; const qs = ctx.questions || []; let i = 0, right = 0, ms = 0;
       const next = () => {
         if (i >= qs.length) { el.innerHTML = `<div class="waitmsg">${right} von ${qs.length} richtig!</div>`; return ctx.submit(right * 100000 - Math.round(ms), ctx.variant === 'iq' ? `IQ ${Math.round(55 + 75 * right / Math.max(1, qs.length))} (${right}/${qs.length} richtig)` : `${right}/${qs.length} richtig`); }
         const q = qs[i], t0 = ctx.now(); let answered = false;
         el.innerHTML = `<div class="qhead">FRAGE ${i + 1} / ${qs.length}</div><div class="question">${esc(q.q)}</div><div class="choices">${q.o.map((o, k) => `<button class="choice" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
-        const stopBar = timerBar(el, 20000, t0, ctx);
+        const stopBar = timerBar(el, TL, t0, ctx);
         const pick = k => {
           if (answered) return; answered = true; stopBar(); ctx.cancel(to);
-          ms += Math.min(20000, ctx.now() - t0);
+          ms += Math.min(TL, ctx.now() - t0);
           if (k === q.c) { right++; ctx.sfx.win(); } else { ctx.sfx.bad(); if (ctx.wrong) ctx.wrong(); }
           el.querySelectorAll('.choice').forEach(b => { const kk = +b.dataset.k; b.classList.add(kk === q.c ? 'right' : (kk === k ? 'wrong' : 'dim')); });
           const t = ctx.after(() => { i++; next(); }, 1800); clean.push(() => ctx.cancel(t));
         };
         el.querySelectorAll('.choice').forEach(b => clean.push(onTap(b, () => pick(+b.dataset.k))));
-        const to = ctx.after(() => pick(-1), 20000); clean.push(() => ctx.cancel(to));
+        const to = ctx.after(() => pick(-1), TL); clean.push(() => ctx.cancel(to));
       };
       next();
       return () => clean.forEach(f => f());
     }
+  },
+
+  // ---------------------------------------------------------------- SCHWANZVERGLEICH (A oder B)
+  cmp: {
+    title: 'SCHWANZVERGLEICH', label: 'Vergleich',
+    variants: {
+      vs: { name: 'Was ist größer, schwerer, älter, hässlicher?', desc: '8 Vergleiche mit je 2 Antworten: Was ist größer, schwerer, länger, älter oder hässlicher? Pro Frage nur 10 Sekunden. Die meisten Treffer gewinnen, bei Gleichstand der Schnellere.', dur: 100000, better: 'high' }
+    },
+    play(el, ctx) { return GAMES.quiz.play(el, ctx); }
   },
 
   // ---------------------------------------------------------------- GEO (pin on map)
@@ -792,6 +801,7 @@ function gamePreview(key, variant) {
       mix: frame(q(`<text x="100" y="32" text-anchor="middle" font-size="12" font-weight="900" fill="${K}">Wie viele ...?</text>`) + `<rect x="50" y="56" width="100" height="26" rx="6" fill="${W}" stroke="${K}" stroke-width="3"/><text x="100" y="75" text-anchor="middle" font-size="16" font-weight="900" fill="${K}">1234</text>${btn(50, 90, 100, 24, 'ABGEBEN', G)}`),
       count: frame(`${[[40, 30], [90, 22], [150, 36], [64, 68], [120, 62], [166, 84], [30, 94]].map(([x, y]) => `<path d="M${x} ${y + 24}q-8-10-4-22q4-4 8 0q4 12-4 22Z" fill="${W}" stroke="${K}" stroke-width="2.5"/>`).join('')}<text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${R}">3 SEKUNDEN, DANN ZÄHLEN</text>`)
     },
+    cmp: frame(`<rect x="14" y="10" width="172" height="30" rx="8" fill="#fff" stroke="#16162a" stroke-width="2.5"/><text x="100" y="31" text-anchor="middle" font-family="Titan One,sans-serif" font-size="15" fill="#16162a">WAS IST GRÖSSER?</text>` + btn(12, 50, 82, 56, 'A', B) + btn(106, 50, 82, 56, 'B', R) + `<circle cx="100" cy="78" r="13" fill="#f0b800" stroke="#16162a" stroke-width="2.5"/><text x="100" y="83" text-anchor="middle" font-size="12" font-family="Titan One,sans-serif" fill="#16162a">VS</text>`),
     quiz: frame(q(`<rect x="28" y="20" width="144" height="5" rx="2" fill="#bbb"/><rect x="28" y="30" width="96" height="5" rx="2" fill="#bbb"/>`) + ans(2)),
     geo: frame(`<rect x="10" y="8" width="180" height="82" rx="8" fill="#7cc4ff" stroke="${K}" stroke-width="3"/><path d="M70 22L110 18L130 30L124 56L136 70L100 82L82 66L60 62L58 38Z" fill="#e9d47a" stroke="${K}" stroke-width="2"/><path d="M10 30H190M10 56H190M60 8V90M110 8V90M150 8V90" stroke="#fff" stroke-width="1" opacity=".7"/><path d="M104 36q-9-14 0-20q9 6 0 20Z" fill="${R}" stroke="${K}" stroke-width="2"/>${btn(10, 96, 60, 20, 'ZOOM', Y, K)}${btn(80, 96, 110, 20, 'NADEL SETZEN', G)}`),
     seek: frame(`${Array.from({ length: 34 }, (_, i) => `<circle cx="${14 + (i * 47) % 176}" cy="${14 + (i * 31) % 92}" r="${6 + (i % 3) * 2}" fill="${[R, B, G, Y, '#c070e0', '#ff8040'][i % 6]}" stroke="${K}" stroke-width="1.5" opacity=".85"/>`).join('')}<circle cx="128" cy="62" r="13" fill="${W}" stroke="${R}" stroke-width="3"/><image href="badges/00_ralf.png" x="117" y="51" width="22" height="22"/><text x="100" y="116" text-anchor="middle" font-size="11" font-weight="900" fill="${K}" stroke="${W}" stroke-width="3" paint-order="stroke">FINDE RALLUM</text>`),
