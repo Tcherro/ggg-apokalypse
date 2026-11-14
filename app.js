@@ -644,21 +644,21 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v23</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v24</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
-      ${mp ? `<div class="joinrow"><input id="code" maxlength="4" placeholder="CODE" value="${esc(last.toUpperCase())}" autocapitalize="characters"><button class="big green" id="bJoin">BEITRETEN</button></div>` : ''}
+      ${mp ? `<div class="joinrow"><input id="code" maxlength="4" placeholder="CODE" value="${esc((last || 'ADEV').toUpperCase())}" autocapitalize="characters"><button class="big green" id="bJoin">BEITRETEN</button></div>` : ''}
       <p class="small">Ton an! Das Spiel ist laut.</p>
       ${standalone ? '' : `<p class="hint">${ios ? 'Installieren: Teilen-Symbol, dann "Zum Home-Bildschirm".' : 'Installieren: Browser-Menü, dann "App installieren" bzw. "Zum Startbildschirm".'}</p>`}
     </div>`;
   const unlock = () => { SFX.unlock(); keepAwake(); };
-  if (mp) document.getElementById('bHost').onclick = () => { unlock(); becomeHost(rid(4)); };
+  if (mp) document.getElementById('bHost').onclick = () => { unlock(); becomeHost('ADEV'); adevLaugh(); };
   document.getElementById('bSolo').onclick = () => { unlock(); becomeHost('TEST', null, true); };
   const r = document.getElementById('bResume'); if (r) r.onclick = () => { unlock(); becomeHost(hostRec.code, hostRec.S); };
   if (mp) document.getElementById('bJoin').onclick = () => {
     const c = document.getElementById('code').value.trim().toUpperCase(); if (c.length !== 4) return toast('Bitte 4-stelligen Code eingeben');
-    unlock(); joinRoom(c);
+    unlock(); if (c === 'ADEV') adevLaugh(); joinRoom(c);
   };
 }
 
@@ -1067,6 +1067,10 @@ function renderFinal() {
 
 // Wer Schlomo spielt und falsch antwortet, wird von allen anderen ausgelacht
 let laughAt = 0;
+function adevLaugh() {
+  const el = document.createElement('div'); el.id = 'laughov'; el.innerHTML = '<div class="lt">MUHAHAHAHA!</div>';
+  document.body.appendChild(el); SFX.laugh(3); setTimeout(() => SFX.laugh(2), 2600); if (navigator.vibrate) navigator.vibrate([200, 80, 200, 80, 400]); setTimeout(() => el.remove(), 4200);
+}
 function schlomoLaugh() {
   const c = charOf(me.pid); if (!c || !/schlomo/i.test(c.name) || Date.now() - laughAt < 6000 || !S) return; laughAt = Date.now();
   const others = participants().filter(q => q !== me.pid).slice(0, 12), el = document.createElement('div'); el.id = 'laughov';
@@ -1144,7 +1148,7 @@ const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 // ------------------------------------------------------------------ boot
 { const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
   setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v23'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v24'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();
