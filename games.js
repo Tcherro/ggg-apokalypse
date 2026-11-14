@@ -378,6 +378,7 @@ const GAMES = {
     variants: {
       mix: { name: 'Schätzfragen', desc: '3 Fragen: Zahl schätzen und abgeben. Kein Stress, du hast pro Frage 25 Sekunden. Wer insgesamt am weitesten daneben liegt, trinkt.', dur: 86000, better: 'low' },
       gev: { name: 'Gevelsberg in Zahlen', desc: '3 Schätzfragen rund um Gevelsberg. Pro Frage 25 Sekunden. Wer am weitesten daneben liegt, trinkt.', dur: 86000, better: 'low' },
+      preis: { name: 'Supermarkt-Preise', desc: '5 Produkte aus dem Supermarkt: Schätze den Preis in Euro. Pro Produkt 20 Sekunden. Wer insgesamt am weitesten daneben liegt, trinkt. Richtwerte, Preise schwanken je nach Markt.', dur: 118000, better: 'low' },
       count: { name: 'Blitz-Zählen', desc: 'Kegel blitzen 3 Sekunden auf. Wie viele waren es?', dur: 30000, better: 'low' }
     },
     play(el, ctx) {
@@ -399,12 +400,12 @@ const GAMES = {
         clean.push(() => ctx.cancel(t));
         return () => clean.forEach(f => f());
       }
-      const qs = ctx.questions || []; let i = 0, total = 0;
+      const qs = ctx.questions || []; let i = 0, total = 0; const TL = ctx.variant === 'preis' ? 20000 : 25000;
       const next = () => {
         if (i >= qs.length) { done = true; const avg = total / Math.max(1, qs.length); el.innerHTML = `<div class="waitmsg">Fertig!<br><small>Im Schnitt ${Math.round(avg * 100)} % daneben</small></div>`; return ctx.submit(Math.round(avg * 10000), `Ø ${Math.round(avg * 100)} % daneben`); }
         const q = qs[i]; let answered = false;
-        el.innerHTML = `<div class="qhead">FRAGE ${i + 1} / ${qs.length}</div><div class="question">${esc(q.q)}${q.unit ? `<small>(in ${esc(q.unit)})</small>` : ''}</div><div class="controls"></div>`;
-        const stopBar = timerBar(el, 25000, ctx.now(), ctx);
+        el.innerHTML = `<div class="qhead">FRAGE ${i + 1} / ${qs.length}</div>${q.emoji ? `<div class="prodemo">${q.emoji}</div>` : ''}<div class="question">${esc(q.q)}${q.unit ? `<small>(in ${esc(q.unit)})</small>` : ''}</div><div class="controls"></div>`;
+        const stopBar = timerBar(el, TL, ctx.now(), ctx);
         const answer = val => {
           if (answered) return; answered = true; stopBar(); ctx.cancel(to);
           const err = val == null || isNaN(val) ? 1.5 : Math.min(1.5, Math.abs(val - q.a) / Math.max(1, Math.abs(q.a))); total += err;
@@ -413,7 +414,7 @@ const GAMES = {
           const t = ctx.after(() => { i++; next(); }, 2600); clean.push(() => ctx.cancel(t));
         };
         numInput(el.querySelector('.controls'), answer, clean);
-        const to = ctx.after(() => answer(readNum(el)), 25000); clean.push(() => ctx.cancel(to));
+        const to = ctx.after(() => answer(readNum(el)), TL); clean.push(() => ctx.cancel(to));
       };
       next();
       return () => clean.forEach(f => f());

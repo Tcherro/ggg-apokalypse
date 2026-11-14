@@ -1107,6 +1107,223 @@
    "q": "Wie viele Einwohner hatte Gevelsberg Ende 1994?",
    "a": 33815,
    "unit": "Einwohner"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Milka Alpenmilch Schokolade, 100 g?",
+   "a": 1.89,
+   "unit": "Euro",
+   "emoji": "🍫"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Pringles Original, 165 g?",
+   "a": 2.79,
+   "unit": "Euro",
+   "emoji": "🥔"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: H-Milch Eigenmarke, 1 Liter?",
+   "a": 1.2,
+   "unit": "Euro",
+   "emoji": "🥛"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Kerrygold Butter, 250 g?",
+   "a": 3.1,
+   "unit": "Euro",
+   "emoji": "🧈"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Jacobs Krönung Bohnenkaffee, 500 g?",
+   "a": 7.99,
+   "unit": "Euro",
+   "emoji": "☕"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Barilla Spaghetti, 500 g?",
+   "a": 1.99,
+   "unit": "Euro",
+   "emoji": "🍝"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Heinz Tomato Ketchup, 500 ml?",
+   "a": 3.29,
+   "unit": "Euro",
+   "emoji": "🍅"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Nutella, 450 g?",
+   "a": 4.49,
+   "unit": "Euro",
+   "emoji": "🍯"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: 10 Freiland-Eier?",
+   "a": 3.2,
+   "unit": "Euro",
+   "emoji": "🥚"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Golden Toast Buttertoast, 500 g?",
+   "a": 1.69,
+   "unit": "Euro",
+   "emoji": "🍞"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Kasten Krombacher Pils, 20 x 0,5 Liter (ohne Pfand)?",
+   "a": 17.99,
+   "unit": "Euro",
+   "emoji": "🍺"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Jägermeister, 0,7 Liter?",
+   "a": 15.99,
+   "unit": "Euro",
+   "emoji": "🥃"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Rotkäppchen Sekt, 0,75 Liter?",
+   "a": 6.99,
+   "unit": "Euro",
+   "emoji": "🍾"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Coca-Cola, 1,5 Liter (ohne Pfand)?",
+   "a": 1.99,
+   "unit": "Euro",
+   "emoji": "🥤"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Red Bull Energy Drink, 250 ml?",
+   "a": 1.79,
+   "unit": "Euro",
+   "emoji": "⚡"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Nivea Creme Dose, 150 ml?",
+   "a": 4.49,
+   "unit": "Euro",
+   "emoji": "🧴"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Elmex Zahnpasta, 75 ml?",
+   "a": 2.99,
+   "unit": "Euro",
+   "emoji": "🪥"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Iglo Fischstäbchen, 10 Stück?",
+   "a": 3.99,
+   "unit": "Euro",
+   "emoji": "🐟"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Dr. Oetker Ristorante Pizza Salame?",
+   "a": 3.79,
+   "unit": "Euro",
+   "emoji": "🍕"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Bananen, 1 kg?",
+   "a": 1.69,
+   "unit": "Euro",
+   "emoji": "🍌"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Äpfel, 1 kg?",
+   "a": 2.79,
+   "unit": "Euro",
+   "emoji": "🍎"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Gemischtes Hackfleisch, 500 g?",
+   "a": 4.49,
+   "unit": "Euro",
+   "emoji": "🥩"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Hähnchenbrustfilet, 1 kg?",
+   "a": 9.99,
+   "unit": "Euro",
+   "emoji": "🐔"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Haribo Goldbären, 200 g?",
+   "a": 1.69,
+   "unit": "Euro",
+   "emoji": "🧸"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Oreo Kekse, 154 g?",
+   "a": 1.99,
+   "unit": "Euro",
+   "emoji": "🍪"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Mineralwasser Eigenmarke, 6 x 1,5 Liter (ohne Pfand)?",
+   "a": 2.5,
+   "unit": "Euro",
+   "emoji": "💧"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Speisekartoffeln, 2,5 kg?",
+   "a": 3.49,
+   "unit": "Euro",
+   "emoji": "🥔"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Magnum Eis, 3er Packung?",
+   "a": 3.99,
+   "unit": "Euro",
+   "emoji": "🍦"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Rotwein Eigenmarke, 0,75 Liter?",
+   "a": 3.99,
+   "unit": "Euro",
+   "emoji": "🍷"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Duracell AA Batterien, 4er Packung?",
+   "a": 7.49,
+   "unit": "Euro",
+   "emoji": "🔋"
+  },
+  {
+   "cat": "preis",
+   "q": "Was kostet: Philadelphia Frischkäse, 200 g?",
+   "a": 2.49,
+   "unit": "Euro",
+   "emoji": "🧀"
   }
  ],
  "auswahl": [
