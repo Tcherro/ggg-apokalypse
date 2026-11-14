@@ -1,4 +1,4 @@
-const CACHE = 'ggg-apok-v18';
+const CACHE = 'ggg-apok-v19';
 const FILES = [
   './', 'index.html', 'style.css', 'app.js', 'games.js', 'battle.js', 'maps.js', 'audio.js', 'questions.json', 'manifest.json',
   'vendor/peerjs.min.js', 'vendor/mqtt.min.js', 'vendor/qrcode.js', 'fonts/titan.woff2',
@@ -18,7 +18,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   // network first, so updates arrive; cache as offline fallback
-  e.respondWith(fetch(e.request).then(r => {
+  e.respondWith(fetch(e.request, { cache: 'no-cache' }).then(r => {
     const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return r;
   }).catch(() => caches.match(e.request, {ignoreSearch: true})));
 });

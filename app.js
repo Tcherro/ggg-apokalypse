@@ -1122,6 +1122,7 @@ function showIntro() {
 const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 (() => { const touch = () => store.set('ggg-lastseen', Date.now()); touch(); setInterval(touch, 5000); document.addEventListener('visibilitychange', touch); window.addEventListener('pagehide', touch); })();
 // ------------------------------------------------------------------ boot
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v19'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+  let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();
