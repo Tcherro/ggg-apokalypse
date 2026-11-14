@@ -1,4 +1,4 @@
-const CACHE = 'ggg-apok-v26';
+const CACHE = 'ggg-apok-v27';
 const FILES = [
   './', 'index.html', 'style.css', 'app.js', 'games.js', 'battle.js', 'wait.js', 'maps.js', 'audio.js', 'questions.json', 'manifest.json',
   'vendor/peerjs.min.js', 'vendor/mqtt.min.js', 'vendor/qrcode.js', 'fonts/titan.woff2',

@@ -1110,6 +1110,7 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Milka Alpenmilch Schokolade, 100 g?",
    "a": 1.89,
    "unit": "Euro",
@@ -1117,6 +1118,7 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Pringles Original, 165 g?",
    "a": 2.79,
    "unit": "Euro",
@@ -1124,13 +1126,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: H-Milch Eigenmarke, 1 Liter?",
-   "a": 1.2,
-   "unit": "Euro",
-   "emoji": "🥛"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Kerrygold Butter, 250 g?",
    "a": 3.1,
    "unit": "Euro",
@@ -1138,6 +1134,7 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Jacobs Krönung Bohnenkaffee, 500 g?",
    "a": 7.99,
    "unit": "Euro",
@@ -1145,20 +1142,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Barilla Spaghetti, 500 g?",
-   "a": 1.99,
-   "unit": "Euro",
-   "emoji": "🍝"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Heinz Tomato Ketchup, 500 ml?",
-   "a": 3.29,
-   "unit": "Euro",
-   "emoji": "🍅"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Nutella, 450 g?",
    "a": 4.49,
    "unit": "Euro",
@@ -1166,20 +1150,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: 10 Freiland-Eier?",
-   "a": 3.2,
-   "unit": "Euro",
-   "emoji": "🥚"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Golden Toast Buttertoast, 500 g?",
-   "a": 1.69,
-   "unit": "Euro",
-   "emoji": "🍞"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Kasten Krombacher Pils, 20 x 0,5 Liter (ohne Pfand)?",
    "a": 17.99,
    "unit": "Euro",
@@ -1187,6 +1158,7 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Jägermeister, 0,7 Liter?",
    "a": 15.99,
    "unit": "Euro",
@@ -1194,20 +1166,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Rotkäppchen Sekt, 0,75 Liter?",
-   "a": 6.99,
-   "unit": "Euro",
-   "emoji": "🍾"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Coca-Cola, 1,5 Liter (ohne Pfand)?",
-   "a": 1.99,
-   "unit": "Euro",
-   "emoji": "🥤"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Red Bull Energy Drink, 250 ml?",
    "a": 1.79,
    "unit": "Euro",
@@ -1215,27 +1174,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Nivea Creme Dose, 150 ml?",
-   "a": 4.49,
-   "unit": "Euro",
-   "emoji": "🧴"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Elmex Zahnpasta, 75 ml?",
-   "a": 2.99,
-   "unit": "Euro",
-   "emoji": "🪥"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Iglo Fischstäbchen, 10 Stück?",
-   "a": 3.99,
-   "unit": "Euro",
-   "emoji": "🐟"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Dr. Oetker Ristorante Pizza Salame?",
    "a": 3.79,
    "unit": "Euro",
@@ -1243,20 +1182,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Bananen, 1 kg?",
-   "a": 1.69,
-   "unit": "Euro",
-   "emoji": "🍌"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Äpfel, 1 kg?",
-   "a": 2.79,
-   "unit": "Euro",
-   "emoji": "🍎"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Gemischtes Hackfleisch, 500 g?",
    "a": 4.49,
    "unit": "Euro",
@@ -1264,6 +1190,7 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Hähnchenbrustfilet, 1 kg?",
    "a": 9.99,
    "unit": "Euro",
@@ -1271,41 +1198,7 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Haribo Goldbären, 200 g?",
-   "a": 1.69,
-   "unit": "Euro",
-   "emoji": "🧸"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Oreo Kekse, 154 g?",
-   "a": 1.99,
-   "unit": "Euro",
-   "emoji": "🍪"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Mineralwasser Eigenmarke, 6 x 1,5 Liter (ohne Pfand)?",
-   "a": 2.5,
-   "unit": "Euro",
-   "emoji": "💧"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Speisekartoffeln, 2,5 kg?",
-   "a": 3.49,
-   "unit": "Euro",
-   "emoji": "🥔"
-  },
-  {
-   "cat": "preis",
-   "q": "Was kostet: Magnum Eis, 3er Packung?",
-   "a": 3.99,
-   "unit": "Euro",
-   "emoji": "🍦"
-  },
-  {
-   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Rotwein Eigenmarke, 0,75 Liter?",
    "a": 3.99,
    "unit": "Euro",
@@ -1313,6 +1206,23 @@
   },
   {
    "cat": "preis",
+   "grp": "norm",
+   "q": "Was kostet: Barilla Spaghetti, 500 g?",
+   "a": 1.99,
+   "unit": "Euro",
+   "emoji": "🍝"
+  },
+  {
+   "cat": "preis",
+   "grp": "norm",
+   "q": "Was kostet: Bananen, 1 kg?",
+   "a": 1.69,
+   "unit": "Euro",
+   "emoji": "🍌"
+  },
+  {
+   "cat": "preis",
+   "grp": "norm",
    "q": "Was kostet: Duracell AA Batterien, 4er Packung?",
    "a": 7.49,
    "unit": "Euro",
@@ -1320,10 +1230,123 @@
   },
   {
    "cat": "preis",
-   "q": "Was kostet: Philadelphia Frischkäse, 200 g?",
-   "a": 2.49,
+   "grp": "norm",
+   "q": "Was kostet: Magnum Eis, 3er Packung?",
+   "a": 3.99,
    "unit": "Euro",
-   "emoji": "🧀"
+   "emoji": "🍦"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Ein neuer Bugatti Chiron (ab ca.)?",
+   "a": 2500000,
+   "unit": "Euro",
+   "emoji": "🏎️"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Rolex Submariner Date in Stahl (Listenpreis, ca.)?",
+   "a": 10500,
+   "unit": "Euro",
+   "emoji": "⌚"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Hermès Birkin Bag 30 (Boutique-Preis, ca.)?",
+   "a": 12000,
+   "unit": "Euro",
+   "emoji": "👜"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Eintritt Eiffelturm, Erwachsene bis zur Spitze per Aufzug (ca.)?",
+   "a": 35,
+   "unit": "Euro",
+   "emoji": "🗼"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Dom Pérignon Vintage, 0,75 Liter (ca.)?",
+   "a": 190,
+   "unit": "Euro",
+   "emoji": "🍾"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Gulfstream G650 Privatjet, Neupreis (ca.)?",
+   "a": 60000000,
+   "unit": "Euro",
+   "emoji": "🛩️"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Ablösesumme für Neymar 2017 zu Paris Saint-Germain?",
+   "a": 222000000,
+   "unit": "Euro",
+   "emoji": "⚽"
+  },
+  {
+   "cat": "preis",
+   "grp": "lux",
+   "q": "Was kostet: Salvator Mundi von da Vinci, Auktion 2017 bei Christie's (in Dollar)?",
+   "a": 450000000,
+   "unit": "Dollar",
+   "emoji": "🖼️"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: Ein einzelnes Brötchen im Discounter-Backshop (ca.)?",
+   "a": 0.3,
+   "unit": "Euro",
+   "emoji": "🥖"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: Ein einzelnes Freiland-Ei (ca.)?",
+   "a": 0.32,
+   "unit": "Euro",
+   "emoji": "🥚"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: Pfand auf eine Mehrweg-Bierflasche (0,5 Liter)?",
+   "a": 0.08,
+   "unit": "Euro",
+   "emoji": "🍺"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: Pfand auf eine Einweg-Plastikflasche?",
+   "a": 0.25,
+   "unit": "Euro",
+   "emoji": "🥤"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: Pfand auf einen Bierkasten?",
+   "a": 1.5,
+   "unit": "Euro",
+   "emoji": "📦"
+  },
+  {
+   "cat": "preis",
+   "grp": "cheap",
+   "q": "Was kostet: 1 kg Haushaltszucker, Eigenmarke (ca.)?",
+   "a": 1.2,
+   "unit": "Euro",
+   "emoji": "🍬"
   }
  ],
  "auswahl": [

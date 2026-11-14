@@ -378,7 +378,7 @@ const GAMES = {
     variants: {
       mix: { name: 'Schätzfragen', desc: '3 Fragen: Zahl schätzen und abgeben. Kein Stress, du hast pro Frage 25 Sekunden. Wer insgesamt am weitesten daneben liegt, trinkt.', dur: 86000, better: 'low' },
       gev: { name: 'Gevelsberg in Zahlen', desc: '3 Schätzfragen rund um Gevelsberg. Pro Frage 25 Sekunden. Wer am weitesten daneben liegt, trinkt.', dur: 86000, better: 'low' },
-      preis: { name: 'Supermarkt-Preise', desc: '5 Produkte aus dem Supermarkt: Schätze den Preis in Euro. Pro Produkt 20 Sekunden. Wer insgesamt am weitesten daneben liegt, trinkt. Richtwerte, Preise schwanken je nach Markt.', dur: 118000, better: 'low' },
+      preis: { name: 'Von Pfennig bis Bugatti', desc: '5 Preise von Pfennigartikeln bis Luxus (Bugatti, Rolex, Privatjet): Schätze den Preis in Euro. Pro Produkt 20 Sekunden. Wer insgesamt am weitesten daneben liegt, trinkt. Richtwerte, Preise schwanken je nach Markt.', dur: 118000, better: 'low' },
       count: { name: 'Blitz-Zählen', desc: 'Kegel blitzen 3 Sekunden auf. Wie viele waren es?', dur: 30000, better: 'low' }
     },
     play(el, ctx) {
@@ -408,7 +408,7 @@ const GAMES = {
         const stopBar = timerBar(el, TL, ctx.now(), ctx);
         const answer = val => {
           if (answered) return; answered = true; stopBar(); ctx.cancel(to);
-          const err = val == null || isNaN(val) ? 1.5 : Math.min(1.5, Math.abs(val - q.a) / Math.max(1, Math.abs(q.a))); total += err;
+          const err = val == null || isNaN(val) ? 1.5 : Math.min(1.5, Math.abs(val - q.a) / Math.max(ctx.variant === 'preis' ? 0.2 : 1, Math.abs(q.a))); total += err;
           ctx.sfx[err < 0.1 ? 'win' : 'blip']();
           el.querySelector('.controls').innerHTML = `<div class="feedback ${err < 0.1 ? 'good' : ''}">Richtig: <b>${fmtNum(q.a, q.unit)} ${esc(q.unit || '')}</b><br>Du: ${val == null || isNaN(val) ? '–' : fmtNum(val, q.unit)} · ${Math.round(err * 100)} % daneben</div>`;
           const t = ctx.after(() => { i++; next(); }, 2600); clean.push(() => ctx.cancel(t));
