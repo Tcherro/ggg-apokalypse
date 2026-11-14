@@ -39,6 +39,109 @@ function numInput(c, cb, clean) {
   const inp = c.querySelector('input'); setTimeout(() => inp.focus(), 50);
   clean.push(onTap(c.querySelector('button'), () => { const v = readNum(c); if (v == null) return; inp.blur(); cb(v); }));
 }
+
+// ---------------------------------------------------------------- Kegel-Fighter: Echtzeit-Kampf (Street-Fighter-Stil)
+function fighterRT(arena, ctx, a, b, H) {
+  const F = GAMES.duel.FIGHTERS, SPD = [1, 0.85, 1.25, 1, 1.1], COL = ['#d81018', '#1060e0'];
+  const me = ctx.isDuelist ? ctx.me : null, opp = me ? (me === a ? b : a) : null;
+  const isBot = p => p === 'cpu' || (ctx.bots || []).includes(p), aiOn = !!(me && isBot(opp));
+  const st = {}; [a, b].forEach((p, i) => st[p] = { x: i ? 470 : 170, dx: i ? 470 : 170, y: 0, vy: 0, fc: i ? -1 : 1, act: 'idle', t: 0, D: 0, f: null, done: false, stun: 0, cool: 1, blk: 0 });
+  if (aiOn) st[opp].f = Math.floor(Math.random() * 5);
+  const img = new Image(); img.onerror = () => { img.onerror = null; img.src = GAMES.duel.LUTZ_SVG; }; img.src = GAMES.duel.LUTZ;
+  let phase = 'pick', t0 = 0, endAt = 0, raf = 0, lastT = performance.now(), sendT = 0, cnt = 3, over = false; const clean = [], inp = { l: 0, r: 0, blk: 0 };
+  const fOf = p => F[st[p].f == null ? 0 : st[p].f];
+  const hpOf = p => Math.max(0, fOf(p).hp - st[p === a ? b : a].D);
+  const pct = p => hpOf(p) / fOf(p).hp * 100;
+  const dur = { punch: 0.38, kick: 0.56 }, win = { punch: [0.08, 0.22], kick: [0.16, 0.34] }, reach = { punch: 108, kick: 138 }, base = { punch: 9, kick: 13 };
+  const setAct = (p, act) => { const s = st[p]; if (s.act !== act) { s.act = act; s.t = 0; s.done = false; } };
+  const send = () => { if (!me) return; const s = st[me]; ctx.progress({ r: [], p: 0, f: s.f, s: { x: Math.round(s.x), y: Math.round(s.y), fc: s.fc, a: s.act, D: s.D } }); sendT = performance.now(); };
+  const ownerHit = (att, def, kind) => {
+    const blockMul = st[def].act === 'block' ? 0.2 : 1, dm = Math.max(1, Math.round(base[kind] * fOf(att).atk / fOf(def).def * blockMul));
+    st[att].D += dm; st[att].done = true; H.floatTxt(def, '-' + dm, blockMul < 1 ? 'time' : ''); H.hit(att, def, kind === 'kick'); H.setHP(def, pct(def)); H.setHP(att, pct(att));
+    if (def === me || (aiOn && def === opp)) { st[def].stun = blockMul < 1 ? 0.12 : 0.3; if (blockMul === 1) setAct(def, 'hit'); st[def].x += (st[def].x < st[att].x ? -1 : 1) * (blockMul < 1 ? 10 : 34); }
+    if (att === me) send();
+  };
+  const posOf = p => (p === me || (aiOn && p === opp)) ? st[p].x : st[p].dx;
+  const tryHit = (att, def) => { const s = st[att], k = s.act; if (!win[k] || s.done || phase !== 'fight') return; if (s.t < win[k][0] || s.t > win[k][1]) return;
+    const d = posOf(def) - posOf(att); if (Math.abs(d) < reach[k] && Math.abs(st[def].y - s.y) < 70 && st[def].act !== 'ko' && d * s.fc > -10) ownerHit(att, def, k); };
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = 300; cv.className = 'rtc';
+  function drawFighter(g, p, i) {
+    const s = st[p], x = posOf(p), y = 250 - s.y, ph = s.t; g.save(); g.translate(x, y); g.scale((s.fc || 1) * 1.4, 1.4);
+    g.beginPath(); g.ellipse(0, s.y, Math.max(12, 30 - s.y / 10), 7, 0, 0, 7); g.fillStyle = 'rgba(0,0,0,.35)'; g.fill();
+    if (s.act === 'ko') { g.rotate(-1.35); g.translate(0, 10); } else if (s.act === 'hit') g.rotate(-0.22);
+    const sw = s.act === 'walk' ? Math.sin(performance.now() / 70) * 11 : 0; g.strokeStyle = '#16162a'; g.lineWidth = 5; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(-8, -26); g.lineTo(-8 - sw, 0); g.moveTo(8, -26); if (s.act === 'kick' && ph > 0.1 && ph < 0.42) g.lineTo(74, -34); else g.lineTo(8 + sw, 0); g.stroke();
+    g.fillStyle = COL[i]; g.lineWidth = 3; g.fillRect(-17, -66, 34, 44); g.strokeRect(-17, -66, 34, 44);
+    g.lineWidth = 5; g.beginPath();
+    if (s.act === 'block') { g.moveTo(10, -56); g.lineTo(22, -78); g.moveTo(-8, -56); g.lineTo(12, -82); } else if (s.act === 'punch' && ph > 0.05 && ph < 0.3) { g.moveTo(12, -56); g.lineTo(78, -58); g.moveTo(-12, -54); g.lineTo(-20, -36); } else { g.moveTo(14, -56); g.lineTo(24, -40); g.moveTo(-14, -56); g.lineTo(-24, -40); } g.stroke();
+    g.save(); g.beginPath(); g.arc(0, -90, 27, 0, 7); g.clip(); try { g.drawImage(img, -27, -117, 54, 54); } catch (e) { g.fillStyle = '#f6c59a'; g.fill(); } g.restore();
+    g.beginPath(); g.arc(0, -90, 27, 0, 7); g.lineWidth = 4; g.strokeStyle = s.act === 'hit' ? '#ff2a2a' : '#16162a'; g.stroke();
+    g.restore(); g.fillStyle = '#fff'; g.font = '700 12px sans-serif'; g.textAlign = 'center'; g.fillText((ctx.players.find(q => q.pid === p) || {}).name || '', x, 292); g.textAlign = 'left';
+  }
+  const draw = () => {
+    const g = cv.getContext('2d'), W = 640, GY = 250;
+    const gr = g.createLinearGradient(0, 0, 0, 250); gr.addColorStop(0, '#2b1a47'); gr.addColorStop(1, '#7a3a2a'); g.fillStyle = gr; g.fillRect(0, 0, W, 300);
+    for (let r = 0; r < 4; r++) for (let c = 0; c <= r; c++) { const px = 520 + (c - r / 2) * 26, py = 60 + r * 22; g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.ellipse(px, py, 8, 13, 0, 0, 7); g.fill(); g.fillStyle = '#d81018'; g.fillRect(px - 6, py - 4, 12, 3); }
+    g.fillStyle = '#d8a45a'; g.fillRect(0, GY, W, 50); for (let i = 0; i < 12; i++) { g.fillStyle = i % 2 ? 'rgba(120,70,20,.25)' : 'rgba(255,255,255,.08)'; g.fillRect(i * 56, GY, 56, 50); } g.fillStyle = '#16162a'; g.fillRect(0, GY - 3, W, 4);
+    [a, b].forEach((p, i) => drawFighter(g, p, i));
+    g.fillStyle = '#fff'; g.font = '700 14px sans-serif'; g.textAlign = 'center';
+    if (phase === 'pick') { g.font = '700 26px sans-serif'; g.fillText('Kämpfer werden gewählt ...', 320, 140); }
+    if (phase === 'count') { g.font = '700 90px sans-serif'; g.fillStyle = '#ffd21a'; g.fillText(cnt > 0 ? String(cnt) : 'FIGHT!', 320, 150); }
+    if (phase === 'fight') { const left = Math.max(0, Math.ceil((endAt - performance.now()) / 1000)); g.font = '700 28px sans-serif'; g.fillStyle = '#ffd21a'; g.fillText(String(left), 320, 34); }
+    g.textAlign = 'left';
+  };
+  const jump = () => { const s = st[me]; if (phase !== 'fight' || s.stun > 0 || s.y > 0 || ['punch', 'kick', 'ko'].includes(s.act)) return; s.vy = 560; };
+  const attack = k => { const s = st[me]; if (phase !== 'fight' || s.stun > 0 || ['punch', 'kick', 'ko', 'hit'].includes(s.act)) return; setAct(me, k); if (ctx.sfx.whoosh) ctx.sfx.whoosh(); send(); };
+  const mkUI = () => {
+    arena.innerHTML = ''; arena.appendChild(cv);
+    if (me) { const c = document.createElement('div'); c.className = 'rtpad'; c.innerHTML = '<button data-k="l">◀</button><button data-k="r">▶</button><button data-k="blk">BLOCK</button><button data-k="j">SPRUNG</button><button data-k="punch" class="atk">FAUST</button><button data-k="kick" class="atk">TRITT</button>'; arena.appendChild(c);
+      c.querySelectorAll('button').forEach(bt => { const k = bt.dataset.k, hold = k === 'l' || k === 'r' || k === 'blk'; const dn = e => { e.preventDefault(); if (hold) inp[k] = 1; else if (k === 'j') jump(); else attack(k); }, up = e => { e.preventDefault(); if (hold) inp[k] = 0; };
+        bt.addEventListener('pointerdown', dn); bt.addEventListener('pointerup', up); bt.addEventListener('pointerleave', up); bt.addEventListener('pointercancel', up); }); }
+  };
+  const kd = e => { const d = e.type === 'keydown'; if (e.key === 'ArrowLeft' || e.key === 'a') inp.l = d ? 1 : 0; if (e.key === 'ArrowRight' || e.key === 'd') inp.r = d ? 1 : 0; if (e.key === 's' || e.key === 'ArrowDown') inp.blk = d ? 1 : 0; if (d && (e.key === 'ArrowUp' || e.key === 'w')) jump(); if (d && e.key === 'j') attack('punch'); if (d && e.key === 'k') attack('kick'); };
+  if (me) { window.addEventListener('keydown', kd); window.addEventListener('keyup', kd); clean.push(() => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', kd); }); }
+  const startCount = () => { if (phase !== 'pick') return; phase = 'count'; mkUI(); H.setHP(a, 100); H.setHP(b, 100); cnt = 3; const tk = () => { if (over) return; cnt--; if (ctx.sfx.blip) ctx.sfx.blip(); if (cnt < 0) { phase = 'fight'; t0 = performance.now(); endAt = t0 + 40000; if (H.flash) H.flash(); } else setTimeout(tk, 800); }; setTimeout(tk, 800); };
+  const finishFight = () => { if (over) return; over = true; phase = 'over'; const la = hpOf(a), lb = hpOf(b), loser = la === lb ? null : (la < lb ? a : b); if (loser) { setAct(loser, 'ko'); H.ko(loser); } setTimeout(() => H.finish(), 1800); };
+  const step = now => {
+    raf = requestAnimationFrame(step); const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; [a, b].forEach(p => { st[p].t += dt; });
+    if (phase === 'fight' && me) { const s = st[me];
+      if (s.stun > 0) { s.stun -= dt; if (s.stun <= 0 && s.act === 'hit') setAct(me, 'idle'); }
+      else if (s.act === 'punch' || s.act === 'kick') { if (s.t >= dur[s.act]) setAct(me, 'idle'); }
+      else { if (inp.blk && s.y === 0) setAct(me, 'block'); else { if (s.act === 'block') setAct(me, 'idle'); const mv = inp.r - inp.l; if (mv) { s.x += mv * 190 * SPD[s.f || 0] * dt; if (s.y === 0) setAct(me, 'walk'); } else if (s.y === 0 && s.act === 'walk') setAct(me, 'idle'); } }
+      s.x = Math.max(40, Math.min(600, s.x)); if (s.y > 0 || s.vy) { s.vy -= 1500 * dt; s.y += s.vy * dt; if (s.y <= 0) { s.y = 0; s.vy = 0; } }
+      const ox = posOf(opp); if (!['punch', 'kick'].includes(s.act) && Math.abs(ox - s.x) > 6) s.fc = ox > s.x ? 1 : -1;
+      if (Math.abs(ox - s.x) < 58 && s.y < 30) s.x += (s.x < ox ? -1 : 1) * 140 * dt;
+      tryHit(me, opp); if (performance.now() - sendT > 110) send();
+    }
+    if (phase === 'fight' && aiOn) { const s = st[opp], m = st[me];
+      if (s.stun > 0) { s.stun -= dt; if (s.stun <= 0 && s.act === 'hit') setAct(opp, 'idle'); }
+      else if (s.act === 'punch' || s.act === 'kick') { if (s.t >= dur[s.act]) { setAct(opp, 'idle'); s.cool = 0.7 + Math.random() * 0.9; } }
+      else { s.cool -= dt; const d = m.x - s.x; s.fc = d > 0 ? 1 : -1;
+        if (s.blk > 0) { s.blk -= dt; setAct(opp, 'block'); }
+        else if (Math.abs(d) > 118) { s.x += Math.sign(d) * 150 * SPD[s.f || 0] * dt; setAct(opp, 'walk'); }
+        else { setAct(opp, 'idle'); if (['punch', 'kick'].includes(m.act) && Math.random() < dt * 2.2) s.blk = 0.5; else if (s.cool <= 0) setAct(opp, Math.random() < 0.6 ? 'punch' : 'kick'); } }
+      s.x = Math.max(40, Math.min(600, s.x)); tryHit(opp, me); }
+    [a, b].forEach(p => { if (p === me || (aiOn && p === opp)) return; const q = st[p]; q.dx += ((q.tx == null ? q.dx : q.tx) - q.dx) * Math.min(1, dt * 11); });
+    if (phase === 'fight') { H.setHP(a, pct(a)); H.setHP(b, pct(b)); if (hpOf(a) <= 0 || hpOf(b) <= 0 || now >= endAt) finishFight(); }
+    draw();
+  };
+  raf = requestAnimationFrame(step); clean.push(() => cancelAnimationFrame(raf));
+  const maybeStart = () => { if (phase === 'pick' && st[a].f != null && st[b].f != null) startCount(); };
+  return {
+    pickUI() {
+      if (!me) { mkUI(); return; }
+      arena.innerHTML = `<div class="dist">WÄHLE DEINEN KÄMPFER</div><div class="fsel">${F.map((f, i) => `<button class="arrow fpick" data-i="${i}"><b>${f.n}</b><br><small>${f.d} · ${f.hp} HP</small></button>`).join('')}</div>`;
+      let chosen = false; const choose = i => { if (chosen) return; chosen = true; st[me].f = i; send(); ctx.sfx.blip(); arena.innerHTML = `<div class="waitmsg">${F[i].n}<br><small>Warte auf den Gegner ...</small></div>`; const t = setTimeout(() => { if (st[opp].f == null) st[opp].f = 0; maybeStart(); }, 6000); clean.push(() => clearTimeout(t)); const pl = setInterval(maybeStart, 250); clean.push(() => clearInterval(pl)); };
+      arena.querySelectorAll('.fpick').forEach(bt => bt.addEventListener('pointerdown', e => { e.preventDefault(); choose(+bt.dataset.i); }));
+      const au = setTimeout(() => choose(0), 9000); clean.push(() => clearTimeout(au));
+    },
+    onLive(l) { [a, b].forEach(p => { if (p === me || (aiOn && p === opp) || !l[p]) return; if (l[p].f != null) st[p].f = l[p].f; const s = l[p].s; if (!s) return; const q = st[p]; q.tx = s.x; q.y = s.y; q.fc = s.fc; if (q.act !== s.a) { q.act = s.a; q.t = 0; }
+      if (s.D > q.D) { const dd = s.D - q.D; q.D = s.D; const tgt = p === a ? b : a; if (tgt === me) { if (st[me].act !== 'block') { st[me].stun = 0.3; setAct(me, 'hit'); st[me].x += (st[me].x < q.tx ? -1 : 1) * 34; } H.floatTxt(me, '-' + dd); } else H.floatTxt(tgt, '-' + dd); H.setHP(a, pct(a)); H.setHP(b, pct(b)); } }); if (phase === 'pick') maybeStart(); },
+    diff() { return me ? st[me].D - st[opp].D : 0; },
+    destroy() { over = true; clean.forEach(f => f()); }
+  };
+}
+
 const GAMES = {
   // ---------------------------------------------------------------- RACE
   race: {
@@ -109,7 +212,7 @@ const GAMES = {
     variants: {
       quick: { name: 'Schnellziehen', desc: '3 Runden: Warte auf "SCHLAG!" und tippe sofort. Fehlstart kostet 1,5 s. Schnellste Gesamtzeit gewinnt.', dur: 24000, better: 'low' },
       combo: { name: 'Combo-Kette', desc: '3 Runden: Gib die Pfeil-Kombo so schnell wie möglich ein. Falscher Pfeil +0,4 s.', dur: 30000, better: 'low' },
-      fighter: { name: 'Kegel-Fighter (Lutz gegen Lutz)', desc: 'Street Fighter mit Lutz-Kopf: Wähle deinen Kämpfer, dann 7 Runden Schlag, Wurf, Block oder Spezial gleichzeitig. Schlag schlägt Wurf, Wurf schlägt Block, Block schlägt Schlag und Spezial. Spezial schlägt Schlag und Wurf, braucht aber Ladung. Wer mehr Lebensenergie übrig hat, gewinnt.', dur: 64000, better: 'high' },
+      fighter: { name: 'Kegel-Fighter (Lutz gegen Lutz)', desc: 'Street Fighter mit Lutz-Kopf in Echtzeit: Wähle deinen Kämpfer, dann 40 Sekunden laufen, springen, Faust, Tritt und Block. Wer mehr Schaden macht, gewinnt.', dur: 64000, better: 'high' },
       mash: { name: 'Hammer-Mash', desc: '8 Sekunden lang so oft wie möglich auf den Hammer hauen.', dur: 11000, better: 'high' }
     },
     LUTZ: 'badges/lutz.png',
@@ -166,20 +269,7 @@ const GAMES = {
       const live = {}, pos = {}; live[a] = []; live[b] = []; pos[a] = 0; pos[b] = 0;
       const dmg = { [a]: [], [b]: [] }; let mashLast = { [a]: 0, [b]: 0 };
       // live HP: every resolved round hits the slower fighter, harder the bigger the gap; mash drains HP continuously
-      const fch = {}, fb = {}; let fShown = 0, fFinal = null;
-      const effPicks = () => { const pa2 = (live[a] || []).slice(), pb2 = (live[b] || []).slice(), oppArr = ctx.me === a ? pb2 : (ctx.me === b ? pa2 : null); if (oppArr) for (let i = 0; i < 7; i++) if (oppArr[i] == null && fb[i] != null) oppArr[i] = fb[i]; return [pa2, pb2]; };
-      function renderFight() {
-        const [pa2, pb2] = effPicks(); const sim = GAMES.duel.sim(fch[a], fch[b], pa2, pb2);
-        while (fShown < sim.log.length) { const L = sim.log[fShown], mv = GAMES.duel.MOVES;
-          if (L.w >= 0) { const w = L.w === 0 ? a : b, l = L.w === 0 ? b : a; hit(w, l, L.m[L.w] === 3); floatTxt(l, '-' + L.dm[L.w === 0 ? 1 : 0]); floatTxt(w, mv[L.m[L.w]] + '!', 'good'); }
-          else { floatTxt(a, mv[L.m[0]]); floatTxt(b, mv[L.m[1]]); ctx.sfx.blip(); }
-          fShown++; }
-        const hpA = sim.hp[0] / sim.max[0] * 100, hpB = sim.hp[1] / sim.max[1] * 100; setHP(a, hpA); setHP(b, hpB);
-        [a, b].forEach((p, k) => { const f = GAMES.duel.FIGHTERS[fch[p] == null ? 0 : fch[p]]; el.querySelector(`.fighter[data-pid="${p}"] .rv`).textContent = `${f.n} · ${sim.hp[k]} HP · Ladung ${sim.ch[k]}`; });
-        if (!koDone && (sim.hp[0] <= 0 || sim.hp[1] <= 0)) ctx.after(() => ko(sim.hp[0] <= 0 ? a : b), 600);
-        else if (!koDone && sim.log.length >= 7 && sim.hp[0] !== sim.hp[1]) ctx.after(() => ko(sim.hp[0] < sim.hp[1] ? a : b), 800);
-        fFinal = sim; return sim;
-      }
+      let rtApi = null; const renderFight = () => { };
       function renderHP() {
         if (ctx.variant === 'fighter') return renderFight();
         let hpA = 100, hpB = 100;
@@ -212,9 +302,14 @@ const GAMES = {
       }
       const setHP = (p, hp) => { const i = el.querySelector(`.fighter[data-pid="${p}"] .hp i`); i.style.width = hp + '%'; i.classList.toggle('low', hp < 35); };
       const floatTxt = (p, txt, cls) => { const f = fEl(p); if (!f) return; const s = document.createElement('span'); s.className = 'dmg ' + (cls || ''); s.textContent = txt; f.querySelector('.fimg').appendChild(s); ctx.after(() => s.remove(), 1100); };
-      ctx.onLive(l => { [a, b].forEach(p => { if (l[p]) { if (l[p].r) { const before = live[p].length; live[p] = l[p].r; if (l[p].f != null) fch[p] = l[p].f; if (live[p].length > before && p !== ctx.me && ctx.variant !== 'mash' && ctx.variant !== 'fighter') floatTxt(p, fmtV(live[p][live[p].length - 1]), 'time'); } pos[p] = l[p].p || 0; } }); renderHP(); });
+      ctx.onLive(l => { [a, b].forEach(p => { if (l[p]) { if (l[p].r) { const before = live[p].length; live[p] = l[p].r; if (live[p].length > before && p !== ctx.me && ctx.variant !== 'mash' && ctx.variant !== 'fighter') floatTxt(p, fmtV(live[p][live[p].length - 1]), 'time'); } pos[p] = l[p].p || 0; } }); renderHP(); });
+      ctx.onLive(l => { if (rtApi) rtApi.onLive(l); });
       if (ctx.variant === 'mash') { const kt = ctx.after(() => { const va = live[a][0] || 0, vb = live[b][0] || 0; if (va !== vb) ko(va < vb ? a : b); }, 9500); clean.push(() => ctx.cancel(kt)); }
-      if (!ctx.isDuelist) {
+      if (ctx.variant === 'fighter') {
+        rtApi = fighterRT(arena, ctx, a, b, { setHP, floatTxt, hit, ko, finish: () => { if (ctx.isDuelist) finish(); }, flash: () => { const f = el.querySelector('.fightflash'); if (f) { f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); } } });
+        rtApi.pickUI(); clean.push(() => rtApi.destroy());
+      }
+      if (!ctx.isDuelist && ctx.variant !== 'fighter') {
         arena.innerHTML = '<div class="waitmsg">Zuschauen und anfeuern!<br><small>Tipp: Wettet einen Schluck auf euren Favoriten.</small></div>';
         return () => clean.forEach(f => f());
       }
@@ -228,7 +323,7 @@ const GAMES = {
       let finished = false;
       const finish = () => {
         if (finished) return; finished = true;
-        const total = ctx.variant === 'fighter' ? (() => { const s = renderFight(); const k = ctx.me === a ? 0 : 1; return s.hp[k] - s.hp[1 - k]; })() : ctx.variant === 'mash' ? (mine[0] || 0) : mine.reduce((s, x) => s + (x == null ? 3000 : x), 0) + (rounds - mine.length) * 3000;
+        const total = ctx.variant === 'fighter' ? rtApi.diff() : ctx.variant === 'mash' ? (mine[0] || 0) : mine.reduce((s, x) => s + (x == null ? 3000 : x), 0) + (rounds - mine.length) * 3000;
         arena.innerHTML = `<div class="waitmsg">${ctx.variant === 'fighter' ? (total > 0 ? 'GEWONNEN!' : total < 0 ? 'Verloren ...' : 'Unentschieden') + '<br><small>' + fmtV(total) + '</small>' : 'Fertig: ' + fmtV(total)}</div>`;
         ctx.submit(total, fmtV(total));
       };
@@ -238,24 +333,7 @@ const GAMES = {
         clean.push(onTap(arena.querySelector('button'), () => { if (finished) return; hits++; d.textContent = hits; ctx.sfx.tap(); mine[0] = hits; report(false); }));
         const t = ctx.after(() => { mine[0] = hits; report(); finish(); }, 8000); clean.push(() => ctx.cancel(t));
       } else if (ctx.variant === 'fighter') {
-        const opp = ctx.me === a ? b : a, mv = GAMES.duel.MOVES, mi = ctx.me === a ? 0 : 1; let r = 0, chosen = false, locked = false;
-        const send = () => { live[ctx.me] = mine.slice(); ctx.progress({ r: mine.slice(), p: 0, f: fch[ctx.me] }); };
-        const mineHP = () => renderFight().hp;
-        const round = () => {
-          if (finished) return; const sim = renderFight();
-          if (r >= 7 || sim.hp[0] <= 0 || sim.hp[1] <= 0) { ctx.after(finish, 1800); return; }
-          const ch = sim.ch[mi]; locked = false;
-          arena.innerHTML = `<div class="dist">Runde ${r + 1} von 7 · Ladung ${ch}</div><div class="pad f4">${mv.map((m, i) => `<button class="arrow mvb" data-i="${i}" ${i === 3 && ch < 1 ? 'disabled style="opacity:.35"' : ''}>${m}</button>`).join('')}</div><small id="ftm"></small>`;
-          let left = 5; const tick = () => { const t = arena.querySelector('#ftm'); if (t && !locked) t.textContent = left + ' s'; if (left-- <= 0) pickMove(Math.floor(Math.random() * 3)); else tm = ctx.after(tick, 1000); }; let tm = ctx.after(tick, 0);
-          const pickMove = i => { if (locked || finished) return; locked = true; ctx.cancel(tm); mine[r] = i; send(); ctx.sfx.tap(); arena.innerHTML = `<div class="waitmsg">${mv[i]}!<br><small>Warte auf den Gegner ...</small></div>`;
-            const my = r, wt = ctx.after(() => { if (fb[my] == null && (live[opp] || [])[my] == null) { fb[my] = my % 3; renderHP(); } }, 6500); clean.push(() => ctx.cancel(wt));
-            const poll = () => { if (finished) return; const s2 = renderFight(); if (s2.log.length > my) { r = my + 1; ctx.after(round, 1500); } else ctx.after(poll, 250); }; poll(); };
-          arena.querySelectorAll('.mvb').forEach(bt => clean.push(onTap(bt, () => { if (!bt.disabled) pickMove(+bt.dataset.i); })));
-        };
-        arena.innerHTML = `<div class="dist">WÄHLE DEINEN KÄMPFER</div><div class="fsel">${GAMES.duel.FIGHTERS.map((f, i) => `<button class="arrow fpick" data-i="${i}"><b>${f.n}</b><br><small>${f.d} · ${f.hp} HP</small></button>`).join('')}</div>`;
-        const go = () => { if (chosen) return; chosen = true; renderHP(); round(); };
-        arena.querySelectorAll('.fpick').forEach(bt => clean.push(onTap(bt, () => { if (chosen) return; fch[ctx.me] = +bt.dataset.i; send(); ctx.sfx.blip(); renderHP(); arena.innerHTML = `<div class="waitmsg">${GAMES.duel.FIGHTERS[fch[ctx.me]].n}<br><small>Warte auf den Gegner ...</small></div>`; const w0 = ctx.after(go, 6000); clean.push(() => ctx.cancel(w0)); const pl = () => { if (chosen) return; if (fch[opp] != null) go(); else ctx.after(pl, 250); }; pl(); })));
-        const auto = ctx.after(() => { if (!chosen && fch[ctx.me] == null) { fch[ctx.me] = 0; send(); go(); } }, 9000); clean.push(() => ctx.cancel(auto));
+        // handled by fighterRT
       } else if (ctx.variant === 'quick') {
         let r = 0, state = 'wait', sigAt = 0, tmr;
         arena.innerHTML = '<button class="big signal wait">BEREIT ...</button>';
@@ -364,7 +442,7 @@ const GAMES = {
         const pick = k => {
           if (answered) return; answered = true; stopBar(); ctx.cancel(to);
           ms += Math.min(20000, ctx.now() - t0);
-          if (k === q.c) { right++; ctx.sfx.win(); } else ctx.sfx.bad();
+          if (k === q.c) { right++; ctx.sfx.win(); } else { ctx.sfx.bad(); if (ctx.wrong) ctx.wrong(); }
           el.querySelectorAll('.choice').forEach(b => { const kk = +b.dataset.k; b.classList.add(kk === q.c ? 'right' : (kk === k ? 'wrong' : 'dim')); });
           const t = ctx.after(() => { i++; next(); }, 1800); clean.push(() => ctx.cancel(t));
         };
@@ -662,7 +740,7 @@ const GAMES = {
         const answer = yes => {
           if (done || answered || idx < 0 || idx >= N) return; answered = true; ctx.cancel(tmo);
           const [w, c] = items[idx], ok = (w === c) === yes;
-          score += ok ? 1 : -1; ok ? ctx.sfx.blip() : ctx.sfx.bad();
+          score += ok ? 1 : -1; if (ok) ctx.sfx.blip(); else { ctx.sfx.bad(); if (ctx.wrong) ctx.wrong(); }
           fb.textContent = ok ? 'RICHTIG +1' : 'FALSCH -1'; fb.className = 'cfb ' + (ok ? 'good' : 'bad');
           sc.textContent = `${score} Punkte · ${idx + 1} / ${N}`;
           ctx.after(next, 450);

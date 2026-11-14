@@ -530,7 +530,7 @@ function startBattle() {
     BATTLE.hostStart(pids, pids.filter(q => S.players[q].bot), msg => { net.broadcast(msg); BATTLE.snap(msg); },
       res => {
         if (S.phase !== 'battle' || S.battle.nonce !== nonce) return;
-        S.battle.pts = {}; (res.order || []).forEach((q, i) => { const pts = [20, 14, 10, 7, 5, 3][i] || 1; S.battle.pts[q] = pts; if (S.players[q]) S.players[q].score += pts; }); // the finale moves the standings
+        S.battle.pts = {}; (res.order || []).forEach((q, i) => { const pts = [8, 5, 3, 2, 1][i] || 0; S.battle.pts[q] = pts; if (S.players[q]) S.players[q].score += pts; }); // the finale moves the standings
         S.battle.over = true; S.battle.losers = res.losers; S.battle.order = res.order; S.battle.reason = res.reason; S.battle.exPids = res.losers;
         res.losers.forEach(q => { if (S.players[q]) S.players[q].ex = (S.players[q].ex || 0) + 1; });
         S.battle.exDone = Object.fromEntries(res.losers.filter(q => S.players[q] && S.players[q].bot).map(q => [q, true]));
@@ -639,7 +639,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v21</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v22</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
@@ -804,9 +804,10 @@ function renderPlay() {
         variant: g.variant, seed: g.seed, rng: mulberry32(g.seed), dur: g.dur, startAt: clk.now(), me: me.pid,
         now: clk.now, after: clk.after, every: clk.every, cancel: clk.cancel,
         players: g.parts.filter(q => S.players[q]).concat(pair && pair.includes('cpu') ? ['cpu'] : []).map(q => ({ pid: q, name: dname(q), img: dimg(q) })),
-        duelists: pair, isDuelist: !!pair, cpu: g.cpu, questions: g.questions, places: g.places, sfx: SFX, cry: cryOf,
+        duelists: pair, isDuelist: !!pair, bots: g.parts.filter(q => S.players[q] && S.players[q].bot), cpu: g.cpu, questions: g.questions, places: g.places, sfx: SFX, cry: cryOf,
         submit: (val, d) => act({ t: 'score', nonce: g.nonce, v: val, d }),
         progress: p => { if (me.host) { LIVE[me.pid] = p; liveDirty = true; } else net.send({ t: 'prog', nonce: g.nonce, p }); },
+        wrong: () => schlomoLaugh(),
         onLive: fn => liveFns.push(fn),
         send: m => act(Object.assign({ nonce: g.nonce }, m)), onGm: fn => gmFns.push(fn)
       };
@@ -833,10 +834,11 @@ function renderPlay() {
 }
 function buildWaitFun(el) {
   el.innerHTML = `<div class="funtabs"><div class="ftitle">ZEIT TOTSCHLAGEN</div>
-    <div class="ftabs"><button class="ftab on" data-t="stk">BIERDECKEL-TURM</button><button class="ftab" data-t="tnt">SPRÜCHE AN DIE LAHMEN</button></div>
+    <div class="ftabs"><button class="ftab on" data-t="stk">BIERDECKEL-TURM</button><button class="ftab" data-t="tnt">SPRÜCHE AN DIE LAHMEN</button><button class="ftab" data-t="run">RALLUM-LAUF</button></div>
     <div class="fpane" id="pStk"></div><div class="fpane hidden" id="pTnt"><p class="small">Alle sehen deinen Spruch sofort auf ihrem Bildschirm.</p>
     <div class="taunts">${shuffle(TAUNTS).slice(0, 6).map(t => `<button class="taunt">${esc(t)}</button>`).join('')}</div></div></div>`;
   el.querySelectorAll('.ftab').forEach(b => b.onclick = () => { SFX.tap(); el.querySelectorAll('.ftab').forEach(x => x.classList.toggle('on', x === b)); el.querySelector('#pStk').classList.toggle('hidden', b.dataset.t !== 'stk'); el.querySelector('#pTnt').classList.toggle('hidden', b.dataset.t !== 'tnt'); });
+  el.querySelector('.ftab[data-t="run"]').onclick = () => { SFX.tap(); WAITG.open('mario'); };
   let last = 0;
   el.querySelectorAll('.taunt').forEach(b => b.onclick = () => {
     const n = Date.now(); if (n - last < 2500) return toast('Langsam, Großmaul!'); last = n;
@@ -1044,7 +1046,7 @@ function renderFinal() {
     SFX.win();
     app.innerHTML = `<h2 class="section">SIEGEREHRUNG</h2>
       <div class="podium">${pod.map((q, i) => q ? `<div class="pod p${[2, 1, 3][i]}"><img src="${dimg(q)}"><b>${esc(dname(q))}</b><div class="step">${[2, 1, 3][i]}</div><small>${S.players[q].score} P</small></div>` : '<div class="pod"></div>').join('')}</div>
-      ${S.battle && S.battle.pts ? `<div class="exbanner" style="background:#ffd21a;color:#16162a">FINALE-PUNKTE: ${Object.entries(S.battle.pts).map(([q, p]) => esc(dname(q)) + ' +' + p).join(' · ')}</div>` : ''}
+      ${S.battle && S.battle.pts ? `<div class="fpts"><b>FINALE-PUNKTE</b>${Object.entries(S.battle.pts).filter(([, p]) => p > 0).map(([q, p]) => `<span><img src="${dimg(q)}">${esc(dname(q))} <i>+${p}</i></span>`).join('')}</div>` : ''}
       ${S.battle && S.battle.over ? `<div class="exbanner">EX-STRAFE: <b>${(S.battle.losers || []).map(q => esc(dname(q))).join(', ')}</b></div>` : ''}
       ${thirsty && S.players[thirsty].sips ? `<div class="winner"><img src="${dimg(thirsty)}"><div>DURST-KÖNIG: <b>${esc(dname(thirsty))}</b><br>${S.players[thirsty].sips} Schlücke</div></div>` : ''}
       ${S.ralfCount ? `<p class="center small">Rallumkalypsen überlebt: ${S.ralfCount}</p>` : ''}
@@ -1058,6 +1060,14 @@ function renderFinal() {
   });
 }
 
+// Wer Schlomo spielt und falsch antwortet, wird von allen anderen ausgelacht
+let laughAt = 0;
+function schlomoLaugh() {
+  const c = charOf(me.pid); if (!c || !/schlomo/i.test(c.name) || Date.now() - laughAt < 6000 || !S) return; laughAt = Date.now();
+  const others = participants().filter(q => q !== me.pid).slice(0, 12), el = document.createElement('div'); el.id = 'laughov';
+  el.innerHTML = `<div class="lt">HAHAHA, DU TROTTEL!</div><div class="lfaces">${others.map((q, i) => `<div class="lf" style="animation-delay:${(i % 5) * 0.08}s"><img src="${dimg(q)}"><b>HAHA</b></div>`).join('')}</div>`;
+  document.body.appendChild(el); SFX.laugh(1); if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 240]); setTimeout(() => el.remove(), 2800);
+}
 // ------------------------------------------------------------------ RALLUMKALYPSE
 let ralfShown = null;
 function renderRalf() {
@@ -1129,7 +1139,7 @@ const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 // ------------------------------------------------------------------ boot
 { const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
   setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v21'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v22'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();

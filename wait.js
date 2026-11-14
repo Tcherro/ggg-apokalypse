@@ -114,6 +114,6 @@ const WAITG = (() => {
     raf = requestAnimationFrame(draw); stop = () => cancelAnimationFrame(raf);
   }
 
-  function open() { if (ov) return; ov = document.createElement('div'); ov.id = 'wg'; document.body.appendChild(ov); menu(); }
+  function open(game) { if (ov) return; ov = document.createElement('div'); ov.id = 'wg'; document.body.appendChild(ov); menu(); if (game) ({ mario, flap, tap })[game](); }
   return { open, close };
 })();
