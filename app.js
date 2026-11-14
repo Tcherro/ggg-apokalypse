@@ -227,7 +227,7 @@ function hostHandle(pid, m) {
     case 'score':
       if (!S.game || m.nonce !== S.game.nonce || S.phase !== 'play' || S.subs[pid]) return;
       S.subs[pid] = { v: m.v, d: m.d };
-      if (needed().every(q => S.subs[q])) return finishRound();
+      if (roundMayEnd()) return finishRound();
       break;
     case 'prog':
       if (S.game && m.nonce === S.game.nonce) { LIVE[pid] = m.p; liveDirty = true; }
@@ -337,6 +337,14 @@ function botResults() {
 }
 function chalScore(win) { if (!S.chal.on) return null; if (win) S.chal.ch++; else S.chal.team++; return win ? 'ch' : 'team'; }
 function participants() { return Object.keys(S.players).filter(q => S.players[q].char != null && S.players[q].ready); }
+// A round may end early only if EVERYONE submitted. Players who merely look offline (phone locked, app in background)
+// get the full planned play time; the round timer ends it afterwards.
+function roundMayEnd() {
+  const g = S.game; if (!g) return false;
+  if (g.parts.filter(q => S.players[q]).every(q => S.subs[q])) return true;
+  if (!needed().every(q => S.subs[q])) return false;
+  return HC.now() - (g.t0 || 0) >= g.startDelay + g.dur;
+}
 function needed() {
   const g = S.game; if (!g) return [];
   return g.parts.filter(q => S.players[q] && S.players[q].online !== false);
@@ -396,7 +404,7 @@ function planGame(repeat = false) {
   else if (key === 'guess' && variant !== 'count') questions = pick(QUESTIONS.schaetzen, 's', q => q.cat === (variant === 'gev' ? 'gev' : 'allg'), 3);
   else if (key === 'quiz' || key === 'cmp') questions = pick(QUESTIONS.auswahl, 'c', q => q.cat === (key === 'cmp' ? 'cmp' : variant), key === 'cmp' ? 8 : variant === 'iq' ? 5 : 3).map(q => { const o = shuffle(q.o.map((t, i) => ({ t, ok: i === q.c }))); return { q: q.q, o: o.map(x => x.t), c: o.findIndex(x => x.ok) }; });
   else if (key === 'geo') places = pick(QUESTIONS.orte, 'p', q => q.m === variant, 3);
-  S.game = { key, variant, seed: Math.floor(Math.random() * 2 ** 31), nonce: ++S.nonce, dur: GAMES[key].variants[variant].dur, startDelay: 10000, duels, cpu, questions, places, parts };
+  S.game = { key, variant, seed: Math.floor(Math.random() * 2 ** 31), nonce: ++S.nonce, dur: GAMES[key].variants[variant].dur, startDelay: 10000, t0: HC.now(), duels, cpu, questions, places, parts };
   S.subs = {}; S.results = null; S.phase = 'play'; S.readyNext = {}; LIVE = {};
   HC.cancel(roundTimer); HC.cancel(ralfTimer); cpuTimers.forEach(HC.cancel); cpuTimers = [];
   const nonce = S.game.nonce;
@@ -592,7 +600,7 @@ function becomeHost(code, resume, solo = false) {
     if (!m) return;
     if (m.t === 'hello') { KEYS[key] = m.pid; hostHandle(m.pid, m); net.send(key, { t: 'state', s: S }); return; }
     const pid = KEYS[key]; if (pid) hostHandle(pid, m);
-  }, key => { const pid = KEYS[key]; if (pid && S.players[pid]) { S.players[pid].online = false; delete KEYS[key]; if (S.phase === 'play' && needed().every(q => S.subs[q])) finishRound(); else commit(); } },
+  }, key => { const pid = KEYS[key]; if (pid && S.players[pid]) { S.players[pid].online = false; delete KEYS[key]; if (S.phase === 'play' && roundMayEnd()) finishRound(); else commit(); } },
     () => { setStatus(true); commit(); }, err => { toast(err); });
   try { history.replaceState(null, '', `?room=${code}${LOCAL ? '&local=1' : ''}`); } catch { }
   render();
@@ -648,7 +656,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v28</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v29</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
@@ -1181,7 +1189,7 @@ const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 // ------------------------------------------------------------------ boot
 { const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
   setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v28'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v29'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();
