@@ -341,9 +341,10 @@ function startSession() {
   const parts = participants(); if (parts.length < 2) return toast('Mindestens 2 Spieler müssen BEREIT sein');
   Object.values(S.players).forEach(p => { p.score = 0; p.sips = 0; p.ex = 0; p.tasks = 0; });
   S.chal.team = 0; S.chal.ch = 0; S.chal.paidOut = false; resetDrinks();
-  S.sessionStart = Date.now(); S.round = 0; S.bag = []; S.ralfCount = 0; S.ralf = null; S.battle = null;
+  S.sessionStart = Date.now(); S.fighterDone = false; S.round = 0; S.bag = []; S.ralfCount = 0; S.ralf = null; S.battle = null;
   const n = S.games <= 10 ? 1 : 2, pool = shuffle(Array.from({ length: S.games - 2 }, (_, i) => i + 2));
   S.ralfAt = pool.slice(0, n).sort((a, b) => a - b);
+  S.fighterAt = 1 + Math.floor(Math.random() * Math.min(S.games, 6)); // the Kegel-Fighter is guaranteed within the first rounds
   planGame();
 }
 function planGame(repeat = false) {
@@ -357,6 +358,8 @@ function planGame(repeat = false) {
     }
     let vs = Object.keys(GAMES[key].variants).filter(v => v !== S.lastVar[key]); if (!vs.length) vs = Object.keys(GAMES[key].variants); // single-variant games (seek, draw) may come up twice
     variant = vs[Math.floor(Math.random() * vs.length)]; S.lastVar[key] = variant;
+    if (S.round + 1 >= (S.fighterAt || 99) && !S.fighterDone && parts.length >= 2) { key = 'duel'; variant = 'fighter'; S.lastVar.duel = 'fighter'; }
+    if (key === 'duel' && variant === 'fighter') S.fighterDone = true;
     S.round++;
   }
   let duels = null, cpu = null, question = null;
@@ -527,6 +530,7 @@ function startBattle() {
     BATTLE.hostStart(pids, pids.filter(q => S.players[q].bot), msg => { net.broadcast(msg); BATTLE.snap(msg); },
       res => {
         if (S.phase !== 'battle' || S.battle.nonce !== nonce) return;
+        S.battle.pts = {}; (res.order || []).forEach((q, i) => { const pts = [20, 14, 10, 7, 5, 3][i] || 1; S.battle.pts[q] = pts; if (S.players[q]) S.players[q].score += pts; }); // the finale moves the standings
         S.battle.over = true; S.battle.losers = res.losers; S.battle.order = res.order; S.battle.reason = res.reason; S.battle.exPids = res.losers;
         res.losers.forEach(q => { if (S.players[q]) S.players[q].ex = (S.players[q].ex || 0) + 1; });
         S.battle.exDone = Object.fromEntries(res.losers.filter(q => S.players[q] && S.players[q].bot).map(q => [q, true]));
@@ -635,7 +639,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v20</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v21</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
@@ -966,7 +970,7 @@ function renderBattle() {
     const isP = B.pids.includes(me.pid);
     app.innerHTML = `<div class="gamehead"><span class="glabel">FINALE · ALLE ${B.pids.length} SPIELEN MIT</span><h2>BALLON-SCHLACHT</h2><div class="vname">3 Ballons · Power-Ups · wer zuerst raus ist, muss EXEN!</div></div>
       <div class="stage" id="bstage"><div class="intro"><div class="gpv">${gamePreview('battle')}</div><div class="bplayers">${B.pids.map((q, i) => `<span class="chip" style="border-color:${BATTLE.COLORS[i % BATTLE.COLORS.length]}"><img src="${dimg(q)}">${esc(dname(q))}</span>`).join('')}</div>
-        <p class="desc">Alle gegen alle, jeder hat 3 Ballons. Links lenken, KEGELN wirft, DASH weicht aus. Sammle Power-Ups: Stern (rammt Gegner um), Banane (andere rutschen aus), Bier-Bombe (sprengt im Umkreis), Schild, Turbo, Dreifach. Wer als Erster alle Ballons verliert, muss EXEN. Die Bahn ist doppelt so groß: du siehst nur deinen Ausschnitt, die Minimap zeigt alle. Gelbe Felder boosten, rote Kreise sind Meteore, und RALLUM jagt als Abrissbirne alle. Nach 60 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
+        <p class="desc">Alle gegen alle, jeder hat 3 Ballons. Links lenken, KEGELN wirft, DASH weicht aus. Sammle Power-Ups: Stern (rammt Gegner um), Banane (andere rutschen aus), Bier-Bombe (sprengt im Umkreis), Schild, Turbo, Dreifach. Wer als Erster alle Ballons verliert, muss EXEN. Die Bahn ist doppelt so groß: du siehst nur deinen Ausschnitt, die Minimap zeigt alle. Gelbe Felder boosten, rote Kreise sind Meteore, und RALLUM jagt im Panzer alle. Nach 60 Sekunden schrumpft die Bahn.</p><div class="lights"><i></i><i></i><i></i></div><div class="count" id="cnt"></div></div></div><div id="cheer"></div><div id="bover" class="bover"></div>`;
     let fav = null;
     const stage = document.getElementById('bstage'), startAt = performance.now() + B.startDelay; let last = null, cleanup = null;
     const tick = setInterval(() => {
@@ -990,7 +994,7 @@ function renderBattle() {
       cheer.querySelectorAll('.cheerbtn').forEach(bt => bt.onclick = () => { const n = Date.now(); if (n - lastC < 1500) return toast('Nicht so schnell!', 900); lastC = n; SFX.blip(); act({ t: 'taunt', txt: bt.textContent }); toast('Gesendet!', 700); });
     }
     if (cheer && !watching) cheer.innerHTML = '';
-    const sig = [B.over, ex.join(','), Object.keys(done).join(','), me.host, iamEx].join('|');
+    const sig = [B.over, Object.keys(B.pts || {}).length, ex.join(','), Object.keys(done).join(','), me.host, iamEx].join('|');
     if (o.dataset.sig === sig) return; o.dataset.sig = sig;
     if (!B.over && !iamEx) { o.innerHTML = ''; return; }
     const allDone = ex.every(q => done[q]);
@@ -1000,7 +1004,7 @@ function renderBattle() {
       const names = (B.losers || []).map(q => esc(dname(q))).join(', ');
       if (!B.pids.includes(me.pid) && window.__fav) { const win = (B.order || [])[0]; h += `<div class="winner"><div>Dein Tipp: <b>${esc(dname(window.__fav))}</b><br>${window.__fav === win ? 'RICHTIG! Du darfst 1 Schluck verteilen.' : `Leider falsch. Gewonnen hat <b>${esc(dname(win))}</b>.`}</div></div>`; }
       if (!iamEx) h += `<div class="exbanner big-ex">${B.losers.length === B.pids.length ? 'ZEIT UM! ALLE EXEN!' : `<b>${names}</b> MUSS EXEN!`}</div>`;
-      h += `<div class="rank">${(B.order || []).map((q, i) => `<span class="chip ${i === 0 ? 'ok' : ''}"><b>${i + 1}.</b><img src="${dimg(q)}">${esc(dname(q))}</span>`).join('')}</div>`;
+      h += `<div class="rank">${(B.order || []).map((q, i) => `<span class="chip ${i === 0 ? 'ok' : ''}"><b>${i + 1}.</b><img src="${dimg(q)}">${esc(dname(q))} <i>+${(B.pts || {})[q] || 0} P</i></span>`).join('')}</div>`;
       h += me.host ? `<button class="big gas" id="bFinal" ${allDone ? '' : 'disabled'}>${allDone ? 'ZUR SIEGEREHRUNG' : 'WARTE AUF DEN EX ...'}</button>${allDone ? '' : '<button class="linkbtn" id="bFinalForce">Host: ohne Ex weiter</button>'}` : '<p class="small center">Der Host startet die Siegerehrung, sobald gegext wurde.</p>';
     }
     o.innerHTML = h;
@@ -1040,6 +1044,7 @@ function renderFinal() {
     SFX.win();
     app.innerHTML = `<h2 class="section">SIEGEREHRUNG</h2>
       <div class="podium">${pod.map((q, i) => q ? `<div class="pod p${[2, 1, 3][i]}"><img src="${dimg(q)}"><b>${esc(dname(q))}</b><div class="step">${[2, 1, 3][i]}</div><small>${S.players[q].score} P</small></div>` : '<div class="pod"></div>').join('')}</div>
+      ${S.battle && S.battle.pts ? `<div class="exbanner" style="background:#ffd21a;color:#16162a">FINALE-PUNKTE: ${Object.entries(S.battle.pts).map(([q, p]) => esc(dname(q)) + ' +' + p).join(' · ')}</div>` : ''}
       ${S.battle && S.battle.over ? `<div class="exbanner">EX-STRAFE: <b>${(S.battle.losers || []).map(q => esc(dname(q))).join(', ')}</b></div>` : ''}
       ${thirsty && S.players[thirsty].sips ? `<div class="winner"><img src="${dimg(thirsty)}"><div>DURST-KÖNIG: <b>${esc(dname(thirsty))}</b><br>${S.players[thirsty].sips} Schlücke</div></div>` : ''}
       ${S.ralfCount ? `<p class="center small">Rallumkalypsen überlebt: ${S.ralfCount}</p>` : ''}
@@ -1122,7 +1127,9 @@ function showIntro() {
 const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 (() => { const touch = () => store.set('ggg-lastseen', Date.now()); touch(); setInterval(touch, 5000); document.addEventListener('visibilitychange', touch); window.addEventListener('pagehide', touch); })();
 // ------------------------------------------------------------------ boot
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v20'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+{ const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
+  setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v21'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();

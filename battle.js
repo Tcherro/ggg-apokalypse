@@ -1,6 +1,6 @@
 // BALLON-SCHLACHT v2: host-authoritative real-time arena. 3 balloons each, power-ups, dash, shrinking lane.
 const BATTLE = (() => {
-  const A = 2000, R = 44, BR = 15, RB = 78, LIVES = 3, VIEW = 1000, C = A / 2;
+  const A = 2000, R = 44, BR = 15, RB = 90, LIVES = 3, VIEW = 1000, C = A / 2;
   const OB = (() => { const o = [[C, C, 96]]; [[-420, -420], [420, -420], [-420, 420], [420, 420]].forEach(([x, y]) => o.push([C + x, C + y, 52]));
     for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + Math.PI / 8; o.push([Math.round(C + 760 * Math.cos(a)), Math.round(C + 760 * Math.sin(a)), 46]); }
     [[330, 330], [1670, 330], [330, 1670], [1670, 1670], [1000, 300], [1000, 1700], [300, 1000], [1700, 1000]].forEach(([x, y]) => o.push([x, y, 38])); return o; })();
@@ -180,7 +180,7 @@ const BATTLE = (() => {
         const liv = H.pids.filter(q => H.P[q].alive).map(q => H.P[q]);
         if (liv.length) { const tg = liv.reduce((a, c) => Math.hypot(c.x - rb.x, c.y - rb.y) < Math.hypot(a.x - rb.x, a.y - rb.y) ? c : a), dx = tg.x - rb.x, dy = tg.y - rb.y, d = Math.hypot(dx, dy) || 1; rb.vx += dx / d * 140 * dt; rb.vy += dy / d * 140 * dt; }
         const sp = Math.hypot(rb.vx, rb.vy), mx = 300 + Math.min(220, H.t * 1.6); if (sp > mx) { rb.vx *= mx / sp; rb.vy *= mx / sp; }
-        rb.x += rb.vx * dt; rb.y += rb.vy * dt; const lo = m + RB, hi = A - m - RB;
+        rb.x += rb.vx * dt; rb.y += rb.vy * dt; rb.a = Math.atan2(rb.vy, rb.vx); const lo = m + RB, hi = A - m - RB;
         if (rb.x < lo) { rb.x = lo; rb.vx = Math.abs(rb.vx); } if (rb.x > hi) { rb.x = hi; rb.vx = -Math.abs(rb.vx); }
         if (rb.y < lo) { rb.y = lo; rb.vy = Math.abs(rb.vy); } if (rb.y > hi) { rb.y = hi; rb.vy = -Math.abs(rb.vy); }
         pushOut(rb, RB, true); rb.cd = rb.cd || {};
@@ -193,6 +193,9 @@ const BATTLE = (() => {
           }
         }
       }
+      // the tank fires shells at the nearest-looking victim, and every 30 s it rains items
+      if (rb.on) { rb.shotT = (rb.shotT == null ? 3 : rb.shotT) - dt; if (rb.shotT <= 0) { rb.shotT = Math.max(2.2, 5 - H.t / 40); const liv = H.pids.filter(q => H.P[q].alive).map(q => H.P[q]); if (liv.length) { const tg = liv[Math.floor(Math.random() * liv.length)]; H.mets.push({ x: Math.max(m + 100, Math.min(A - m - 100, tg.x + (tg.vx || 0) * 0.7)), y: Math.max(m + 100, Math.min(A - m - 100, tg.y + (tg.vy || 0) * 0.7)), t: 1.15 }); H.ev.push(['shot', 0, Math.round(rb.x), Math.round(rb.y)]); } } }
+      H.rainT = (H.rainT == null ? 30 : H.rainT) - dt; if (H.rainT <= 0) { H.rainT = 30; for (let q = 0; q < 8; q++) { const [x, y] = freeSpot(); H.items.push({ k: KINDS[Math.floor(Math.random() * KINDS.length)], x, y, id: Math.random() }); } H.ev.push(['rain', 0, 0, 0]); }
       // meteors: marked on the floor, explode after 1.6 s
       H.metT -= dt;
       if (H.t > 40 && H.metT <= 0) {
@@ -226,7 +229,7 @@ const BATTLE = (() => {
   function broadcast() {
     H.send({
       t: 'bs', p: H.pids.map(q => { const p = H.P[q]; return [q, Math.round(p.x), Math.round(p.y), Math.round(p.dir * 100), p.lives, (p.shield > 0 ? 1 : 0) | (p.turbo > 0 ? 2 : 0) | (p.triple > 0 ? 4 : 0) | (p.inv > 0 ? 8 : 0) | (p.dashT > 0 ? 16 : 0) | (p.alive ? 32 : 0) | (p.star > 0 ? 64 : 0) | (p.stun > 0 ? 128 : 0) | (p.bomb > 0 ? 256 : 0), Math.round(p.dashCd * 10)]; }),
-      b: H.balls.map(b => [Math.round(b.x), Math.round(b.y), b.bomb ? 1 : 0]), tr: H.traps.map(t => [Math.round(t.x), Math.round(t.y)]), rb: H.rb.on ? [Math.round(H.rb.x), Math.round(H.rb.y)] : null, mt: H.mets.map(q => [Math.round(q.x), Math.round(q.y), Math.round(q.t * 10)]), it: H.items.map(i => [i.k, Math.round(i.x), Math.round(i.y)]), ev: H.ev, tm: Math.round(H.t * 10), sd: H.t > SUDDEN ? 1 : 0, m: Math.round(margin()), ov: H.over ? 1 : 0, fe: H.fe
+      b: H.balls.map(b => [Math.round(b.x), Math.round(b.y), b.bomb ? 1 : 0]), tr: H.traps.map(t => [Math.round(t.x), Math.round(t.y)]), rb: H.rb.on ? [Math.round(H.rb.x), Math.round(H.rb.y), Math.round((H.rb.a || 0) * 100) / 100] : null, mt: H.mets.map(q => [Math.round(q.x), Math.round(q.y), Math.round(q.t * 10)]), it: H.items.map(i => [i.k, Math.round(i.x), Math.round(i.y)]), ev: H.ev, tm: Math.round(H.t * 10), sd: H.t > SUDDEN ? 1 : 0, m: Math.round(margin()), ov: H.over ? 1 : 0, fe: H.fe
     });
     H.ev = [];
   }
@@ -240,13 +243,14 @@ const BATTLE = (() => {
     const hud = ctx.pids.map((p, i) => `<span class="bh" data-p="${p}" style="border-color:${COLORS[i % COLORS.length]}"><img src="${ctx.img(p)}"><b>${ctx.name(p)}</b><i class="bl"></i></span>`).join('');
     el.innerHTML = `<div class="bhud${ctx.pids.length > 6 ? ' many' : ''}">${hud}</div><div class="arena-wrap"><canvas class="arena-c"></canvas><div class="bfeed"></div><div class="bbanner hidden"></div></div>
       ${ctx.isPlayer ? `<div class="bctl"><div class="joy"><div class="knob"></div></div><div class="bbtns"><button class="big gas firebtn">KEGELN!</button><button class="big sec dashbtn">DASH</button></div></div>
-      <p class="small center bhelp">Links lenken, KEGELN wirft. DASH weicht aus. Power-Ups: Stern rammt Gegner um, Banane lässt andere ausrutschen, Bier-Bombe sprengt im Umkreis. Gelbe Pfeil-Felder boosten. Rote Kreise = Meteor, raus da! RALLUM jagt alle.</p>`
+      <p class="small center bhelp">Links lenken, KEGELN wirft. DASH weicht aus. Power-Ups: Stern rammt Gegner um, Banane lässt andere ausrutschen, Bier-Bombe sprengt im Umkreis. Gelbe Pfeil-Felder boosten. Rote Kreise = Meteor, raus da! RALLUM im Panzer schießt auf alle.</p>`
         : '<p class="specmsg">DU SCHAUST ZU: Tippe oben auf deinen Favoriten, dann feuere an!</p>'}`;
     if (!ctx.isPlayer && ctx.onFav) el.querySelectorAll('.bh').forEach(h => { h.classList.add('pick'); h.onclick = () => { el.querySelectorAll('.bh').forEach(x => x.classList.toggle('fav', x === h)); ctx.onFav(h.dataset.p); ctx.sfx.blip(); }; });
     const cv = el.querySelector('canvas'), cx = cv.getContext('2d'), feed = el.querySelector('.bfeed'), banner = el.querySelector('.bbanner');
     V = { rimg: (() => { const i = new Image(); i.src = 'badges/00_ralf.png'; return i; })(), snaps: [], raf: 0, clean: [], parts: [], rings: [], shake: 0, flash: 0 };
     const size = () => { const w = Math.min(el.clientWidth - 4, window.innerHeight * 0.5); const d = window.devicePixelRatio || 1; cv.style.width = w + 'px'; cv.style.height = w + 'px'; cv.width = Math.round(w * d); cv.height = Math.round(w * d); };
     size(); window.addEventListener('resize', size); V.clean.push(() => window.removeEventListener('resize', size));
+    { const lv = setInterval(() => { if (V && V.snaps.length && V.snaps[V.snaps.length - 1].m.rb) ctx.sfx.laugh(1); }, 3600); V.clean.push(() => clearInterval(lv)); } // Rallum in the tank laughs the whole time
     const say = (txt, cls) => { const d = document.createElement('div'); d.className = 'bf ' + (cls || ''); d.textContent = txt; feed.appendChild(d); while (feed.children.length > 4) feed.firstChild.remove(); setTimeout(() => d.remove(), 3200); };
     const burst = (x, y, col, n, spd, size) => { for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, v = (0.3 + Math.random()) * spd; V.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.7 + Math.random() * 0.5, max: 1.2, c: col, s: size * (0.5 + Math.random()) }); } };
     const colOf = pid => COLORS[ctx.pids.indexOf(pid) % COLORS.length] || '#fff';
@@ -261,6 +265,8 @@ const BATTLE = (() => {
         else if (k === 'pick') { burst(x, y, '#ffd21a', 16, 300, 7); ctx.sfx.pickup(); say(`${ctx.name(pid)}: ${KNAME[extra]}`, 'pick'); }
         else if (k === 'spawn') { burst(x, y, '#fff', 8, 160, 5); }
         else if (k === 'boom') { burst(x, y, '#ff8a1f', 36, 520, 12); burst(x, y, '#ffd21a', 24, 360, 8); burst(x, y, '#333', 14, 260, 10); V.rings.push({ x, y, r: 20, life: 0.5 }); ctx.sfx.pop(); V.shake = Math.max(V.shake, 13); say('BIER-BOMBE KRACHT!', 'pop'); }
+        else if (k === 'shot') { burst(x, y, '#ffd21a', 18, 520, 8); burst(x, y, '#555', 10, 260, 12); ctx.sfx.pop(); V.shake = Math.max(V.shake, 6); }
+        else if (k === 'rain') { say('BIER-REGEN! ITEMS ÜBERALL', 'good'); V.banner = { t: performance.now(), txt: 'BIER-REGEN!' }; ctx.sfx.pickup(); }
         else if (k === 'pad') { burst(x, y, '#ffd21a', 14, 380, 7); ctx.sfx.whoosh(); }
         else if (k === 'meteor') { burst(x, y, '#ff3b1a', 44, 640, 13); burst(x, y, '#ffd21a', 26, 420, 9); burst(x, y, '#333', 16, 300, 11); V.rings.push({ x, y, r: 30, life: 0.6 }); ctx.sfx.pop(); V.shake = Math.max(V.shake, 11); }
         else if (k === 'slip') { burst(x, y, '#ffe14a', 14, 240, 7); ctx.sfx.bad(); say(`${ctx.name(pid)} rutscht aus!`, 'pop'); }
@@ -327,10 +333,25 @@ const BATTLE = (() => {
         if (bomb) { const rr0 = BR * 1.7 * s; cx.beginPath(); cx.arc(bx * s + 3 * s, by * s + 6 * s, rr0, 0, 7); cx.fillStyle = 'rgba(0,0,0,.25)'; cx.fill(); cx.beginPath(); cx.arc(bx * s, by * s, rr0, 0, 7); cx.fillStyle = '#16162a'; cx.fill(); cx.lineWidth = 3 * s; cx.strokeStyle = '#fff'; cx.stroke(); cx.fillStyle = Math.floor(tt * 14) % 2 ? '#ff3b3b' : '#ffd21a'; cx.beginPath(); cx.arc(bx * s + rr0 * 0.7, by * s - rr0 * 0.9, 5 * s, 0, 7); cx.fill(); continue; }
         cx.beginPath(); cx.arc(bx * s + 3 * s, by * s + 5 * s, BR * s, 0, 7); cx.fillStyle = 'rgba(0,0,0,.25)'; cx.fill(); cx.beginPath(); cx.arc(bx * s, by * s, BR * s, 0, 7); const gr = cx.createRadialGradient(bx * s - 5 * s, by * s - 6 * s, 2 * s, bx * s, by * s, BR * s); gr.addColorStop(0, '#666'); gr.addColorStop(1, '#0a0a0a'); cx.fillStyle = gr; cx.fill(); cx.lineWidth = 2.5 * s; cx.strokeStyle = '#fff'; cx.stroke();
       }
-      if (b.m.rb) { const [rx, ry] = b.m.rb, pr = pa._rb ? 0 : 0; cx.save(); cx.translate(rx * s, ry * s); cx.beginPath(); cx.arc(8 * s, 12 * s, RB * s, 0, 7); cx.fillStyle = 'rgba(0,0,0,.3)'; cx.fill(); cx.beginPath(); cx.arc(0, 0, RB * s, 0, 7); cx.fillStyle = '#2a2a3a'; cx.fill(); cx.lineWidth = 8 * s; cx.strokeStyle = '#d81018'; cx.stroke();
-        cx.save(); cx.beginPath(); cx.arc(0, 0, (RB - 10) * s, 0, 7); cx.clip(); if (V.rimg && V.rimg.complete && V.rimg.naturalWidth) cx.drawImage(V.rimg, -(RB - 10) * s, -(RB - 10) * s, (RB - 10) * 2 * s, (RB - 10) * 2 * s); cx.restore();
-        for (let q = 0; q < 12; q++) { const an = q * Math.PI / 6 + tt * 2; cx.beginPath(); cx.moveTo(Math.cos(an) * RB * s, Math.sin(an) * RB * s); cx.lineTo(Math.cos(an + 0.13) * (RB + 20) * s, Math.sin(an + 0.13) * (RB + 20) * s); cx.lineTo(Math.cos(an + 0.26) * RB * s, Math.sin(an + 0.26) * RB * s); cx.fillStyle = '#d81018'; cx.fill(); }
-        cx.font = `${26 * s}px Titan, sans-serif`; cx.textAlign = 'center'; cx.lineWidth = 5 * s; cx.strokeStyle = '#111'; cx.fillStyle = '#fff'; cx.strokeText('RALLUM', 0, -RB * s - 30 * s); cx.fillText('RALLUM', 0, -RB * s - 30 * s); cx.restore(); }
+      if (b.m.rb) { const [rx, ry, ra] = b.m.rb; cx.save(); cx.translate(rx * s, ry * s);
+        cx.beginPath(); cx.ellipse(10 * s, 14 * s, 112 * s, 86 * s, ra, 0, 7); cx.fillStyle = 'rgba(0,0,0,.3)'; cx.fill();
+        cx.rotate(ra || 0);
+        // tracks
+        cx.fillStyle = '#23261c'; rr(cx, -100 * s, -82 * s, 200 * s, 34 * s, 12 * s); cx.fill(); rr(cx, -100 * s, 48 * s, 200 * s, 34 * s, 12 * s); cx.fill();
+        cx.strokeStyle = '#6b705a'; cx.lineWidth = 4 * s; for (let q = -90; q < 100; q += 20) { const o = ((tt * 90) % 20); cx.beginPath(); cx.moveTo((q + o) * s, -82 * s); cx.lineTo((q + o) * s, -48 * s); cx.moveTo((q + o) * s, 48 * s); cx.lineTo((q + o) * s, 82 * s); cx.stroke(); }
+        // hull
+        cx.fillStyle = '#5c6b3a'; cx.strokeStyle = '#16162a'; cx.lineWidth = 5 * s; rr(cx, -88 * s, -52 * s, 176 * s, 104 * s, 16 * s); cx.fill(); cx.stroke();
+        cx.fillStyle = '#4a5730'; rr(cx, -70 * s, -36 * s, 100 * s, 72 * s, 10 * s); cx.fill();
+        // barrel
+        cx.fillStyle = '#2d3320'; cx.fillRect(10 * s, -10 * s, 112 * s, 20 * s); cx.strokeRect(10 * s, -10 * s, 112 * s, 20 * s); cx.fillStyle = '#16162a'; cx.fillRect(116 * s, -14 * s, 14 * s, 28 * s);
+        // turret with Ralf (stays upright)
+        cx.beginPath(); cx.arc(-8 * s, 0, 38 * s, 0, 7); cx.fillStyle = '#6f8044'; cx.fill(); cx.stroke();
+        cx.restore();
+        cx.save(); cx.translate((rx - 8 * Math.cos(ra || 0) * 0) * s, ry * s - 4 * s);
+        cx.save(); cx.beginPath(); cx.arc(0, 0, 34 * s, 0, 7); cx.clip(); if (V.rimg && V.rimg.complete && V.rimg.naturalWidth) cx.drawImage(V.rimg, -34 * s, -34 * s, 68 * s, 68 * s); cx.restore();
+        cx.beginPath(); cx.arc(0, 0, 34 * s, 0, 7); cx.lineWidth = 4 * s; cx.strokeStyle = '#16162a'; cx.stroke();
+        const lf = Math.sin(tt * 14) > 0; cx.font = `${24 * s}px Titan, sans-serif`; cx.textAlign = 'center'; cx.lineWidth = 5 * s; cx.strokeStyle = '#111'; cx.fillStyle = '#fff'; const lt = lf ? 'HAHAHA!' : 'MUAHAHA!'; cx.strokeText(lt, 0, -118 * s); cx.fillText(lt, 0, -118 * s);
+        cx.font = `${20 * s}px Titan, sans-serif`; cx.fillStyle = '#ffd21a'; cx.strokeText('RALLUM-PANZER', 0, 128 * s); cx.fillText('RALLUM-PANZER', 0, 128 * s); cx.restore(); }
       // karts (dead first so living are on top)
       const rows = b.m.p.slice().sort((x, y) => (x[5] & F.alive) - (y[5] & F.alive));
       for (const r of rows) {
@@ -358,6 +379,7 @@ const BATTLE = (() => {
         if (b.m.rb) { cx.fillStyle = '#d81018'; cx.beginPath(); cx.arc(mx0 + b.m.rb[0] * kz, my0 + b.m.rb[1] * kz, Math.max(4, RB * kz), 0, 7); cx.fill(); cx.strokeStyle = '#fff'; cx.lineWidth = 1.5; cx.stroke(); }
         for (const r of b.m.p) { if (!(r[5] & F.alive)) continue; const [px, py] = ipos(r); cx.fillStyle = colOf(r[0]); cx.beginPath(); cx.arc(mx0 + px * kz, my0 + py * kz, r[0] === ctx.me ? 4.5 : 3.5, 0, 7); cx.fill(); cx.strokeStyle = r[0] === ctx.me ? '#fff' : '#111'; cx.lineWidth = r[0] === ctx.me ? 2 : 1; cx.stroke(); }
         cx.strokeStyle = 'rgba(255,255,255,.8)'; cx.lineWidth = 1.5; cx.strokeRect(mx0 + camx * kz, my0 + camy * kz, VIEW * kz, VIEW * kz); cx.strokeStyle = '#000'; cx.lineWidth = 2; cx.strokeRect(mx0, my0, mm, mm); }
+      if (V.banner && performance.now() - V.banner.t < 2600) { cx.font = `${64 * s}px Titan, sans-serif`; cx.textAlign = 'center'; cx.lineWidth = 9 * s; cx.strokeStyle = '#16162a'; cx.fillStyle = '#ffd21a'; cx.strokeText(V.banner.txt, W / 2, W * 0.3); cx.fillText(V.banner.txt, W / 2, W * 0.3); }
       // HUD time
       const left = Math.max(0, LIMIT - b.m.tm / 10); cx.setTransform(1, 0, 0, 1, 0, 0);
       cx.font = `${40 * s}px Titan, sans-serif`; cx.textAlign = 'center'; cx.lineWidth = 7 * s; cx.strokeStyle = '#111'; cx.fillStyle = b.m.sd ? '#ff5a5a' : '#fff';

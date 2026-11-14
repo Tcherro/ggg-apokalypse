@@ -572,8 +572,10 @@ const GAMES = {
       const sendDraw = () => {
         if (sent) return; sent = true; stopBar(); ctx.cancel(to1);
         const t = document.createElement('canvas'); t.width = 280; t.height = 280; const x = t.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 280, 280); x.drawImage(cv, 0, 0, 280, 280);
-        ctx.send({ t: 'draw', img: t.toDataURL('image/jpeg', 0.6) });
-        showWait('Zeichnung abgegeben!<br><small>Warte auf die anderen Künstler ...</small>'); ctx.sfx.win();
+        const du = t.toDataURL('image/jpeg', 0.6); ctx.send({ t: 'draw', img: du });
+        const rs = setInterval(() => { if (built || voted) clearInterval(rs); else ctx.send({ t: 'draw', img: du }); }, 5000); clean.push(() => clearInterval(rs)); // resend until the gallery arrives
+        showWait('Zeichnung abgegeben!<br><small>Warte auf die anderen Künstler ...</small><br><button class="big sec" id="galre" style="margin-top:14px">BILDER NEU LADEN</button>'); ctx.sfx.win();
+        const gb = el.querySelector('#galre'); if (gb) clean.push(onTap(gb, () => { ctx.send({ t: 'galreq' }); ctx.send({ t: 'draw', img: du }); ctx.sfx.tap(); }));
       };
       clean.push(onTap(el.querySelector('#ddone'), sendDraw));
       const to1 = ctx.after(sendDraw, D);

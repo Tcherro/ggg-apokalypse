@@ -555,3 +555,12 @@ input.num { width: 100%; font-family: var(--font); font-size: 30px; text-align: 
 .fsel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .fsel .arrow { font-size: 12px; padding: 8px 4px; line-height: 1.2; }
 .pad.f4 .arrow { font-size: 15px; padding: 14px 4px; }
+#wg { position: fixed; inset: 0; z-index: 60; background: #16162a; display: flex; flex-direction: column; overflow: auto; touch-action: manipulation; }
+#wg .wgbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; color: #ffd21a; font-family: var(--font); font-size: 18px; }
+#wg .wgbar button { font: 700 13px sans-serif; padding: 8px 12px; border-radius: 999px; border: 3px solid #fff; background: #d81018; color: #fff; }
+#wg .wgbody { padding: 8px 12px 20px; color: #fff; }
+#wg canvas { width: 100%; max-width: 760px; display: block; margin: 0 auto; background: #000; border: 4px solid #ffd21a; border-radius: 10px; touch-action: none; }
+.wgpad { display: flex; gap: 10px; margin-top: 12px; justify-content: center; user-select: none; -webkit-user-select: none; }
+.wgpad button { flex: 1; font: 700 22px sans-serif; padding: 26px 0; border-radius: 18px; border: 4px solid #fff; background: #2a2a4a; color: #fff; touch-action: none; }
+.wgpad .jump { flex: 1.6; background: #1a9a3a; }
+#wgOpen { position: fixed; left: 8px; bottom: 6px; z-index: 40; font: 700 12px sans-serif; padding: 7px 12px; border-radius: 999px; border: 3px solid #16162a; background: #ffd21a; color: #16162a; display: none; }
