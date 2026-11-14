@@ -562,10 +562,10 @@ const GAMES = {
   seek: {
     title: 'WHERE IS RALLUM?', label: 'Wimmelbild',
     variants: {
-      ralf: { name: 'Such den Rallum', desc: '3 Wimmelbilder. Finde Rallum in der Menge und tippe ihn an. Falsch getippt kostet 1,5 Sekunden. Wer insgesamt am längsten sucht, trinkt.', dur: 80000, better: 'low' }
+      ralf: { name: 'Such den Rallum', desc: '4 extrem volle Wimmelbilder mit vielen Rallum-Doppelgängern (Spiegelbild, Schatten, Mini-Rallums). Finde den echten Rallum. Falsch getippt kostet 3 Sekunden. Wer insgesamt am längsten sucht, trinkt.', dur: 90000, better: 'low' }
     },
     play(el, ctx) {
-      const clean = [], N = 3, LIM = 22000, PEN = 1500;
+      const clean = [], N = 4, LIM = 17000, PEN = 3000;
       const FACES = ['01_dr-gosse', '02_h-2-o-k-o-p-f', '03_tamma-hanken', '04_yen', '05_zlatan', '06_adev', '07_luecke', '08_busfahrer', '09_hooooooopp-e', '10_schlomo', '11_gaul', '12_der-wuerger'].map(f => `badges/${f}.png`);
       const PROPS = ['🍺', '🍻', '🎳', '🥨', '🧢', '🥃', '🍗', '🎯'];
       const rng = ctx.rng; let i = 0, total = 0, found = 0;
@@ -574,16 +574,18 @@ const GAMES = {
         const R = () => rng();
         const rx = 8 + R() * 84, ry = 8 + R() * 84; // Rallum's centre in %
         const items = []; let guard = 0;
-        const total_items = 78;
+        const total_items = 190;
         for (let k = 0; k < total_items && guard < 600; guard++) {
-          const x = 4 + R() * 92, y = 4 + R() * 92, late = k > total_items * 0.55;
-          if (late && Math.hypot(x - rx, (y - ry) * 1.15) < 7.5) continue; // nothing may fully cover Rallum
-          const prop = R() < 0.22, sz = prop ? 8 + R() * 3 : 10.5 + R() * 3;
+          const x = 4 + R() * 92, y = 4 + R() * 92, late = k > total_items * 0.7;
+          if (late && Math.hypot(x - rx, (y - ry) * 1.15) < 4.2) continue; // nothing may fully cover Rallum
+          const prop = R() < 0.22, sz = prop ? 6 + R() * 3 : 7.5 + R() * 3;
           items.push({ x, y, sz, prop, f: prop ? PROPS[Math.floor(R() * PROPS.length)] : FACES[Math.floor(R() * FACES.length)], rot: Math.round((R() - 0.5) * 50), flip: R() < 0.5 });
           k++;
         }
-        const mid = Math.floor(items.length * 0.55);
-        const html = items.map((t, k) => `${k === mid ? `<img class="sk r" data-r="1" src="badges/00_ralf.png" style="left:${rx}%;top:${ry}%;width:11.5%;transform:translate(-50%,-50%) rotate(${Math.round((R() - 0.5) * 30)}deg)">` : ''}${t.prop
+        const mid = Math.floor(items.length * 0.7);
+        const decoys = []; for (let d = 0; d < 14; d++) { const dx = 4 + R() * 92, dy = 4 + R() * 92; if (Math.hypot(dx - rx, dy - ry) < 9) continue; const kind = d % 3; decoys.push(`<img class="sk" src="badges/00_ralf.png" style="left:${dx}%;top:${dy}%;width:${kind === 2 ? 4.5 : 7.5}%;transform:translate(-50%,-50%) rotate(${Math.round((R() - 0.5) * 60)}deg) scaleX(${kind === 0 ? -1 : 1});${kind === 1 ? 'filter:brightness(.35) contrast(1.4);' : ''}${kind === 0 ? 'filter:hue-rotate(40deg);' : ''}">`); }
+        const decoyHtml = decoys.join('');
+        const html = decoyHtml + items.map((t, k) => `${k === mid ? `<img class="sk r" data-r="1" src="badges/00_ralf.png" style="left:${rx}%;top:${ry}%;width:7.5%;transform:translate(-50%,-50%) rotate(${Math.round((R() - 0.5) * 30)}deg)">` : ''}${t.prop
           ? `<span class="sk p" style="left:${t.x}%;top:${t.y}%;font-size:${t.sz * 3.1}px;transform:translate(-50%,-50%) rotate(${t.rot}deg)">${t.f}</span>`
           : `<img class="sk" src="${t.f}" style="left:${t.x}%;top:${t.y}%;width:${t.sz}%;transform:translate(-50%,-50%) rotate(${t.rot}deg) scaleX(${t.flip ? -1 : 1})">`}`).join('');
         el.innerHTML = `<div class="qhead">SUCHE ${i + 1} / ${N}</div><div class="seekhint"><img src="badges/00_ralf.png"><span>Finde <b>Rallum</b>!</span><i id="skclock">0,0 s</i></div><div class="seekscene" id="scene">${html}</div><div class="seekmsg" id="skmsg"></div>`;

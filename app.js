@@ -112,9 +112,14 @@ function hostNet(code, onMsg, onLeave, onReady, onFail) {
   };
   start();
   const needMq = () => Object.keys(seenAt).some(p => !gone[p] && !(conns.get(p) && conns.get(p).open));
+  let lastTick = Date.now();
+  const grace = () => { const n = Date.now(); Object.keys(seenAt).forEach(p => { seenAt[p] = n; }); };
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') grace(); });
   setInterval(() => {
     const now = Date.now();
-    Object.keys(seenAt).forEach(p => { if (!gone[p] && now - seenAt[p] > 16000) { gone[p] = true; onLeave(p); } });
+    if (now - lastTick > 6000) grace(); // host app was suspended: nobody could reach us, so nobody is "gone"
+    lastTick = now;
+    Object.keys(seenAt).forEach(p => { if (!gone[p] && now - seenAt[p] > 30000) { gone[p] = true; onLeave(p); } });
     out.broadcast({ t: 'hb' });
   }, 4000);
   const out = {
@@ -639,7 +644,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="start">
       <img src="icons/logo.png" class="logo" alt="GGG">
-      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v22</div>
+      <h1>GGG - APOKALYPSE</h1><div style="text-align:center;font:700 15px Titan,sans-serif;color:#ffd21a;margin:-6px 0 10px;text-shadow:0 2px 0 #16162a">VERSION v23</div>
       ${mp ? '<button class="big gas" id="bHost">NEUES SPIEL (HOST)</button>' : '<p class="hint">Vorschau-Version: nur Solo-Test. Multiplayer läuft in der hochgeladenen Version.</p>'}
       <button class="big sec" id="bSolo">SOLO-TEST MIT 2 BOTS</button>
       ${mp && hostRec && hostRec.code ? `<button class="big sec" id="bResume">HOST-SPIEL ${hostRec.code} FORTSETZEN</button>` : ''}
@@ -1139,7 +1144,7 @@ const BOOT_LASTSEEN = +store.get('ggg-lastseen', 0);
 // ------------------------------------------------------------------ boot
 { const wb = document.createElement('button'); wb.id = 'wgOpen'; wb.textContent = 'WARTESPIELE'; wb.onclick = () => WAITG.open(); document.body.appendChild(wb);
   setInterval(() => { const ph = typeof S !== 'undefined' && S ? S.phase : 'home'; wb.style.display = ['lobby', 'results', 'final', 'home', undefined].includes(ph) || (ph === 'battle' && S.battle && S.battle.over) ? 'block' : 'none'; }, 800); }
-if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v22'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
+if ('serviceWorker' in navigator && !LOCAL && location.protocol === 'https:') { const VER = 'v23'; window.GGG_VER = VER; { const v = document.createElement('div'); v.textContent = VER; v.style.cssText = 'position:fixed;right:6px;bottom:3px;font:10px sans-serif;color:rgba(255,255,255,.55);z-index:5;pointer-events:none'; document.body.appendChild(v); } navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => { reg.update(); setInterval(() => reg.update().catch(() => { }), 60000); }).catch(() => { });
   let had = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had) { had = true; return; } const idle = typeof S === 'undefined' || !S || !S.phase || S.phase === 'lobby' || !S.game; if (idle) location.reload(); else window.__pendingReload = true; }); }
 render();
 showIntro();
